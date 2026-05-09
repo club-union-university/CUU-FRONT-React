@@ -75,7 +75,7 @@ export const eventHandlers = [
 
   // POST /events/{id}/ai/step1
   http.post(API('/events/:id/ai/step1'), async ({ params }) => {
-    await delay(2200) // Gemini latency 시뮬레이션
+    await delay(2200) // step1 응답 지연 시뮬레이션
     const event = db.events.find((e) => e.id === Number(params.id))
     if (!event) return HttpResponse.json({ message: 'Not found' }, { status: 404 })
     const refined = refineByCategory(event)
@@ -86,7 +86,7 @@ export const eventHandlers = [
 
   // POST /events/{id}/ai/step2
   http.post(API('/events/:id/ai/step2'), async ({ params }) => {
-    await delay(3500) // Gemini + Maps + Distance Matrix latency
+    await delay(3500) // step2(외부 조회 가정) 지연 시뮬레이션
     const event = db.events.find((e) => e.id === Number(params.id))
     if (!event) return HttpResponse.json({ message: 'Not found' }, { status: 404 })
     const result = step2Recommendation(event)
@@ -147,7 +147,7 @@ export const eventHandlers = [
 ]
 
 // ============================================================
-// AI 시뮬레이션 — proposalMessage 키워드로 분기
+// 초안 시뮬레이션 — proposalMessage 키워드로 분기
 // ============================================================
 
 function refineByCategory(event: Event) {

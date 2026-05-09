@@ -3,14 +3,9 @@
 @tailwind utilities;
 
 /*
- * Crew Design System v2 — 정체성 부여 + 정보 밀도 + 모션 폴리시
- *
- * 1. Surface 4단계: canvas (가장 낮음) → paper → elevated → sunken
- *    Linear 톤의 미세한 명도 차이로 깊이감.
- * 2. Brand: Indigo→Periwinkle 시프트 (246° 80% 60%) — generic indigo 회피.
- * 3. Display 타이포: Pretendard 800/700 + 3-track size scale.
- * 4. Shadows: 다층 + brand glow (key CTA에만).
- * 5. Motion: 표준 ease/duration 토큰.
+ * Crew tokens — surface / brand / type / motion
+ * Surfaces: canvas → paper → elevated → sunken
+ * Brand primary: 업무형 블루 (217°)
  */
 
 @layer base {
@@ -30,12 +25,12 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    /* === Brand: Indigo + Periwinkle 시프트 === */
-    --primary: 246 80% 60%;            /* #5347E8 — 약간 violet shift */
+    /* === Brand: 보조업무용 블루 (채도 낮춤) === */
+    --primary: 217 72% 42%;
     --primary-foreground: 0 0% 100%;
-    --primary-soft: 246 100% 96%;      /* hover/subtle bg */
-    --primary-soft-foreground: 246 80% 32%;
-    --primary-muted: 246 50% 88%;      /* secondary CTA */
+    --primary-soft: 217 40% 96%;
+    --primary-soft-foreground: 217 55% 28%;
+    --primary-muted: 217 35% 88%;
 
     /* === Secondary === */
     --secondary: 220 15% 95%;
@@ -46,8 +41,8 @@
     --muted-foreground: 220 9% 45%;
 
     /* === Accent (hover bg) === */
-    --accent: 246 100% 97%;
-    --accent-foreground: 246 80% 32%;
+    --accent: 217 32% 96%;
+    --accent-foreground: 217 50% 26%;
 
     /* === Status === */
     --destructive: 0 84% 60%;
@@ -60,12 +55,12 @@
     --info-foreground: 0 0% 100%;
 
     /* === Border / Input / Ring === */
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 246 80% 60%;
+    --border: 220 10% 84%;
+    --input: 220 10% 84%;
+    --ring: 217 72% 42%;
 
-    /* === Radius === */
-    --radius: 0.625rem;                /* 10px — 부드럽지만 너무 둥글지 않게 */
+    /* === Radius (각진 도구 UI) === */
+    --radius: 0.375rem;
 
     /* === Motion === */
     --ease-out: cubic-bezier(0.16, 1, 0.3, 1);    /* Linear ease-out-expo */
@@ -99,11 +94,11 @@
     --popover: 222 16% 13%;
     --popover-foreground: 210 20% 98%;
 
-    --primary: 246 90% 70%;
+    --primary: 217 70% 58%;
     --primary-foreground: 222 47% 11%;
-    --primary-soft: 246 50% 18%;
-    --primary-soft-foreground: 246 100% 88%;
-    --primary-muted: 246 30% 30%;
+    --primary-soft: 217 35% 16%;
+    --primary-soft-foreground: 217 40% 92%;
+    --primary-muted: 217 28% 28%;
 
     --secondary: 220 14% 18%;
     --secondary-foreground: 210 20% 98%;
@@ -111,8 +106,8 @@
     --muted: 220 14% 16%;
     --muted-foreground: 220 9% 65%;
 
-    --accent: 246 50% 20%;
-    --accent-foreground: 246 100% 90%;
+    --accent: 217 30% 18%;
+    --accent-foreground: 217 40% 92%;
 
     --destructive: 0 70% 55%;
     --destructive-foreground: 0 0% 100%;
@@ -122,7 +117,7 @@
 
     --border: 220 14% 18%;
     --input: 220 14% 18%;
-    --ring: 246 90% 70%;
+    --ring: 217 70% 58%;
 
     --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.5);
     --shadow-sm: 0 1px 2px -1px rgb(0 0 0 / 0.6), 0 1px 3px 0 rgb(0 0 0 / 0.5);
@@ -147,15 +142,14 @@
     font-family:
       'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui,
       'Segoe UI', Roboto, sans-serif;
-    font-feature-settings: 'ss01', 'ss02', 'cv01', 'cv11';
+    font-feature-settings: 'ss01', 'ss02';
     text-rendering: optimizeLegibility;
   }
 
-  /* Display 위계 — 글자 간격 살짝 좁게, 무게는 800 */
   h1,
   h2,
   h3 {
-    letter-spacing: -0.02em;
+    letter-spacing: -0.015em;
   }
 
   /* Selection 색상 — 브랜드 톤 */

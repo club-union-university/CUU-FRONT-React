@@ -4,13 +4,8 @@ import { z } from 'zod'
 import { Plus, KeyRound, Building2 } from 'lucide-react'
 import { useState } from 'react'
 import {
-  Badge,
   Button,
   Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -27,14 +22,7 @@ import {
   SelectValue,
   toast,
 } from '@/shared/ui'
-import { cn } from '@/lib/utils'
-import {
-  CLUB_CATEGORY_COLORS,
-  CLUB_CATEGORY_LABELS,
-  CLUB_STATUS_LABELS,
-  useClubs,
-  useJoinClubByCode,
-} from '@/features/club'
+import { CLUB_CATEGORY_LABELS, CLUB_STATUS_LABELS, useClubs, useJoinClubByCode } from '@/features/club'
 import { useAuthStore } from '@/features/auth'
 import type { Club, ClubCategory } from '@/shared/api/types'
 
@@ -65,9 +53,9 @@ function ClubsListPage() {
     <main className="container max-w-5xl py-10">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">동아리</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            경인권 화이트리스트 학교의 승인된 동아리를 둘러봅니다.
+          <h1 className="text-2xl font-semibold tracking-tight">동아리</h1>
+          <p className="mt-1 max-w-xl text-sm text-muted-foreground">
+            화이트리스트 학교 기준, 필터된 목록입니다.
           </p>
         </div>
         <div className="flex gap-2">
@@ -132,10 +120,12 @@ function ClubsListPage() {
               />
             </Card>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {clubs.map((club) => (
-                <ClubCard key={club.id} club={club} />
-              ))}
+            <div className="overflow-hidden rounded-md border bg-card">
+              <ul className="divide-y divide-border">
+                {clubs.map((club) => (
+                  <ClubRow key={club.id} club={club} />
+                ))}
+              </ul>
             </div>
           ))}
       </Skeleton>
@@ -143,46 +133,39 @@ function ClubsListPage() {
   )
 }
 
-function ClubCard({ club }: { club: Club }) {
-  const color = club.category && CLUB_CATEGORY_COLORS[club.category]
+function ClubRow({ club }: { club: Club }) {
+  const statusMeta =
+    club.status && club.status !== 'APPROVED' ? CLUB_STATUS_LABELS[club.status] : null
+
   return (
-    <Link
-      to="/clubs/$clubId"
-      params={{ clubId: String(club.id) }}
-      className="group block"
-    >
-      <Card className="relative h-full overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-md">
-        {color && <div className={cn('absolute inset-y-0 left-0 w-1', color.bar)} />}
-        <CardHeader className="pl-7">
-          <div className="flex items-start justify-between gap-2">
-            <CardTitle className="text-lg leading-tight group-hover:text-primary">
+    <li>
+      <Link
+        to="/clubs/$clubId"
+        params={{ clubId: String(club.id) }}
+        className="group block px-4 py-3.5 transition-colors hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset sm:py-4"
+      >
+        <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+          <div className="min-w-0 flex-1">
+            <span className="font-medium leading-snug text-foreground group-hover:underline group-hover:decoration-muted-foreground/60">
               {club.name}
-            </CardTitle>
-            {club.status && club.status !== 'APPROVED' && (
-              <Badge variant={CLUB_STATUS_LABELS[club.status].variant}>
-                {CLUB_STATUS_LABELS[club.status].label}
-              </Badge>
+            </span>
+            <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+              {club.description?.trim() || '등록된 설명이 없습니다.'}
+            </p>
+          </div>
+          <div className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground sm:flex-col sm:items-end sm:text-right">
+            {club.category && (
+              <span>{CLUB_CATEGORY_LABELS[club.category]}</span>
+            )}
+            {statusMeta && (
+              <span className="rounded border border-border bg-muted/40 px-1.5 py-px text-[11px] text-foreground">
+                {statusMeta.label}
+              </span>
             )}
           </div>
-          <CardDescription className="line-clamp-2">
-            {club.description ?? '설명 없음'}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="pl-7">
-          {club.category && color && (
-            <span
-              className={cn(
-                'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
-                color.bg,
-                color.text,
-              )}
-            >
-              {CLUB_CATEGORY_LABELS[club.category]}
-            </span>
-          )}
-        </CardContent>
-      </Card>
-    </Link>
+        </div>
+      </Link>
+    </li>
   )
 }
 

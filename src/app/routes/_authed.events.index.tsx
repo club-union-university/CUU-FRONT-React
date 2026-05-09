@@ -1,15 +1,10 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { Skeleton } from 'boneyard-js/react'
 import { z } from 'zod'
-import { Calendar, MapPin, Plus, Users } from 'lucide-react'
+import { Calendar, Plus } from 'lucide-react'
 import {
-  Badge,
   Button,
   Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
   EmptyState,
   Select,
   SelectContent,
@@ -17,10 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/ui'
-import { cn } from '@/lib/utils'
 import {
   daysUntil,
-  EVENT_CATEGORY_COLORS,
   EVENT_CATEGORY_LABELS,
   EVENT_STATUS_LABELS,
   useEvents,
@@ -48,8 +41,8 @@ function EventsListPage() {
     <main className="container max-w-5xl py-10">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">행사</h1>
-          <p className="mt-1 text-sm text-muted-foreground">교내·연합 행사를 한 곳에서 봅니다.</p>
+          <h1 className="text-2xl font-semibold tracking-tight">행사</h1>
+          <p className="mt-1 max-w-xl text-sm text-muted-foreground">교내·연합 타입별로 필터해 볼 수 있습니다.</p>
         </div>
         {user?.role === 'PRESIDENT' && (
           <Button asChild>
@@ -87,7 +80,7 @@ function EventsListPage() {
                 title="아직 등록된 행사가 없습니다"
                 description={
                   user?.role === 'PRESIDENT'
-                    ? '자연어 한 줄로 행사를 만들어 보세요. AI가 정제해 줍니다.'
+                    ? '새 행사 만들기로 초안을 올려 보세요. 세부 항목은 위저드에서 다듬을 수 있습니다.'
                     : '곧 행사들이 등록될 예정입니다.'
                 }
                 action={
@@ -102,10 +95,12 @@ function EventsListPage() {
               />
             </Card>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2">
-              {events.map((ev) => (
-                <EventCard key={ev.id} event={ev} />
-              ))}
+            <div className="overflow-hidden rounded-md border bg-card">
+              <ul className="divide-y divide-border">
+                {events.map((ev) => (
+                  <EventRow key={ev.id} event={ev} />
+                ))}
+              </ul>
             </div>
           ))}
       </Skeleton>
@@ -113,96 +108,62 @@ function EventsListPage() {
   )
 }
 
-function EventCard({ event: ev }: { event: Event }) {
-  const color = ev.category && EVENT_CATEGORY_COLORS[ev.category]
-  const dDay = daysUntil(ev.recruitDeadline)
-  const isRecruiting = ev.status === 'RECRUITING'
-  const isUrgent = isRecruiting && dDay !== null && dDay >= 0 && dDay <= 7
-  const status = ev.status && EVENT_STATUS_LABELS[ev.status]
-
-  return (
-    <Link
-      to="/events/$eventId"
-      params={{ eventId: String(ev.id) }}
-      className="group block"
-    >
-      <Card className="relative h-full overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-md">
-        {color && <div className={cn('absolute inset-y-0 left-0 w-1', color.bar)} />}
-        <CardHeader className="pl-7">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0 flex-1 space-y-2">
-              <div className="flex flex-wrap items-center gap-1.5">
-                {ev.category && color && (
-                  <span
-                    className={cn(
-                      'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
-                      color.bg,
-                      color.text,
-                    )}
-                  >
-                    {EVENT_CATEGORY_LABELS[ev.category]}
-                  </span>
-                )}
-                <Badge variant="secondary" className="font-normal">
-                  {ev.type === 'INTER_CLUB' ? '연합' : '교내'}
-                </Badge>
-                {status && (
-                  <Badge variant={status.variant} className="font-normal">
-                    {status.label}
-                  </Badge>
-                )}
-              </div>
-              <CardTitle className="text-lg leading-tight group-hover:text-primary">
-                {ev.title}
-              </CardTitle>
-              <CardDescription className="line-clamp-2">
-                {ev.description ?? ev.proposalMessage ?? '설명 없음'}
-              </CardDescription>
-            </div>
-            {dDay !== null && isRecruiting && (
-              <DDayBadge days={dDay} urgent={isUrgent} />
-            )}
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-1.5 pl-7 pt-0 text-xs text-muted-foreground">
-          {ev.locationName && (
-            <div className="flex items-center gap-1.5">
-              <MapPin className="h-3.5 w-3.5" />
-              <span className="truncate">{ev.locationName}</span>
-            </div>
-          )}
-          {ev.maxParticipants && (
-            <div className="flex items-center gap-1.5">
-              <Users className="h-3.5 w-3.5" />
-              <span>최대 {ev.maxParticipants}명</span>
-            </div>
-          )}
-          {ev.startAt && (
-            <div className="flex items-center gap-1.5">
-              <Calendar className="h-3.5 w-3.5" />
-              <span>{ev.startAt.slice(0, 10)}</span>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </Link>
-  )
+function formatRecruitDdLabel(days: number) {
+  if (days === 0) return '오늘 마감'
+  if (days > 0) return `마감 D-${days}`
+  return `마감 D+${-days}`
 }
 
-function DDayBadge({ days, urgent }: { days: number; urgent: boolean }) {
+function EventRow({ event: ev }: { event: Event }) {
+  const dDay = daysUntil(ev.recruitDeadline)
+  const isRecruiting = ev.status === 'RECRUITING'
+  const status = ev.status && EVENT_STATUS_LABELS[ev.status]
+
+  const bits: string[] = []
+  bits.push(ev.type === 'INTER_CLUB' ? '연합' : '교내')
+  if (ev.category) bits.push(EVENT_CATEGORY_LABELS[ev.category])
+  if (status) bits.push(status.label)
+  const metaPrimary = bits.join(' · ')
+
+  const extras: string[] = []
+  if (ev.locationName) extras.push(ev.locationName)
+  if (ev.maxParticipants) extras.push(`최대 ${ev.maxParticipants}명`)
+  if (ev.startAt) extras.push(ev.startAt.slice(0, 10))
+  const metaSecondary = extras.length > 0 ? extras.join(' · ') : null
+
+  const summary = (ev.description ?? ev.proposalMessage)?.trim()
+
+  const recruitLine =
+    isRecruiting && dDay !== null ? formatRecruitDdLabel(dDay) : null
+
   return (
-    <div
-      className={cn(
-        'flex shrink-0 flex-col items-center rounded-md px-2.5 py-1 text-center',
-        urgent ? 'bg-red-50 text-red-700' : 'bg-muted text-foreground',
-      )}
-    >
-      <span className="text-[10px] font-medium uppercase tracking-wider opacity-70">
-        모집 마감
-      </span>
-      <span className="text-base font-bold tabular-nums">
-        {days === 0 ? 'D-day' : days > 0 ? `D-${days}` : `D+${-days}`}
-      </span>
-    </div>
+    <li>
+      <Link
+        to="/events/$eventId"
+        params={{ eventId: String(ev.id) }}
+        className="group block px-4 py-3.5 transition-colors hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset sm:py-4"
+      >
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+          <div className="min-w-0 flex-1 space-y-1">
+            <p className="font-medium leading-snug text-foreground group-hover:underline group-hover:decoration-muted-foreground/60">
+              {ev.title}
+            </p>
+            <p className="text-xs leading-relaxed text-muted-foreground">{metaPrimary}</p>
+            {summary && (
+              <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">{summary}</p>
+            )}
+            {metaSecondary && (
+              <p className="text-xs text-muted-foreground/90">{metaSecondary}</p>
+            )}
+          </div>
+          {recruitLine && (
+            <div className="shrink-0 text-right">
+              <p className="text-xs text-muted-foreground">모집</p>
+              <p className="text-sm font-medium tabular-nums text-foreground">{recruitLine}</p>
+            </div>
+          )}
+        </div>
+      </Link>
+    </li>
   )
 }

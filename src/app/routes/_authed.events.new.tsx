@@ -38,7 +38,7 @@ const schema = z.object({
   hostClubId: z.coerce.number().int().positive('주최 동아리를 선택하세요'),
   partnerClubId: z.coerce.number().int().optional(),
   title: z.string().min(2, '제목 2자 이상').max(100),
-  proposalMessage: z.string().min(10, '자연어 한 줄로 행사를 묘사해 주세요').max(1000),
+  proposalMessage: z.string().min(10, '행사를 10자 이상으로 간단히 적어 주세요').max(1000),
 })
 
 type Values = z.infer<typeof schema>
@@ -91,7 +91,7 @@ function NewEventPage() {
         <CardHeader>
           <CardTitle>새 행사 만들기</CardTitle>
           <CardDescription>
-            한 줄 자연어로 행사를 묘사하면 다음 단계에서 AI가 정제합니다.
+            설명만 적어 두면 다음 단계에서 제목·분류·본문 등 필요한 항목을 함께 채울 수 있습니다.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -182,7 +182,7 @@ function NewEventPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="proposalMessage">한 줄 설명 (자연어)</Label>
+              <Label htmlFor="proposalMessage">행사 설명</Label>
               <Textarea
                 id="proposalMessage"
                 rows={4}

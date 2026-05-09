@@ -1,16 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { Skeleton } from 'boneyard-js/react'
-import {
-  Building2,
-  GraduationCap,
-  Megaphone,
-  Check,
-  X,
-  Calendar,
-  MapPin,
-  Users,
-  MessageCircle,
-} from 'lucide-react'
+import { Building2, GraduationCap, Megaphone, Check, X, Calendar, MapPin, Users } from 'lucide-react'
 import {
   Avatar,
   Badge,
@@ -127,11 +117,10 @@ function EventDetailContent({ event, eventId }: { event: Event; eventId: string 
                 </Button>
               )}
               {!isHostPresident && event.status === 'RECRUITING' && <ApplyButton eventId={id} />}
-              <Button variant="outline" asChild>
-                <Link to="/events/$eventId/chat" params={{ eventId }}>
-                  <MessageCircle className="mr-1 h-4 w-4" /> 채팅방
-                </Link>
-              </Button>
+              <p className="text-center text-[11px] text-muted-foreground lg:text-right">
+                <span className="lg:hidden">아래</span>
+                <span className="hidden lg:inline">오른쪽</span> 채팅 패널에서 소통할 수 있습니다.
+              </p>
             </div>
           </div>
         </div>

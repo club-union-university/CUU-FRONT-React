@@ -128,7 +128,6 @@ function NotificationItem({
 type Target =
   | { to: '/events/$eventId'; params: { eventId: string } }
   | { to: '/clubs/$clubId'; params: { clubId: string } }
-  | { to: '/events/$eventId/chat'; params: { eventId: string } }
 
 function resolveTarget(n: Notification): Target | null {
   if (!n.targetType || !n.targetId) return null

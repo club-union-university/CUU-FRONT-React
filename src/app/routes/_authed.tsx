@@ -30,30 +30,37 @@ function AuthedLayout() {
   const isPresident = user?.role === 'PRESIDENT'
 
   return (
-    <div className="min-h-screen">
-      <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
-        <div className="container flex h-14 items-center justify-between">
-          <Link
-            to="/"
-            className="text-foreground transition-colors hover:text-primary"
-          >
+    <div className="min-h-screen bg-background">
+      <header className="sticky top-0 z-40 border-b bg-muted/25">
+        <div className="container flex h-12 items-center justify-between gap-4">
+          <Link to="/" className="text-foreground">
             <CrewLogo />
           </Link>
-          <nav className="flex items-center gap-4 text-sm">
-            <Link to="/clubs" className="text-muted-foreground hover:text-foreground">
+          <nav className="flex flex-1 flex-wrap items-center justify-end gap-1 text-sm">
+            <Link
+              to="/clubs"
+              className="rounded-sm px-2.5 py-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+            >
               동아리
             </Link>
-            <Link to="/events" className="text-muted-foreground hover:text-foreground">
+            <Link
+              to="/events"
+              className="rounded-sm px-2.5 py-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+            >
               행사
             </Link>
-            <Link to="/schools" className="text-muted-foreground hover:text-foreground">
+            <Link
+              to="/schools"
+              className="rounded-sm px-2.5 py-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+            >
               학교
             </Link>
             {isSuperAdmin && (
-              <Link to="/admin/clubs" className="text-muted-foreground hover:text-foreground">
-                <span className="inline-flex items-center gap-1">
-                  <ShieldCheck className="h-4 w-4" /> 관리자
-                </span>
+              <Link
+                to="/admin/clubs"
+                className="inline-flex items-center gap-1 rounded-sm px-2.5 py-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+              >
+                <ShieldCheck className="h-4 w-4 shrink-0" /> 관리자
               </Link>
             )}
             <NotificationBell />

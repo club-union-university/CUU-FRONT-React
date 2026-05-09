@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { z } from 'zod'
-import { Sparkles, ArrowRight, Check } from 'lucide-react'
+import { ArrowRight, Check, FilePenLine } from 'lucide-react'
 import {
   Badge,
   Button,
@@ -95,7 +95,7 @@ function WizardPage() {
 }
 
 // ============================================================
-// Step 1: 자연어 → AI 정제 → 제목/카테고리/설명 검토
+// Step 1: 초안 정리 → 제목/카테고리/설명 검토
 // ============================================================
 
 function Step1({ eventId, onNext }: { eventId: number; onNext: () => void }) {
@@ -112,16 +112,16 @@ function Step1({ eventId, onNext }: { eventId: number; onNext: () => void }) {
   const handleAi = async () => {
     try {
       const res = await aiStep1.mutateAsync()
-      // 결과 형태는 백엔드/Gemini 합의에 따라 달라짐 — 일단 known 키만 픽업
+      // 응답 스키마는 서버 버전에 맞춰 known 키만 반영
       setRefined({
         title: typeof res.title === 'string' ? res.title : undefined,
         category: typeof res.category === 'string' ? res.category : undefined,
         description: typeof res.description === 'string' ? res.description : undefined,
         format: typeof res.format === 'string' ? res.format : undefined,
       })
-      toast.success('AI 정제 완료. 검토 후 적용하세요.')
+      toast.success('항목 채우기 완료. 검토 후 적용하세요.')
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'AI 정제 실패')
+      toast.error(e instanceof Error ? e.message : '항목 채우기 실패')
     }
   }
 
@@ -143,23 +143,24 @@ function Step1({ eventId, onNext }: { eventId: number; onNext: () => void }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Step 1 · 기본 정보 정제</CardTitle>
+        <CardTitle>Step 1 · 기본 정보</CardTitle>
         <CardDescription>
-          제출한 자연어 설명을 Gemini가 정제합니다. 결과를 검토하고 그대로 적용하거나 수정합니다.
+          아래에 적어 둔 설명을 바탕으로 제목·분류·본문 초안을 채웁니다. 결과를 확인한 뒤 그대로 쓰거나
+          고쳐서 적용하세요.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
         <div className="rounded-md border bg-muted p-3 text-sm">
-          <p className="font-medium text-muted-foreground">원본 자연어</p>
+          <p className="font-medium text-muted-foreground">제출한 설명</p>
           <p className="mt-1 whitespace-pre-wrap">
-            {event?.proposalMessage ?? '(자연어 설명 없음)'}
+            {event?.proposalMessage ?? '(설명 없음)'}
           </p>
         </div>
 
         {!refined ? (
           <Button size="lg" className="w-full" onClick={handleAi} disabled={aiStep1.isPending}>
-            <Sparkles className="mr-2 h-4 w-4" />
-            {aiStep1.isPending ? 'Gemini 정제 중… (5~10초)' : 'AI 정제 시작'}
+            <FilePenLine className="mr-2 h-4 w-4" />
+            {aiStep1.isPending ? '초안 작성 중… (잠시만요)' : '제목·설명 초안 만들기'}
           </Button>
         ) : (
           <div className="space-y-4">
@@ -196,7 +197,7 @@ function Step1({ eventId, onNext }: { eventId: number; onNext: () => void }) {
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="ghost" onClick={() => setRefined(null)} disabled={aiStep1.isPending}>
-                다시 정제
+                다시 만들기
               </Button>
               <Button onClick={handleApply} disabled={update.isPending}>
                 {update.isPending ? '적용 중…' : '적용 후 다음'}
@@ -223,9 +224,9 @@ function Step2({ eventId, onNext }: { eventId: number; onNext: () => void }) {
     try {
       const res = await aiStep2.mutateAsync()
       setResult(res)
-      toast.success('AI 정제 완료')
+      toast.success('장소·공지 초안이 준비됨')
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'AI 정제 실패')
+      toast.error(e instanceof Error ? e.message : '초안 작성 실패')
     }
   }
 
@@ -249,19 +250,19 @@ function Step2({ eventId, onNext }: { eventId: number; onNext: () => void }) {
       <CardHeader>
         <CardTitle>Step 2 · 게시판 카테고리 + 장소</CardTitle>
         <CardDescription>
-          Gemini + Maps + Places + Distance Matrix가 게시판 카테고리, 공지글 초안, 장소 후보를 생성합니다.
+          지도·거리 정보를 참고해 게시판에 맞는 분류, 공지 초안, 장소 후보를 함께 채웁니다.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
         {!result ? (
           <Button size="lg" className="w-full" onClick={handleAi} disabled={aiStep2.isPending}>
-            <Sparkles className="mr-2 h-4 w-4" />
-            {aiStep2.isPending ? '검색 중… (8~12초)' : 'AI 정제 시작'}
+            <FilePenLine className="mr-2 h-4 w-4" />
+            {aiStep2.isPending ? '찾는 중… (조금 더 걸려요)' : '장소·공지 초안 만들기'}
           </Button>
         ) : (
           <>
             <div className="rounded-md border bg-muted p-3">
-              <p className="text-sm font-medium text-muted-foreground">AI 정제 결과 (원본)</p>
+              <p className="text-sm font-medium text-muted-foreground">생성 결과 (원본 데이터)</p>
               <pre className="mt-2 max-h-80 overflow-auto text-xs">
                 {JSON.stringify(result, null, 2)}
               </pre>

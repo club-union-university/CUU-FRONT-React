@@ -42,7 +42,7 @@ class EventApi extends BaseApi {
     return this.delete<void>(`/${id}`)
   }
 
-  // ===== AI 정제 =====
+  // ===== 행사 초안 자동 작성(서버 step) =====
   aiStep1(id: number) {
     return this.post<Record<string, unknown>>(`/${id}/ai/step1`)
   }
