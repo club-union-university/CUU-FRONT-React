@@ -12,7 +12,6 @@ dist-ssr
 .idea
 *.log
 *.tsbuildinfo
-src/routeTree.gen.ts
 .omc/project-memory.json
 .omc/state/
 .omc/notepad.md
