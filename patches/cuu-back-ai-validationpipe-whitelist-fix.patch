@@ -1,0 +1,44 @@
+diff --git a/nest-server/src/modules/ai/ai.controller.ts b/nest-server/src/modules/ai/ai.controller.ts
+index 7341e6d..af545ba 100644
+--- a/nest-server/src/modules/ai/ai.controller.ts
++++ b/nest-server/src/modules/ai/ai.controller.ts
+@@ -1,18 +1,37 @@
+ import { Body, Controller, Param, ParseIntPipe, Post } from "@nestjs/common";
++import { Allow } from "class-validator";
+ import { AiService } from "./ai.service";
+ 
++/** whitelist ValidationPipe 통과용 — 필드 없으면 바디가 전부 제거되어 Gemini에 빈 input 전달됨 */
+ class Step1RequestDto {
++  @Allow()
+   naturalText?: string;
++
++  @Allow()
+   eventType?: "INTRA_CLUB" | "INTER_CLUB";
++
++  @Allow()
+   hostClubName?: string;
++
++  @Allow()
+   partnerClubName?: string;
++
++  @Allow()
+   preferredArea?: string;
+ }
+ 
+ class Step2RequestDto {
++  @Allow()
+   step1Result?: Record<string, unknown>;
+-  schools?: Array<{ name: string; lat?: number; lng?: number }>;
+-  facilities?: Array<{ name: string; type?: string; capacity?: number }>;
++
++  /** 학교·시설은 프론트/Spring에서 오는 객체 형태가 유연함 */
++  @Allow()
++  schools?: unknown[];
++
++  @Allow()
++  facilities?: unknown[];
++
++  @Allow()
+   preferredArea?: string;
+ }
+ 

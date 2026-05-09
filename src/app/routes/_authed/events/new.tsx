@@ -20,8 +20,9 @@ import {
   toast,
 } from '@/shared/ui'
 import { useCreateEvent } from '@/features/event'
-import { useClubs } from '@/features/club'
+import { useClubs, usePartnerClubOptions } from '@/features/club'
 import { requirePresident, useAuthStore } from '@/features/auth'
+import { useEffect } from 'react'
 
 const newSearchSchema = z.object({
   hostClubId: z.coerce.number().int().optional(),
@@ -48,7 +49,7 @@ function NewEventPage() {
   const search = Route.useSearch()
   const user = useAuthStore((s) => s.user)
   const create = useCreateEvent()
-  /** 가입한 동아리만 — 연합 행사 파트너도 내가 부원인 동아리 중에서만 선택 가능 */
+  /** 주최 후보: 내가 회장인 승인 동아리 */
   const clubs = useClubs({ status: 'APPROVED' })
 
   const form = useForm<Values>({
@@ -62,9 +63,16 @@ function NewEventPage() {
   })
 
   const type = form.watch('type')
+  const hostClubId = form.watch('hostClubId')
+  const partnerClubId = form.watch('partnerClubId')
   const myClubs = clubs.data?.filter((c) => c.presidentUserId === user?.id) ?? []
-  const partnerCandidates =
-    clubs.data?.filter((c) => c.id !== form.watch('hostClubId')) ?? []
+  const partnerQuery = usePartnerClubOptions(hostClubId, {
+    enabled: type === 'INTER_CLUB' && hostClubId > 0,
+  })
+
+  useEffect(() => {
+    form.setValue('partnerClubId', undefined)
+  }, [hostClubId])
 
   const onSubmit = form.handleSubmit(async (v) => {
     if (v.type === 'INTER_CLUB' && !v.partnerClubId) {
@@ -150,22 +158,49 @@ function NewEventPage() {
             {type === 'INTER_CLUB' && (
               <div className="space-y-2">
                 <Label>파트너 동아리</Label>
+                <p className="text-xs text-muted-foreground">
+                  서버의 GET /clubs/partner-options 결과입니다. 승인된 동아리 중 주최만 빼고 보여 줍니다 (주최 동아리
+                  회장만 조회 가능).
+                </p>
                 <Select
+                  key={`partner-${hostClubId}`}
+                  value={partnerClubId ? String(partnerClubId) : undefined}
                   onValueChange={(v) =>
                     form.setValue('partnerClubId', Number(v), { shouldValidate: true })
                   }
+                  disabled={hostClubId <= 0 || partnerQuery.isLoading}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="합동할 다른 동아리" />
+                    <SelectValue
+                      placeholder={
+                        hostClubId <= 0
+                          ? '먼저 주최 동아리를 선택하세요'
+                          : partnerQuery.isLoading
+                            ? '목록 불러오는 중…'
+                            : '합동할 다른 동아리'
+                      }
+                    />
                   </SelectTrigger>
                   <SelectContent>
-                    {partnerCandidates.map((c) => (
-                      <SelectItem key={c.id} value={String(c.id)}>
-                        {c.name}
+                    {(partnerQuery.data ?? []).length === 0 && !partnerQuery.isLoading ? (
+                      <SelectItem value="_none" disabled>
+                        선택 가능한 파트너 동아리가 없습니다
                       </SelectItem>
-                    ))}
+                    ) : (
+                      (partnerQuery.data ?? []).map((c) => (
+                        <SelectItem key={c.id} value={String(c.id)}>
+                          {c.name}
+                          {typeof c.schoolId === 'number' ? ` · 학교 #${c.schoolId}` : ''}
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
+                {partnerQuery.isError && (
+                  <p className="text-xs text-destructive">
+                    파트너 목록을 불러오지 못했습니다. 로그인·주최 회장 여부를 확인하세요.
+                  </p>
+                )}
                 {form.formState.errors.partnerClubId && (
                   <p className="text-xs text-destructive">
                     {form.formState.errors.partnerClubId.message}

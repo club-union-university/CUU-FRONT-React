@@ -25,6 +25,25 @@ export const clubHandlers = [
     return HttpResponse.json(list)
   }),
 
+  // GET /clubs/partner-options — Spring ClubService.getPartnerOptions 동일
+  http.get(API('/clubs/partner-options'), async ({ request }) => {
+    await delay(120)
+    const me = userFromAuthHeader(request.headers.get('Authorization'))
+    if (!me) return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 })
+    const url = new URL(request.url)
+    const hostClubId = Number(url.searchParams.get('hostClubId'))
+    if (!hostClubId)
+      return HttpResponse.json({ message: 'hostClubId가 필요합니다' }, { status: 400 })
+    const host = db.clubs.find((c) => c.id === hostClubId)
+    if (!host) return HttpResponse.json({ message: 'Not found' }, { status: 404 })
+    if (host.status !== 'APPROVED')
+      return HttpResponse.json({ message: '승인된 동아리만 파트너 후보를 조회할 수 있습니다.' }, { status: 400 })
+    if (host.presidentUserId !== me.id)
+      return HttpResponse.json({ message: '주최 동아리 회장만 파트너 후보를 조회할 수 있습니다.' }, { status: 403 })
+    const list = db.clubs.filter((c) => c.status === 'APPROVED' && c.id !== hostClubId)
+    return HttpResponse.json(list)
+  }),
+
   // POST /clubs
   http.post(API('/clubs'), async ({ request }) => {
     await delay(200)

@@ -73,12 +73,24 @@ export const eventHandlers = [
     return new HttpResponse(null, { status: 204 })
   }),
 
-  // POST /events/{id}/ai/step1
-  http.post(API('/events/:id/ai/step1'), async ({ params }) => {
+  // POST /events/{id}/ai/step1 — Spring처럼 요청 바디(naturalText 등)를 반영 (DB만 보면 설명 누락 시 오분류)
+  http.post(API('/events/:id/ai/step1'), async ({ params, request }) => {
     await delay(2200) // step1 응답 지연 시뮬레이션
     const event = db.events.find((e) => e.id === Number(params.id))
     if (!event) return HttpResponse.json({ message: 'Not found' }, { status: 404 })
-    const refined = refineByCategory(event)
+    let body: Record<string, unknown> = {}
+    try {
+      body = (await request.json()) as Record<string, unknown>
+    } catch {
+      /* no body */
+    }
+    const naturalText =
+      typeof body.naturalText === 'string' ? body.naturalText.trim() : ''
+    const merged: Event = {
+      ...event,
+      proposalMessage: naturalText || event.proposalMessage,
+    }
+    const refined = refineByCategory(merged)
     // step1 결과를 event에 캐시도 함
     event.step1Data = refined
     return HttpResponse.json(refined)
@@ -104,8 +116,8 @@ export const eventHandlers = [
     return HttpResponse.json(event)
   }),
 
-  // PATCH /events/{id}/approve
-  http.patch(API('/events/:id/approve'), async ({ params }) => {
+  // POST /events/{id}/approve (Spring 과 동일)
+  http.post(API('/events/:id/approve'), async ({ params }) => {
     await delay(120)
     const event = db.events.find((e) => e.id === Number(params.id))
     if (!event) return HttpResponse.json({ message: 'Not found' }, { status: 404 })
@@ -115,8 +127,8 @@ export const eventHandlers = [
     return HttpResponse.json(event)
   }),
 
-  // PATCH /events/{id}/reject
-  http.patch(API('/events/:id/reject'), async ({ params, request }) => {
+  // POST /events/{id}/reject
+  http.post(API('/events/:id/reject'), async ({ params, request }) => {
     await delay(120)
     const event = db.events.find((e) => e.id === Number(params.id))
     if (!event) return HttpResponse.json({ message: 'Not found' }, { status: 404 })
@@ -127,8 +139,8 @@ export const eventHandlers = [
     return HttpResponse.json(event)
   }),
 
-  // PATCH /events/{id}/recruiting
-  http.patch(API('/events/:id/recruiting'), async ({ params }) => {
+  // POST /events/{id}/recruit
+  http.post(API('/events/:id/recruit'), async ({ params }) => {
     await delay(100)
     const event = db.events.find((e) => e.id === Number(params.id))
     if (!event) return HttpResponse.json({ message: 'Not found' }, { status: 404 })
@@ -136,13 +148,13 @@ export const eventHandlers = [
     return HttpResponse.json(event)
   }),
 
-  // PATCH /events/{id}/close
-  http.patch(API('/events/:id/close'), async ({ params }) => {
+  // POST /events/{id}/close
+  http.post(API('/events/:id/close'), async ({ params }) => {
     await delay(100)
     const event = db.events.find((e) => e.id === Number(params.id))
     if (!event) return HttpResponse.json({ message: 'Not found' }, { status: 404 })
     event.status = 'CLOSED'
-    return new HttpResponse(null, { status: 200 })
+    return HttpResponse.json(event)
   }),
 ]
 
@@ -151,7 +163,11 @@ export const eventHandlers = [
 // ============================================================
 
 function refineByCategory(event: Event) {
-  const text = `${event.title} ${event.proposalMessage ?? ''}`
+  const proposal = (event.proposalMessage ?? '').trim()
+  const title = event.title ?? ''
+  // 설명이 충분히 있으면 키워드 분기에 우선 사용 (제목만 'OO 스터디' 플레이스홀더인 경우 오분류 방지)
+  const text =
+    proposal.length >= 10 ? `${proposal} ${title}` : `${title} ${proposal}`
   if (/해커톤|hackathon/i.test(text)) {
     return {
       title: event.title?.includes('해커톤') ? event.title : `${event.title} 해커톤`,

@@ -1,7 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { STALE_TIMES } from '@/shared/api'
 import type { EventUpdateRequest } from '@/shared/api/types'
-import { eventApi, type CreateEventRequest, type EventListQuery } from './api'
+import {
+  eventApi,
+  type CreateEventRequest,
+  type EventAiStep1Body,
+  type EventAiStep2Body,
+  type EventListQuery,
+} from './api'
 
 export const eventKeys = {
   all: ['event'] as const,
@@ -47,13 +53,13 @@ export function useUpdateEvent(id: number) {
 
 export function useEventAiStep1(id: number) {
   return useMutation({
-    mutationFn: () => eventApi.aiStep1(id),
+    mutationFn: (body: EventAiStep1Body = {}) => eventApi.aiStep1(id, body),
   })
 }
 
 export function useEventAiStep2(id: number) {
   return useMutation({
-    mutationFn: () => eventApi.aiStep2(id),
+    mutationFn: (body: EventAiStep2Body = {}) => eventApi.aiStep2(id, body),
   })
 }
 

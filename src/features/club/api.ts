@@ -31,6 +31,10 @@ class ClubApi extends BaseApi {
   list(q: ClubListQuery = {}) {
     return this.get<Club[]>('', { params: q })
   }
+  /** 백엔드: GET /clubs/partner-options?hostClubId= — 승인 동아리 전역 − 주최 (주최 회장만) */
+  partnerOptions(hostClubId: number) {
+    return this.get<Club[]>('/partner-options', { params: { hostClubId } })
+  }
   detail(id: number) {
     return this.get<Club>(`/${id}`)
   }

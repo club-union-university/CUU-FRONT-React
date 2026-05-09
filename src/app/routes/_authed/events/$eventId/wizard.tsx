@@ -22,8 +22,23 @@ import {
   useEventTransition,
   useUpdateEvent,
 } from '@/features/event'
+import {
+  buildAiStep1Body,
+  facilityToAiPayload,
+  schoolToAiPayload,
+} from '@/features/event/aiPayload'
+import { useClub } from '@/features/club'
+import { useSchool, useSchoolFacilities } from '@/features/school/queries'
 import { requirePresident } from '@/features/auth'
+import { ApiError } from '@/shared/api/error'
 import { useState } from 'react'
+
+function formatAiMutationError(e: unknown, fallback: string) {
+  if (e instanceof ApiError && e.status === 403) {
+    return '접근 거부(403). 로그아웃 후 다시 로그인해 보세요. (배포 서버 jwt.secret 변경 시에도 동일 증상)'
+  }
+  return e instanceof Error ? e.message : fallback
+}
 
 const wizardSearchSchema = z.object({
   step: z.coerce.number().int().min(1).max(3).optional().default(1),
@@ -100,6 +115,8 @@ function WizardPage() {
 
 function Step1({ eventId, onNext }: { eventId: number; onNext: () => void }) {
   const { data: event } = useEvent(eventId)
+  const hostClub = useClub(event?.hostClubId ?? 0)
+  const partnerClub = useClub(event?.partnerClubId ?? 0)
   const aiStep1 = useEventAiStep1(eventId)
   const update = useUpdateEvent(eventId)
   const [refined, setRefined] = useState<{
@@ -111,7 +128,14 @@ function Step1({ eventId, onNext }: { eventId: number; onNext: () => void }) {
 
   const handleAi = async () => {
     try {
-      const res = await aiStep1.mutateAsync()
+      const body = buildAiStep1Body({
+        naturalText: event?.proposalMessage ?? '',
+        eventType: event?.type,
+        hostClubName: hostClub.data?.name,
+        partnerClubName:
+          event?.type === 'INTER_CLUB' ? partnerClub.data?.name : undefined,
+      })
+      const res = await aiStep1.mutateAsync(body)
       // 응답 스키마는 서버 버전에 맞춰 known 키만 반영
       setRefined({
         title: typeof res.title === 'string' ? res.title : undefined,
@@ -121,7 +145,7 @@ function Step1({ eventId, onNext }: { eventId: number; onNext: () => void }) {
       })
       toast.success('항목 채우기 완료. 검토 후 적용하세요.')
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : '항목 채우기 실패')
+      toast.error(formatAiMutationError(e, '항목 채우기 실패'))
     }
   }
 
@@ -216,17 +240,44 @@ function Step1({ eventId, onNext }: { eventId: number; onNext: () => void }) {
 // ============================================================
 
 function Step2({ eventId, onNext }: { eventId: number; onNext: () => void }) {
+  const { data: event } = useEvent(eventId)
+  const hostClub = useClub(event?.hostClubId ?? 0)
+  const partnerClub = useClub(event?.partnerClubId ?? 0)
+  const hostSchoolId = hostClub.data?.schoolId ?? 0
+  const partnerSchoolId =
+    event?.type === 'INTER_CLUB' ? (partnerClub.data?.schoolId ?? 0) : 0
+  const { data: hostSchool } = useSchool(hostSchoolId)
+  const { data: partnerSchool } = useSchool(partnerSchoolId)
+  const { data: hostFacilities = [] } = useSchoolFacilities(hostSchoolId)
+
   const aiStep2 = useEventAiStep2(eventId)
   const update = useUpdateEvent(eventId)
   const [result, setResult] = useState<Record<string, unknown> | null>(null)
 
   const handleAi = async () => {
+    if (!event?.step1Data) {
+      toast.error('먼저 Step 1에서 초안 만들기를 실행하세요.')
+      return
+    }
     try {
-      const res = await aiStep2.mutateAsync()
+      const schools: Record<string, unknown>[] = []
+      const h = schoolToAiPayload(hostSchool)
+      if (h) schools.push(h)
+      if (event.type === 'INTER_CLUB') {
+        const p = schoolToAiPayload(partnerSchool)
+        if (p) schools.push(p)
+      }
+      const facilities = hostFacilities.map(facilityToAiPayload)
+
+      const res = await aiStep2.mutateAsync({
+        step1Result: event.step1Data,
+        schools,
+        facilities,
+      })
       setResult(res)
       toast.success('장소·공지 초안이 준비됨')
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : '초안 작성 실패')
+      toast.error(formatAiMutationError(e, '초안 작성 실패'))
     }
   }
 
@@ -255,10 +306,22 @@ function Step2({ eventId, onNext }: { eventId: number; onNext: () => void }) {
       </CardHeader>
       <CardContent className="space-y-5">
         {!result ? (
-          <Button size="lg" className="w-full" onClick={handleAi} disabled={aiStep2.isPending}>
+          <>
+            {!event?.step1Data && (
+              <p className="text-xs text-muted-foreground">
+                Step 1에서 생성된 초안(step1Data)이 있어야 장소·공지 추천에 필요한 맥락을 보낼 수 있습니다.
+              </p>
+            )}
+          <Button
+            size="lg"
+            className="w-full"
+            onClick={handleAi}
+            disabled={aiStep2.isPending || !event?.step1Data}
+          >
             <FilePenLine className="mr-2 h-4 w-4" />
             {aiStep2.isPending ? '찾는 중… (조금 더 걸려요)' : '장소·공지 초안 만들기'}
           </Button>
+          </>
         ) : (
           <>
             <div className="rounded-md border bg-muted p-3">

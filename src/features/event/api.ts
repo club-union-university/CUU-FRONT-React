@@ -25,6 +25,12 @@ export interface CreateEventRequest {
   proposalMessage?: string
 }
 
+/** AI step1 — 백엔드가 그대로 Nest로 포워딩 */
+export type EventAiStep1Body = Record<string, unknown>
+
+/** AI step2 — step1Result·schools·facilities 등 Nest 계약에 맞춤 */
+export type EventAiStep2Body = Record<string, unknown>
+
 class EventApi extends BaseApi {
   list(q: EventListQuery = {}) {
     return this.get<Event[]>('', { params: q })
@@ -43,11 +49,11 @@ class EventApi extends BaseApi {
   }
 
   // ===== 행사 초안 자동 작성(서버 step) =====
-  aiStep1(id: number) {
-    return this.post<Record<string, unknown>>(`/${id}/ai/step1`)
+  aiStep1(id: number, body: EventAiStep1Body = {}) {
+    return this.post<Record<string, unknown>>(`/${id}/ai/step1`, body)
   }
-  aiStep2(id: number) {
-    return this.post<Record<string, unknown>>(`/${id}/ai/step2`)
+  aiStep2(id: number, body: EventAiStep2Body = {}) {
+    return this.post<Record<string, unknown>>(`/${id}/ai/step2`, body)
   }
 
   // ===== 상태 전이 =====
@@ -55,16 +61,17 @@ class EventApi extends BaseApi {
     return this.post<Event>(`/${id}/submit`)
   }
   approve(id: number) {
-    return this.patch<Event>(`/${id}/approve`)
+    return this.post<Event>(`/${id}/approve`)
   }
   reject(id: number, rejectReason: string) {
-    return this.patch<Event>(`/${id}/reject`, { rejectReason })
+    return this.post<Event>(`/${id}/reject`, { rejectReason })
   }
+  /** Spring: POST /events/{id}/recruit */
   startRecruiting(id: number) {
-    return this.patch<Event>(`/${id}/recruiting`)
+    return this.post<Event>(`/${id}/recruit`)
   }
   closeRecruiting(id: number) {
-    return this.patch<void>(`/${id}/close`)
+    return this.post<Event>(`/${id}/close`)
   }
 }
 
