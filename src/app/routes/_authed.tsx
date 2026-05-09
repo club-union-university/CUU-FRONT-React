@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from '@/shared/ui'
 import { requireAuth, useAuthStore, useLogout, userRoleLabel } from '@/features/auth'
+import { formatSchoolDisplayName, useSchool } from '@/features/school'
 import { NotificationBell } from '@/features/notification'
 import { LogOut, ShieldCheck, UserCog } from 'lucide-react'
 
@@ -27,6 +28,9 @@ function AuthedLayout() {
   const user = useAuthStore((s) => s.user)
   const logout = useLogout()
   const navigate = useNavigate()
+  const schoolId = user?.schoolId && user.schoolId > 0 ? user.schoolId : 0
+  const schoolQ = useSchool(schoolId)
+  const schoolLine = schoolQ.data?.name ?? formatSchoolDisplayName(user?.schoolId)
 
   const isSuperAdmin = user?.role === 'SUPER_ADMIN'
   const isPresident = user?.role === 'PRESIDENT'
@@ -71,6 +75,7 @@ function AuthedLayout() {
               <DropdownMenuContent align="end" className="w-52">
                 <DropdownMenuLabel className="flex flex-col gap-0.5">
                   <span className="text-sm font-medium">{user?.nickname}</span>
+                  <span className="text-xs font-normal text-foreground">{schoolLine}</span>
                   <span className="text-xs font-normal text-muted-foreground">{user?.email}</span>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />

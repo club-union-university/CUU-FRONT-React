@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { STALE_TIMES } from '@/shared/api'
 import type { User, UserRole } from '@/shared/api/types'
 import { authApi, userApi, type SignupRequest, type UpdateProfileRequest } from './api'
+import { userRequiresSignupAfterLogin } from './profile-completion'
 import { useAuthStore } from './store'
 
 export const authKeys = {
@@ -30,11 +31,18 @@ export function useUser(id: number) {
 
 export function useLogin() {
   const setAuth = useAuthStore((s) => s.setAuth)
+  const setPendingFirebaseIdToken = useAuthStore((s) => s.setPendingFirebaseIdToken)
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (firebaseIdToken: string) => authApi.login(firebaseIdToken),
-    onSuccess: (data) => {
-      setAuth({ accessToken: data.accessToken, user: data.user, isNewUser: data.isNewUser })
+    onSuccess: (data, firebaseIdToken) => {
+      const needsSignup = userRequiresSignupAfterLogin(data.isNewUser, data.user)
+      setAuth({ accessToken: data.accessToken, user: data.user, isNewUser: needsSignup })
+      if (needsSignup && firebaseIdToken) {
+        setPendingFirebaseIdToken(firebaseIdToken)
+      } else {
+        setPendingFirebaseIdToken(null)
+      }
       qc.setQueryData(authKeys.me(), data.user)
     },
   })
@@ -93,15 +101,29 @@ const ROLE_DEFAULT_ID: Record<UserRole, number> = {
   MEMBER: 102,
 }
 
+/** MSW mocks/db 사용자 시드와 동일 (POST /auth/signup Authorization 에 실음). */
+const DEV_MOCK_FIREBASE_UID: Record<number, string> = {
+  100: 'mock-super',
+  101: 'mock-pres-1',
+  102: 'mock-member',
+  103: 'mock-pres-2',
+  104: 'mock-pres-3',
+  105: 'mock-pres-4',
+  106: 'mock-pres-5',
+}
+
 export function useDevMockLogin() {
   const setAuth = useAuthStore((s) => s.setAuth)
+  const setPendingFirebaseIdToken = useAuthStore((s) => s.setPendingFirebaseIdToken)
   return (opts: DevLoginOpts = {}) => {
     const role = opts.role ?? 'MEMBER'
+    const id = opts.id ?? ROLE_DEFAULT_ID[role]
+    const firebaseUid = DEV_MOCK_FIREBASE_UID[id] ?? `mock-user-${id}`
     setAuth({
       accessToken: `dev-mock-token-${role.toLowerCase()}`,
       user: {
-        id: opts.id ?? ROLE_DEFAULT_ID[role],
-        firebaseUid: `dev-${role.toLowerCase()}`,
+        id,
+        firebaseUid,
         authProvider: 'GOOGLE',
         email: `${role.toLowerCase()}@aingthon.local`,
         nickname: opts.isNewUser ? '' : (opts.nickname ?? `데모-${role}`),
@@ -111,5 +133,7 @@ export function useDevMockLogin() {
       },
       isNewUser: !!opts.isNewUser,
     })
+    // Spring signup: Authorization ≈ Firebase ID 토큰 — 목업에서는 firebaseUid 문자열을 토큰으로 사용
+    setPendingFirebaseIdToken(opts.isNewUser ? firebaseUid : null)
   }
 }

@@ -1,5 +1,5 @@
-export { BaseApi, createApiClient } from './base'
-export type { TokenProvider, CreateApiClientOptions } from './base'
+export { BaseApi, createApiClient, SKIP_JWT_AUTH_HEADER } from './base'
+export type { TokenProvider, UserIdProvider, CreateApiClientOptions } from './base'
 export { apiClient } from './client'
 export { ApiError, toApiError } from './error'
 export type { ApiErrorPayload } from './error'

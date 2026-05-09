@@ -29,7 +29,7 @@ import {
   useClubs,
   useRejectClub,
 } from '@/features/club'
-import { useSchools } from '@/features/school'
+import { formatSchoolDisplayName } from '@/features/school'
 import { requireSuperAdmin } from '@/features/auth'
 import type { Club, ClubStatus } from '@/shared/api/types'
 
@@ -42,7 +42,6 @@ type Tab = ClubStatus | 'ALL'
 
 function AdminClubsPage() {
   const { data: clubs, isLoading } = useClubs({})
-  const { data: schools } = useSchools({})
   const approve = useApproveClub()
   const reject = useRejectClub()
 
@@ -65,8 +64,7 @@ function AdminClubsPage() {
     return tab === 'ALL' ? list : list.filter((c) => c.status === tab)
   }, [clubs, tab])
 
-  const schoolName = (id?: number) =>
-    schools?.find((s) => s.id === id)?.name ?? `학교 #${id ?? '-'}`
+  const schoolName = (id?: number) => formatSchoolDisplayName(id ?? null)
 
   const handleApprove = async (id: number) => {
     try {

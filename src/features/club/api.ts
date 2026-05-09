@@ -10,7 +10,7 @@ export interface ClubListQuery {
 export interface CreateClubRequest {
   schoolId: number
   name: string
-  category?: ClubCategory
+  category: ClubCategory
   description?: string
   logoImage?: string
   evidenceUrl?: string
@@ -24,6 +24,7 @@ export interface UpdateClubRequest {
 }
 
 class ClubApi extends BaseApi {
+  /** GET /api/clubs — 서버 선택 쿼리: schoolId, category, status (Spring ClubController 와 동일). */
   list(q: ClubListQuery = {}) {
     return this.get<Club[]>('', { params: q })
   }
@@ -36,11 +37,13 @@ class ClubApi extends BaseApi {
   update(id: number, body: UpdateClubRequest) {
     return this.patch<Club>(`/${id}`, body)
   }
+  /** POST /clubs/{id}/approve (X-User-Id) */
   approve(id: number) {
-    return this.patch<Club>(`/${id}/approve`)
+    return this.post<Club>(`/${id}/approve`)
   }
+  /** POST /clubs/{id}/reject */
   reject(id: number, rejectReason: string) {
-    return this.patch<Club>(`/${id}/reject`, { rejectReason })
+    return this.post<Club>(`/${id}/reject`, { rejectReason })
   }
   joinByCode(inviteCode: string) {
     return this.post<ClubMember>('/join', { inviteCode })

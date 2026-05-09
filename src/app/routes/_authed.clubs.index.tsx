@@ -59,7 +59,7 @@ function ClubsListPage() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">동아리</h1>
           <p className="mt-1 max-w-xl text-sm text-muted-foreground">
-            화이트리스트 학교 기준, 필터된 목록입니다.
+            화이트리스트 학교 기준, 필터된 목록입니다 (GET /api/clubs).
           </p>
         </div>
         <div className="flex gap-2">

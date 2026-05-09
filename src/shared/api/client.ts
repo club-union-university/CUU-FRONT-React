@@ -10,6 +10,7 @@ import { useAuthStore } from '@/features/auth/store'
 export const apiClient = createApiClient({
   baseURL: env.API_BASE_URL,
   getToken: () => useAuthStore.getState().accessToken,
+  getUserId: () => useAuthStore.getState().user?.id ?? null,
   onUnauthorized: () => {
     useAuthStore.getState().clear()
   },

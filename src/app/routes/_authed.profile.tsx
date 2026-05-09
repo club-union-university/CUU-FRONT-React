@@ -23,6 +23,7 @@ import {
   useUpdateMe,
   userRoleLabel,
 } from '@/features/auth'
+import { formatSchoolDisplayName, useSchool } from '@/features/school'
 
 export const Route = createFileRoute('/_authed/profile')({
   beforeLoad: ({ location }) => requireAuth(location.pathname),
@@ -41,6 +42,9 @@ function ProfilePage() {
   const navigate = useNavigate()
   const user = useAuthStore((s) => s.user)
   const update = useUpdateMe()
+  const schoolId = user?.schoolId && user.schoolId > 0 ? user.schoolId : 0
+  const schoolQ = useSchool(schoolId)
+  const schoolLabel = schoolQ.data?.name ?? formatSchoolDisplayName(user?.schoolId)
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -70,7 +74,8 @@ function ProfilePage() {
         <Avatar seed={user?.id} name={user?.nickname || 'U'} size={56} />
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{user?.nickname || '사용자'}</h1>
-          <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
+          <p className="mt-1 text-sm font-medium text-foreground">{schoolLabel}</p>
+          <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
             <span>{user?.email}</span>
             {user?.role && <Badge variant="secondary">{userRoleLabel(user.role)}</Badge>}
           </div>

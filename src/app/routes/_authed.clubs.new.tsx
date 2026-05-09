@@ -37,10 +37,12 @@ const categoryOptions: { value: ClubCategory; label: string }[] = [
   { value: 'SPORTS', label: '스포츠' },
 ]
 
+const categoryEnum = z.enum(['DEV', 'DESIGN', 'STARTUP', 'ART', 'SPORTS'])
+
 const schema = z.object({
   schoolId: z.coerce.number().int().positive('학교를 선택하세요'),
   name: z.string().min(2, '동아리 이름은 2자 이상').max(40),
-  category: z.enum(['DEV', 'DESIGN', 'STARTUP', 'ART', 'SPORTS']).optional(),
+  category: categoryEnum,
   description: z.string().max(500).optional(),
   evidenceUrl: z.string().url('실재 증빙 URL을 입력하세요').optional().or(z.literal('')),
 })
@@ -132,6 +134,9 @@ function ClubRegisterPage() {
                   ))}
                 </SelectContent>
               </Select>
+              {form.formState.errors.category && (
+                <p className="text-xs text-destructive">{form.formState.errors.category.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">

@@ -58,8 +58,8 @@ export const clubHandlers = [
     return HttpResponse.json(club)
   }),
 
-  // PATCH /clubs/{id}/approve
-  http.patch(API('/clubs/:id/approve'), async ({ params, request }) => {
+  // POST /clubs/{id}/approve (Railway CUU 동일)
+  http.post(API('/clubs/:id/approve'), async ({ params, request }) => {
     await delay(150)
     const me = userFromAuthHeader(request.headers.get('Authorization'))
     if (me?.role !== 'SUPER_ADMIN')
@@ -73,8 +73,8 @@ export const clubHandlers = [
     return HttpResponse.json(club)
   }),
 
-  // PATCH /clubs/{id}/reject
-  http.patch(API('/clubs/:id/reject'), async ({ params, request }) => {
+  // POST /clubs/{id}/reject
+  http.post(API('/clubs/:id/reject'), async ({ params, request }) => {
     await delay(150)
     const me = userFromAuthHeader(request.headers.get('Authorization'))
     if (me?.role !== 'SUPER_ADMIN')

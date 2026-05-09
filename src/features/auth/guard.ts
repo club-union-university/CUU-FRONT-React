@@ -1,5 +1,6 @@
 import { redirect } from '@tanstack/react-router'
 import { DEFAULT_LOGGED_IN_PATH } from './paths'
+import { userNeedsProfileCompletion } from './profile-completion'
 import { useAuthStore } from './store'
 
 /**
@@ -8,20 +9,34 @@ import { useAuthStore } from './store'
  * 인증됐는데 signup 미완료 → /signup
  */
 export function requireAuth(currentPath: string) {
-  const { isAuthenticated, requiresSignup } = useAuthStore.getState()
+  const { isAuthenticated, requiresSignup, user } = useAuthStore.getState()
   if (!isAuthenticated) {
     throw redirect({ to: '/login', search: { redirect: currentPath } })
   }
-  if (requiresSignup && !currentPath.startsWith('/signup')) {
+  const mustFinishSignup = requiresSignup || userNeedsProfileCompletion(user)
+  if (mustFinishSignup && !currentPath.startsWith('/signup')) {
     throw redirect({ to: '/signup' })
+  }
+}
+
+/**
+ * POST /auth/signup: requiresSignup (isNewUser 또는 닉네임·학교 미기입) 인 경우만.
+ * 이미 마친 사용자는 접근 차단한다.
+ */
+export function requireSignupIncomplete(currentPath: string) {
+  requireAuth(currentPath)
+  const { requiresSignup, user } = useAuthStore.getState()
+  if (!requiresSignup && !userNeedsProfileCompletion(user)) {
+    throw redirect({ to: DEFAULT_LOGGED_IN_PATH })
   }
 }
 
 /** 이미 로그인된 사용자가 /login 접근하면 홈으로. */
 export function redirectIfAuthed() {
-  const { isAuthenticated, requiresSignup } = useAuthStore.getState()
+  const { isAuthenticated, requiresSignup, user } = useAuthStore.getState()
   if (isAuthenticated) {
-    throw redirect({ to: requiresSignup ? '/signup' : DEFAULT_LOGGED_IN_PATH })
+    const toSignup = requiresSignup || userNeedsProfileCompletion(user)
+    throw redirect({ to: toSignup ? '/signup' : DEFAULT_LOGGED_IN_PATH })
   }
 }
 

@@ -8,8 +8,14 @@ interface AuthState {
   isAuthenticated: boolean
   /** 백엔드 login 응답에서 isNewUser=true일 때 set. signup 완료시 false로. */
   requiresSignup: boolean
+  /**
+   * 회원가입(POST /auth/signup) Authorization 에 실을 Firebase ID 토큰.
+   * Spring CUU: signup 은 자체 JWT 대신 Firebase 검증. persist 하지 않음.
+   */
+  pendingFirebaseIdToken: string | null
   setAuth: (payload: { accessToken: string; user: User; isNewUser?: boolean }) => void
   setUser: (user: User) => void
+  setPendingFirebaseIdToken: (token: string | null) => void
   completeSignup: () => void
   clear: () => void
 }
@@ -21,6 +27,7 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isAuthenticated: false,
       requiresSignup: false,
+      pendingFirebaseIdToken: null,
       setAuth: ({ accessToken, user, isNewUser }) =>
         set({
           accessToken,
@@ -29,13 +36,15 @@ export const useAuthStore = create<AuthState>()(
           requiresSignup: !!isNewUser,
         }),
       setUser: (user) => set({ user }),
-      completeSignup: () => set({ requiresSignup: false }),
+      setPendingFirebaseIdToken: (pendingFirebaseIdToken) => set({ pendingFirebaseIdToken }),
+      completeSignup: () => set({ requiresSignup: false, pendingFirebaseIdToken: null }),
       clear: () =>
         set({
           accessToken: null,
           user: null,
           isAuthenticated: false,
           requiresSignup: false,
+          pendingFirebaseIdToken: null,
         }),
     }),
     {
