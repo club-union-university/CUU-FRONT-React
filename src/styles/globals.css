@@ -5,44 +5,45 @@
 /*
  * CUU tokens — surface / brand / type / motion
  * Surfaces: canvas → paper → elevated → sunken
- * Brand primary: 업무형 블루 (217°)
+ * Brand primary: Indigo #4F46E5 (연색·직근색·진근글 귀로 원톤 위계)
+ * 리듬: 날카로운 테두리·무그림자보다 살짝 떠 있는 카드·부드러운 이징 (흐름형 UI)
  */
 
 @layer base {
   :root {
-    /* === Surfaces (4-step) === */
-    --background: 220 30% 98.5%;       /* canvas — 페이지 배경, 약간 따뜻한 화이트 */
-    --foreground: 222 47% 11%;
-    --paper: 0 0% 100%;                /* 카드/입력 등 일반 surface */
-    --paper-foreground: 222 47% 11%;
-    --elevated: 0 0% 100%;             /* 떠 있는 surface (modal/popover) */
-    --elevated-foreground: 222 47% 11%;
-    --sunken: 220 26% 96%;             /* 안으로 들어간 영역 (footer, code) */
+    /* === Surfaces — 캔버스에 동일 색상환 틴트 (#EEF2FF 계열과 맞춤) === */
+    --background: 239 28% 98%;         /* 은은한 인디고 바탕 (그레이 대신 톤 통일) */
+    --foreground: 238 42% 13%;         /* 진근글 톤 (~indigo-950 쪽) */
+    --paper: 0 0% 100%;
+    --paper-foreground: 238 42% 13%;
+    --elevated: 239 40% 99.5%;         /* 아주 연한 틴트 흰 카드 */
+    --elevated-foreground: 238 42% 13%;
+    --sunken: 239 26% 96%;
 
     /* === Card / Popover (shadcn 호환) === */
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --card-foreground: 238 42% 13%;
+    --popover: 239 40% 99.5%;
+    --popover-foreground: 238 42% 13%;
 
-    /* === Brand: 보조업무용 블루 (채도 낮춤) === */
-    --primary: 217 72% 42%;
+    /* === Brand: Indigo 600 #4F46E5 (+ #EEF2FF / #312E81 위계) === */
+    --primary: 239 84% 58%;            /* #4F46E5 */
     --primary-foreground: 0 0% 100%;
-    --primary-soft: 217 40% 96%;
-    --primary-soft-foreground: 217 55% 28%;
-    --primary-muted: 217 35% 88%;
+    --primary-soft: 226 100% 97%;      /* #EEF2FF — 연근색 */
+    --primary-soft-foreground: 239 48% 34%; /* ~#312E81 진근글 */
+    --primary-muted: 232 71% 92%;      /* indigo-100 근처 · 구분·호버 */
 
     /* === Secondary === */
-    --secondary: 220 15% 95%;
-    --secondary-foreground: 222 47% 11%;
+    --secondary: 239 35% 96%;
+    --secondary-foreground: 238 42% 13%;
 
-    /* === Muted (subtle text/bg) === */
-    --muted: 220 15% 95%;
-    --muted-foreground: 220 9% 45%;
+    /* === Muted === */
+    --muted: 239 32% 94%;
+    --muted-foreground: 239 14% 41%;
 
-    /* === Accent (hover bg) === */
-    --accent: 217 32% 96%;
-    --accent-foreground: 217 50% 26%;
+    /* === Accent (hover / chips) === */
+    --accent: 239 72% 96%;
+    --accent-foreground: 239 48% 34%;
 
     /* === Status === */
     --destructive: 0 84% 60%;
@@ -50,64 +51,64 @@
     --success: 152 62% 42%;
     --success-foreground: 0 0% 100%;
     --warning: 38 92% 50%;
-    --warning-foreground: 222 47% 11%;
+    --warning-foreground: 238 42% 13%;
     --info: 200 88% 50%;
     --info-foreground: 0 0% 100%;
 
     /* === Border / Input / Ring === */
-    --border: 220 10% 84%;
-    --input: 220 10% 84%;
-    --ring: 217 72% 42%;
+    --border: 239 22% 91%;
+    --input: 239 24% 91%;
+    --ring: 239 84% 58%;
 
-    /* === Radius (각진 도구 UI) === */
-    --radius: 0.375rem;
+    /* === Radius — 조금 더 둥근 “연결”형 (완전 pill 아님) === */
+    --radius: 0.625rem;
 
     /* === Motion === */
     --ease-out: cubic-bezier(0.16, 1, 0.3, 1);    /* Linear ease-out-expo */
     --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
     --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
     --duration-fast: 150ms;
-    --duration-normal: 200ms;
-    --duration-slow: 300ms;
+    --duration-normal: 240ms;
+    --duration-slow: 360ms;
 
-    /* === Shadows (다층 + 브랜드 glow) === */
-    --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.04);
-    --shadow-sm: 0 1px 2px -1px rgb(0 0 0 / 0.05), 0 1px 3px 0 rgb(0 0 0 / 0.05);
-    --shadow-md: 0 2px 4px -2px rgb(0 0 0 / 0.05), 0 4px 8px -2px rgb(0 0 0 / 0.05);
-    --shadow-lg: 0 4px 6px -4px rgb(0 0 0 / 0.06), 0 12px 24px -8px rgb(0 0 0 / 0.08);
-    --shadow-xl: 0 8px 16px -8px rgb(0 0 0 / 0.08), 0 24px 48px -12px rgb(0 0 0 / 0.12);
+    /* === Shadows (다층 + 살짝 틴트된 하강 그림자) === */
+    --shadow-xs: 0 1px 2px 0 hsl(222 47% 11% / 0.04);
+    --shadow-sm: 0 1px 2px hsl(222 47% 11% / 0.05), 0 2px 8px hsl(222 47% 11% / 0.04);
+    --shadow-md: 0 2px 6px -1px hsl(222 47% 11% / 0.06), 0 8px 20px -6px hsl(var(--primary) / 0.08);
+    --shadow-lg: 0 4px 6px -4px hsl(222 47% 11% / 0.07), 0 16px 32px -12px hsl(var(--primary) / 0.09);
+    --shadow-xl: 0 8px 20px -8px hsl(222 47% 11% / 0.08), 0 24px 48px -12px hsl(var(--primary) / 0.1);
     --shadow-glow: 0 0 0 1px hsl(var(--primary) / 0.08), 0 8px 24px -8px hsl(var(--primary) / 0.32);
   }
 
   .dark {
-    /* Dark: Linear 톤 — 순흑 대신 차가운 graphite + 차분한 채도 */
-    --background: 222 18% 7%;
-    --foreground: 210 20% 98%;
-    --paper: 222 16% 10%;
-    --paper-foreground: 210 20% 98%;
-    --elevated: 222 16% 13%;
-    --elevated-foreground: 210 20% 98%;
-    --sunken: 222 22% 5%;
+    /* Dark — 동일 인디고 축, 따뜻한 글래스 톤 유지 */
+    --background: 239 24% 8%;
+    --foreground: 240 20% 96%;
+    --paper: 239 22% 11%;
+    --paper-foreground: 240 20% 96%;
+    --elevated: 239 21% 14%;
+    --elevated-foreground: 240 20% 96%;
+    --sunken: 239 28% 6%;
 
-    --card: 222 16% 10%;
-    --card-foreground: 210 20% 98%;
-    --popover: 222 16% 13%;
-    --popover-foreground: 210 20% 98%;
+    --card: 239 22% 11%;
+    --card-foreground: 240 20% 96%;
+    --popover: 239 21% 14%;
+    --popover-foreground: 240 20% 96%;
 
-    --primary: 217 70% 58%;
-    --primary-foreground: 222 47% 11%;
-    --primary-soft: 217 35% 16%;
-    --primary-soft-foreground: 217 40% 92%;
-    --primary-muted: 217 28% 28%;
+    --primary: 239 76% 67%;
+    --primary-foreground: 240 33% 8%;
+    --primary-soft: 239 32% 18%;
+    --primary-soft-foreground: 231 92% 93%;
+    --primary-muted: 239 28% 26%;
 
-    --secondary: 220 14% 18%;
-    --secondary-foreground: 210 20% 98%;
+    --secondary: 239 18% 17%;
+    --secondary-foreground: 240 20% 96%;
 
-    --muted: 220 14% 16%;
-    --muted-foreground: 220 9% 65%;
+    --muted: 239 18% 15%;
+    --muted-foreground: 239 14% 62%;
 
-    --accent: 217 30% 18%;
-    --accent-foreground: 217 40% 92%;
+    --accent: 239 28% 17%;
+    --accent-foreground: 231 92% 93%;
 
     --destructive: 0 70% 55%;
     --destructive-foreground: 0 0% 100%;
@@ -115,9 +116,9 @@
     --warning: 38 88% 58%;
     --info: 200 80% 58%;
 
-    --border: 220 14% 18%;
-    --input: 220 14% 18%;
-    --ring: 217 70% 58%;
+    --border: 239 16% 18%;
+    --input: 239 16% 18%;
+    --ring: 239 76% 67%;
 
     --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.5);
     --shadow-sm: 0 1px 2px -1px rgb(0 0 0 / 0.6), 0 1px 3px 0 rgb(0 0 0 / 0.5);
@@ -138,7 +139,14 @@
     height: 100%;
   }
   body {
-    @apply bg-background text-foreground antialiased;
+    /* 컬러만 토큰 계승, 위쪽에 인디고 글로우 한 겹으로 친근한 캔버스 */
+    background-color: hsl(var(--background));
+    background-image: radial-gradient(
+      ellipse 130% 85% at 50% -18%,
+      hsl(var(--primary-soft) / 1),
+      hsl(var(--background)) 58%
+    );
+    @apply text-foreground antialiased;
     font-family:
       'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui,
       'Segoe UI', Roboto, sans-serif;
@@ -146,10 +154,21 @@
     text-rendering: optimizeLegibility;
   }
 
-  h1,
+  /* 라이트: 연근색(primary-soft) 그라데이션 / 다크: 밝은 primary 아우라만 */
+  .dark body {
+    background-image: radial-gradient(
+      ellipse 130% 85% at 50% -18%,
+      hsl(var(--primary) / 0.12),
+      hsl(var(--background)) 56%
+    );
+  }
+
+  h1 {
+    letter-spacing: -0.03em;
+  }
   h2,
   h3 {
-    letter-spacing: -0.015em;
+    letter-spacing: -0.02em;
   }
 
   /* Selection 색상 — 브랜드 톤 */
@@ -190,18 +209,18 @@
    * 랜딩 히어로 — 한 겹의 은은한 하이라이트만 (격자·복수 방사형 제거로 본문 대비 확보)
    */
   .landing-hero-backdrop {
-    background-color: hsl(var(--background));
+    background-color: transparent;
     background-image: radial-gradient(
-      ellipse 120% 70% at 50% -15%,
-      hsl(var(--primary) / 0.045),
+      ellipse 120% 72% at 50% -15%,
+      hsl(var(--primary) / 0.065),
       transparent 62%
     );
   }
 
   .dark .landing-hero-backdrop {
     background-image: radial-gradient(
-      ellipse 120% 70% at 50% -15%,
-      hsl(var(--primary) / 0.065),
+      ellipse 120% 72% at 50% -15%,
+      hsl(var(--primary) / 0.12),
       transparent 62%
     );
   }
@@ -217,5 +236,17 @@
   }
   .surface-sunken {
     background-color: hsl(var(--sunken));
+  }
+
+  /* 섹션 간 “끊김” 줄이기 — 은은한 수직 그라데이션 */
+  .section-flow-divider {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(var(--border) / 0.85) 20%,
+      hsl(var(--border) / 0.85) 80%,
+      transparent 100%
+    );
+    height: 1px;
   }
 }

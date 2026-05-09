@@ -50,7 +50,7 @@ function LandingPage() {
         <div className="pointer-events-none absolute inset-0 landing-hero-backdrop" aria-hidden />
 
         <div className="container relative max-w-6xl px-4 py-14 sm:py-16 lg:py-20">
-          <header className="mb-12 flex flex-wrap items-center justify-between gap-4 border-b border-border pb-8">
+          <header className="flex flex-wrap items-center justify-between gap-4 pb-8">
             <CuuLogo className="text-foreground" />
             {!isAuthed ? (
               <Button asChild variant="outline" size="sm">
@@ -62,15 +62,16 @@ function LandingPage() {
               </Button>
             )}
           </header>
+          <div className="section-flow-divider mb-12 shrink-0" aria-hidden />
 
           <div className="grid items-start gap-12 lg:grid-cols-[1fr,minmax(272px,340px)] lg:gap-16">
             {/* 왼쪽: 카피 + CTA */}
             <div className="space-y-6">
-              <p className="border-l-2 border-foreground/20 pl-3 text-[13px] font-semibold tracking-wide text-muted-foreground">
+              <p className="motion-safe:animate-fade-in-up border-l-2 border-foreground/20 pl-3 text-[13px] font-semibold tracking-wide text-muted-foreground">
                 경인권 연합 · CUU
               </p>
 
-              <h1 className="font-bold tracking-tight text-foreground">
+              <h1 className="motion-safe:animate-fade-in-up motion-safe:[animation-delay:40ms] font-bold tracking-tight text-foreground">
                 <span className="block text-[clamp(1.75rem,4vw,2.35rem)] leading-[1.15]">
                   행사 공지와 모집을
                 </span>
@@ -82,13 +83,13 @@ function LandingPage() {
                 </span>
               </h1>
 
-              <p className="max-w-lg text-[15px] leading-[1.75] text-muted-foreground sm:text-base">
+              <p className="motion-safe:animate-fade-in-up motion-safe:[animation-delay:90ms] max-w-lg text-[15px] leading-[1.75] text-muted-foreground sm:text-base">
                 같은 내용을 단톡·문서·게시판에 여러 번 쓰지 않도록, 흐름을 한곳으로 모았습니다. 노출 형식만
                 맞추면 교차 게시까지 이어집니다.
               </p>
 
               <div
-                className="flex flex-wrap items-center gap-2 rounded-md border border-border bg-muted/50 px-3 py-2.5 text-sm text-muted-foreground"
+                className="motion-safe:animate-fade-in-up motion-safe:[animation-delay:140ms] flex flex-wrap items-center gap-2 rounded-lg border border-border/70 bg-muted/45 px-3 py-2.5 text-sm text-muted-foreground shadow-xs"
                 aria-label="진행 순서"
               >
                 <span className="font-medium text-foreground">흐름</span>
@@ -99,14 +100,14 @@ function LandingPage() {
                         ⟶
                       </span>
                     )}
-                    <span className="rounded-sm bg-background px-2 py-0.5 text-[13px] font-medium text-foreground shadow-xs">
+                    <span className="rounded-md bg-background px-2 py-0.5 text-[13px] font-medium text-foreground shadow-xs">
                       {step}
                     </span>
                   </span>
                 ))}
               </div>
 
-              <div className="flex flex-wrap gap-3 pt-2">
+              <div className="motion-safe:animate-fade-in-up motion-safe:[animation-delay:190ms] flex flex-wrap gap-3 pt-2">
                 {isAuthed ? (
                   <Button asChild size="lg">
                     <Link to="/clubs">
@@ -128,15 +129,18 @@ function LandingPage() {
 
             {/* 오른쪽: 수치 패널 (스택 + 강조) */}
             <div className="flex flex-col gap-3 lg:sticky lg:top-8">
-              <p className="text-[12px] font-semibold tracking-wide text-muted-foreground">지금 규모</p>
-              {stats.map((s) => (
+              <p className="text-[12px] font-semibold tracking-wide text-muted-foreground motion-safe:animate-fade-in-up motion-safe:[animation-delay:220ms]">
+                지금 규모
+              </p>
+              {stats.map((s, i) => (
                 <div
                   key={s.label}
+                  style={{ animationDelay: `${240 + i * 50}ms` }}
                   className={cn(
-                    'rounded-md border bg-card px-5 py-4 shadow-xs transition-colors',
+                    'motion-safe:animate-fade-in-up rounded-xl border border-border/65 bg-card px-5 py-4 shadow-xs transition-[box-shadow,border-color] duration-normal ease-out-expo hover:shadow-sm',
                     s.emphasis
-                      ? 'border-border ring-1 ring-primary/18'
-                      : 'border-border',
+                      ? 'border-border ring-1 ring-primary/18 hover:border-border'
+                      : 'hover:border-border',
                   )}
                 >
                   <p className="text-[13px] text-muted-foreground">{s.label}</p>
@@ -164,12 +168,12 @@ function LandingPage() {
               <div className="mt-8 hidden h-16 w-px bg-border lg:block" aria-hidden />
             </div>
 
-            <ol className="divide-y divide-border rounded-md border border-border bg-card shadow-xs">
+            <ol className="divide-y divide-border overflow-hidden rounded-xl border border-border/65 bg-card shadow-xs transition-shadow duration-normal ease-out-expo hover:shadow-sm">
               {features.map(({ icon: Icon, title, body }, i) => (
                 <li key={title} className="flex gap-5 bg-card px-5 py-6 sm:gap-6 sm:px-7 sm:py-8">
                   <div className="flex shrink-0 items-start gap-2 pt-1 sm:flex-col sm:items-center sm:gap-3">
                     <span
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border border-border bg-muted text-sm font-bold tabular-nums text-foreground"
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-border/70 bg-muted text-sm font-bold tabular-nums text-foreground shadow-xs"
                       aria-hidden
                     >
                       {i + 1}

@@ -110,10 +110,10 @@ export default {
         smooth: 'var(--ease-in-out)',
       },
       transitionDuration: {
-        fast: '150ms',
-        DEFAULT: '200ms',
-        normal: '200ms',
-        slow: '300ms',
+        fast: 'var(--duration-fast)',
+        DEFAULT: 'var(--duration-normal)',
+        normal: 'var(--duration-normal)',
+        slow: 'var(--duration-slow)',
       },
       keyframes: {
         'accordion-down': {
@@ -144,7 +144,7 @@ export default {
       animation: {
         'accordion-down': 'accordion-down 200ms var(--ease-out)',
         'accordion-up': 'accordion-up 200ms var(--ease-out)',
-        'fade-in-up': 'fade-in-up 400ms var(--ease-out) both',
+        'fade-in-up': 'fade-in-up 480ms var(--ease-out) both',
         'fade-in': 'fade-in 200ms var(--ease-out) both',
         'slide-in-from-right': 'slide-in-from-right 300ms var(--ease-out) both',
         'shimmer-slow': 'shimmer-slow 2.4s linear infinite',
