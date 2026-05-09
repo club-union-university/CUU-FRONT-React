@@ -1,0 +1,293 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1778318736632,
+  "projectRoot": "/Users/liupei8979/Develop/aingthon",
+  "techStack": {
+    "languages": [],
+    "frameworks": [],
+    "packageManager": null,
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": null,
+    "scripts": {}
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [],
+    "gitBranches": null
+  },
+  "customNotes": [],
+  "directoryMap": {},
+  "hotPaths": [
+    {
+      "path": "src/app/routes/index.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1778319870675,
+      "type": "file"
+    },
+    {
+      "path": "README.md",
+      "accessCount": 2,
+      "lastAccessed": 1778319952355,
+      "type": "file"
+    },
+    {
+      "path": "package.json",
+      "accessCount": 1,
+      "lastAccessed": 1778319317386,
+      "type": "file"
+    },
+    {
+      "path": ".npmrc",
+      "accessCount": 1,
+      "lastAccessed": 1778319319555,
+      "type": "file"
+    },
+    {
+      "path": "tsconfig.json",
+      "accessCount": 1,
+      "lastAccessed": 1778319320905,
+      "type": "file"
+    },
+    {
+      "path": "tsconfig.app.json",
+      "accessCount": 1,
+      "lastAccessed": 1778319322973,
+      "type": "file"
+    },
+    {
+      "path": "tsconfig.node.json",
+      "accessCount": 1,
+      "lastAccessed": 1778319325260,
+      "type": "file"
+    },
+    {
+      "path": "vite.config.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778319328416,
+      "type": "file"
+    },
+    {
+      "path": "index.html",
+      "accessCount": 1,
+      "lastAccessed": 1778319330675,
+      "type": "file"
+    },
+    {
+      "path": ".env.example",
+      "accessCount": 1,
+      "lastAccessed": 1778319331734,
+      "type": "file"
+    },
+    {
+      "path": ".prettierrc",
+      "accessCount": 1,
+      "lastAccessed": 1778319332803,
+      "type": "file"
+    },
+    {
+      "path": "src/main.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1778319361734,
+      "type": "file"
+    },
+    {
+      "path": "src/vite-env.d.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778319363886,
+      "type": "file"
+    },
+    {
+      "path": "src/styles/globals.css",
+      "accessCount": 1,
+      "lastAccessed": 1778319382398,
+      "type": "file"
+    },
+    {
+      "path": "src/shared/config/env.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778319383908,
+      "type": "file"
+    },
+    {
+      "path": "src/shared/lib/cn.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778319384974,
+      "type": "file"
+    },
+    {
+      "path": "src/shared/api/error.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778319396541,
+      "type": "file"
+    },
+    {
+      "path": "src/shared/api/base.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778319409596,
+      "type": "file"
+    },
+    {
+      "path": "src/shared/api/client.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778319412919,
+      "type": "file"
+    },
+    {
+      "path": "src/shared/api/query-keys.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778319416226,
+      "type": "file"
+    },
+    {
+      "path": "src/shared/api/types.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778319440844,
+      "type": "file"
+    },
+    {
+      "path": "src/shared/api/index.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778319441890,
+      "type": "file"
+    },
+    {
+      "path": "src/features/auth/store.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778319445642,
+      "type": "file"
+    },
+    {
+      "path": "src/features/auth/api.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778319450223,
+      "type": "file"
+    },
+    {
+      "path": "src/features/auth/queries.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778319456846,
+      "type": "file"
+    },
+    {
+      "path": "src/features/auth/index.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778319457858,
+      "type": "file"
+    },
+    {
+      "path": "src/features/club/api.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778319467000,
+      "type": "file"
+    },
+    {
+      "path": "src/features/club/queries.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778319474620,
+      "type": "file"
+    },
+    {
+      "path": "src/features/club/index.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778319475676,
+      "type": "file"
+    },
+    {
+      "path": "src/features/event/api.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778319482325,
+      "type": "file"
+    },
+    {
+      "path": "src/features/event/queries.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778319490016,
+      "type": "file"
+    },
+    {
+      "path": "src/features/event/index.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778319491074,
+      "type": "file"
+    },
+    {
+      "path": "src/features/school/api.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778319493839,
+      "type": "file"
+    },
+    {
+      "path": "src/features/school/queries.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778319498030,
+      "type": "file"
+    },
+    {
+      "path": "src/features/school/index.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778319499128,
+      "type": "file"
+    },
+    {
+      "path": "src/shared/ui/button.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1778319850366,
+      "type": "file"
+    },
+    {
+      "path": "src/shared/ui/input.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1778319851407,
+      "type": "file"
+    },
+    {
+      "path": "src/shared/ui/card.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1778319852480,
+      "type": "file"
+    },
+    {
+      "path": "src/shared/ui/badge.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1778319853540,
+      "type": "file"
+    },
+    {
+      "path": "src/shared/ui/index.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778319854608,
+      "type": "file"
+    },
+    {
+      "path": "src/app/query-client.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778319855676,
+      "type": "file"
+    },
+    {
+      "path": "src/app/providers.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1778319856753,
+      "type": "file"
+    },
+    {
+      "path": "src/app/routes/__root.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1778319857908,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

@@ -1,0 +1,132 @@
+@import 'tailwindcss';
+
+/*
+ * Design Tokens — seed-design 영감
+ * - 의미(Semantic) 토큰을 색 직접 참조 위에 두 단계로 분리
+ *   1) Primitive: $color-indigo-500 같은 원본 팔레트
+ *   2) Semantic:  --color-bg-primary, --color-fg-primary, --color-brand 등 의미 기반
+ * - 컴포넌트는 항상 Semantic 토큰을 참조한다.
+ * - 다크모드는 .dark 클래스 토글로 Semantic만 재정의.
+ */
+
+@theme {
+  /* ===== Primitive: Indigo (브랜드) ===== */
+  --color-indigo-50: #eef2ff;
+  --color-indigo-100: #e0e7ff;
+  --color-indigo-200: #c7d2fe;
+  --color-indigo-300: #a5b4fc;
+  --color-indigo-400: #818cf8;
+  --color-indigo-500: #6366f1;
+  --color-indigo-600: #4f46e5;
+  --color-indigo-700: #4338ca;
+  --color-indigo-800: #3730a3;
+  --color-indigo-900: #312e81;
+  --color-indigo-950: #1e1b4b;
+
+  /* ===== Primitive: Neutral (gray) ===== */
+  --color-gray-0: #ffffff;
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+  --color-gray-950: #030712;
+
+  /* ===== Primitive: Status ===== */
+  --color-red-500: #ef4444;
+  --color-red-600: #dc2626;
+  --color-amber-500: #f59e0b;
+  --color-emerald-500: #10b981;
+  --color-emerald-600: #059669;
+  --color-sky-500: #0ea5e9;
+
+  /* ===== Typography ===== */
+  --font-sans:
+    'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui,
+    'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* ===== Radius ===== */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-full: 9999px;
+}
+
+/*
+ * Semantic 토큰 — 컴포넌트가 실제로 참조할 색.
+ * Tailwind v4에서는 @theme inline을 통해 의미 토큰도 utility로 노출 가능.
+ */
+@theme inline {
+  --color-bg-canvas: var(--color-gray-50);
+  --color-bg-surface: var(--color-gray-0);
+  --color-bg-subtle: var(--color-gray-100);
+  --color-bg-muted: var(--color-gray-200);
+
+  --color-fg-default: var(--color-gray-900);
+  --color-fg-muted: var(--color-gray-600);
+  --color-fg-subtle: var(--color-gray-500);
+  --color-fg-on-brand: var(--color-gray-0);
+
+  --color-border-default: var(--color-gray-200);
+  --color-border-strong: var(--color-gray-300);
+  --color-border-focus: var(--color-indigo-600);
+
+  --color-brand: var(--color-indigo-600);
+  --color-brand-hover: var(--color-indigo-700);
+  --color-brand-active: var(--color-indigo-800);
+  --color-brand-subtle: var(--color-indigo-50);
+  --color-brand-subtle-hover: var(--color-indigo-100);
+
+  --color-status-success: var(--color-emerald-600);
+  --color-status-warning: var(--color-amber-500);
+  --color-status-danger: var(--color-red-600);
+  --color-status-info: var(--color-sky-500);
+}
+
+/* 다크모드 (P1) — 토글되면 Semantic만 재정의 */
+.dark {
+  --color-bg-canvas: var(--color-gray-950);
+  --color-bg-surface: var(--color-gray-900);
+  --color-bg-subtle: var(--color-gray-800);
+  --color-bg-muted: var(--color-gray-700);
+
+  --color-fg-default: var(--color-gray-50);
+  --color-fg-muted: var(--color-gray-300);
+  --color-fg-subtle: var(--color-gray-400);
+
+  --color-border-default: var(--color-gray-700);
+  --color-border-strong: var(--color-gray-600);
+
+  --color-brand-subtle: var(--color-indigo-950);
+  --color-brand-subtle-hover: var(--color-indigo-900);
+}
+
+/* ===== Base Reset / Element 기본값 ===== */
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    background-color: var(--color-bg-canvas);
+    color: var(--color-fg-default);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  *:focus-visible {
+    outline: 2px solid var(--color-border-focus);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+}

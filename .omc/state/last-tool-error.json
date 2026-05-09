@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"node --version && npm --version && pnpm --version 2>/dev/null && bun --version 2>/dev/null\",\"description\":\"Check Node/package manager versions\"}",
+  "error": "Exit code 127\nv24.13.0\n11.6.2\n10.25.0",
+  "timestamp": "2026-05-09T09:33:41.935Z",
+  "retry_count": 2
+}
