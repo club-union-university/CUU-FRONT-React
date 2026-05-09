@@ -1,0 +1,92 @@
+{
+  "breakpoints": {
+    "375": {
+      "name": "participants-list",
+      "viewportWidth": 293,
+      "width": 293,
+      "height": 182,
+      "bones": [
+        [
+          0,
+          0,
+          100,
+          60,
+          8
+        ],
+        [
+          0,
+          60,
+          100,
+          61,
+          8
+        ],
+        [
+          0,
+          121,
+          100,
+          61,
+          8
+        ]
+      ]
+    },
+    "768": {
+      "name": "participants-list",
+      "viewportWidth": 686,
+      "width": 686,
+      "height": 182,
+      "bones": [
+        [
+          0,
+          0,
+          100,
+          60,
+          8
+        ],
+        [
+          0,
+          60,
+          100,
+          61,
+          8
+        ],
+        [
+          0,
+          121,
+          100,
+          61,
+          8
+        ]
+      ]
+    },
+    "1280": {
+      "name": "participants-list",
+      "viewportWidth": 942,
+      "width": 942,
+      "height": 182,
+      "bones": [
+        [
+          0,
+          0,
+          100,
+          60,
+          8
+        ],
+        [
+          0,
+          60,
+          100,
+          61,
+          8
+        ],
+        [
+          0,
+          121,
+          100,
+          61,
+          8
+        ]
+      ]
+    }
+  },
+  "_hash": "b1ae547ddf9a98eb7c534c8d4c2248a0"
+}

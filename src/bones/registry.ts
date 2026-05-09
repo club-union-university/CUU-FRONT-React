@@ -8,6 +8,7 @@ import _club_detail from './club-detail.bones.json'
 import _clubs_list from './clubs-list.bones.json'
 import _event_detail from './event-detail.bones.json'
 import _events_list from './events-list.bones.json'
+import _participants_list from './participants-list.bones.json'
 import _postboard_club from './postboard-club.bones.json'
 import _postboard_event from './postboard-event.bones.json'
 import _postboard_school from './postboard-school.bones.json'
@@ -21,6 +22,7 @@ registerBones({
   "clubs-list": _clubs_list,
   "event-detail": _event_detail,
   "events-list": _events_list,
+  "participants-list": _participants_list,
   "postboard-club": _postboard_club,
   "postboard-event": _postboard_event,
   "postboard-school": _postboard_school,
