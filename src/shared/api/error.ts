@@ -40,14 +40,25 @@ export class ApiError extends Error {
   }
 }
 
+function messageFromSpringBody(data: unknown): string | undefined {
+  if (!data || typeof data !== 'object') return undefined
+  const r = data as Record<string, unknown>
+  if (typeof r.message === 'string' && r.message.trim()) return r.message.trim()
+  // Spring Boot 기본 에러 JSON: { status, error: "Forbidden", path }
+  if (typeof r.error === 'string' && r.error.trim()) return r.error.trim()
+  return undefined
+}
+
 export function toApiError(err: unknown): ApiError {
   if (err instanceof ApiError) return err
   if (err instanceof AxiosError) {
-    const data = err.response?.data as ApiErrorPayload | undefined
-    return new ApiError(data?.message ?? err.message, {
+    const data = err.response?.data
+    const payload = data as ApiErrorPayload | undefined
+    const msg = messageFromSpringBody(data) ?? payload?.message ?? err.message
+    return new ApiError(msg, {
       status: err.response?.status ?? 0,
-      code: data?.code,
-      fieldErrors: data?.fieldErrors,
+      code: payload?.code,
+      fieldErrors: payload?.fieldErrors,
       cause: err,
     })
   }

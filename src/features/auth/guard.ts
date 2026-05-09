@@ -1,5 +1,5 @@
 import { redirect } from '@tanstack/react-router'
-import { DEFAULT_LOGGED_IN_PATH } from './paths'
+import { defaultLoggedInPathForUser } from './paths'
 import { userNeedsProfileCompletion } from './profile-completion'
 import { useAuthStore } from './store'
 
@@ -27,7 +27,7 @@ export function requireSignupIncomplete(currentPath: string) {
   requireAuth(currentPath)
   const { requiresSignup, user } = useAuthStore.getState()
   if (!requiresSignup && !userNeedsProfileCompletion(user)) {
-    throw redirect({ to: DEFAULT_LOGGED_IN_PATH })
+    throw redirect({ to: defaultLoggedInPathForUser(user) })
   }
 }
 
@@ -36,7 +36,7 @@ export function redirectIfAuthed() {
   const { isAuthenticated, requiresSignup, user } = useAuthStore.getState()
   if (isAuthenticated) {
     const toSignup = requiresSignup || userNeedsProfileCompletion(user)
-    throw redirect({ to: toSignup ? '/signup' : DEFAULT_LOGGED_IN_PATH })
+    throw redirect({ to: toSignup ? '/signup' : defaultLoggedInPathForUser(user) })
   }
 }
 
@@ -45,7 +45,7 @@ export function requireSuperAdmin(currentPath: string) {
   requireAuth(currentPath)
   const { user } = useAuthStore.getState()
   if (user?.role !== 'SUPER_ADMIN') {
-    throw redirect({ to: DEFAULT_LOGGED_IN_PATH })
+    throw redirect({ to: defaultLoggedInPathForUser(user) })
   }
 }
 
@@ -54,6 +54,6 @@ export function requirePresident(currentPath: string) {
   requireAuth(currentPath)
   const { user } = useAuthStore.getState()
   if (user?.role !== 'PRESIDENT' && user?.role !== 'SUPER_ADMIN') {
-    throw redirect({ to: DEFAULT_LOGGED_IN_PATH })
+    throw redirect({ to: defaultLoggedInPathForUser(user) })
   }
 }

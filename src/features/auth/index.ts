@@ -13,4 +13,8 @@ export {
   requireSuperAdmin,
   requirePresident,
 } from './guard'
-export { DEFAULT_LOGGED_IN_PATH } from './paths'
+export {
+  DEFAULT_LOGGED_IN_PATH,
+  DEFAULT_SUPER_ADMIN_PATH,
+  defaultLoggedInPathForUser,
+} from './paths'

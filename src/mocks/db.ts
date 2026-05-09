@@ -6,9 +6,6 @@
  * 진짜 백엔드 합의 끝나면 VITE_USE_MOCKS=false 로 끄면 됨.
  */
 import type {
-  ChatMessage,
-  ChatRoom,
-  ChatRoomMember,
   Club,
   ClubMember,
   Comment,
@@ -568,60 +565,7 @@ export const db = {
     { id: 2, postId: 2, authorId: 104, content: '프론트 가능합니다', createdAt: now() },
   ] as Comment[],
 
-  chatRooms: [
-    { id: 1, eventId: 1, botPersona: 'HACKATHON_BOT', createdAt: now() },
-    { id: 2, eventId: 2, botPersona: 'MEETUP_BOT', createdAt: now() },
-  ] as ChatRoom[],
-
-  chatRoomMembers: [
-    { id: 1, chatRoomId: 1, userId: 101, joinedAt: now(), lastReadAt: now() },
-    { id: 2, chatRoomId: 1, userId: 102, joinedAt: now(), lastReadAt: now() },
-    { id: 3, chatRoomId: 1, userId: 103, joinedAt: now(), lastReadAt: now() },
-  ] as ChatRoomMember[],
-
-  chatMessages: [
-    {
-      id: 1,
-      chatRoomId: 1,
-      senderType: 'BOT',
-      botPersona: 'HACKATHON_BOT',
-      content:
-        '환영합니다! 송도 24시간 무박 해커톤 채팅방입니다. 팀빌딩은 #팀빌딩 게시판에 부탁드려요.',
-      messageType: 'BOT_CARD',
-      createdAt: now(),
-    },
-    {
-      id: 2,
-      chatRoomId: 1,
-      senderType: 'USER',
-      senderUserId: 101,
-      content: '다들 화이팅!',
-      messageType: 'TEXT',
-      createdAt: now(),
-    },
-    {
-      id: 3,
-      chatRoomId: 1,
-      senderType: 'USER',
-      senderUserId: 102,
-      content: '백엔드 한 명 더 필요한데 댓글 주세요',
-      messageType: 'TEXT',
-      createdAt: now(),
-    },
-  ] as ChatMessage[],
-
   notifications: [
-    {
-      id: 1,
-      userId: 101,
-      type: 'NEW_MESSAGE',
-      targetType: 'CHAT_ROOM',
-      targetId: 1,
-      title: '송도 해커톤 채팅',
-      message: '데모부원: 백엔드 한 명 더 필요한데 댓글 주세요',
-      isRead: false,
-      createdAt: now(),
-    },
     {
       id: 2,
       userId: 101,
@@ -655,8 +599,6 @@ export const db = {
     participant: 100,
     post: 100,
     comment: 100,
-    chatRoom: 100,
-    chatMessage: 100,
     notification: 100,
   },
 }

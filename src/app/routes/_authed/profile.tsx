@@ -18,7 +18,7 @@ import {
 } from '@/shared/ui'
 import type { UserRole } from '@/shared/api/types'
 import {
-  DEFAULT_LOGGED_IN_PATH,
+  defaultLoggedInPathForUser,
   requireAuth,
   useAuthStore,
   useUpdateMe,
@@ -124,7 +124,11 @@ function ProfilePage() {
               />
             </div>
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="ghost" onClick={() => navigate({ to: DEFAULT_LOGGED_IN_PATH })}>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => navigate({ to: defaultLoggedInPathForUser(user) })}
+              >
                 취소
               </Button>
               <Button type="submit" disabled={update.isPending}>

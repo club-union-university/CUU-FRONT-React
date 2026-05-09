@@ -1,6 +1,6 @@
 import { env } from '@/shared/config/env'
 import { createApiClient } from './base'
-import { useAuthStore } from '@/features/auth/store'
+import { removeAuthPersistedSnapshot, useAuthStore } from '@/features/auth/store'
 
 /**
  * 앱 전역에서 쓰는 단일 axios 인스턴스.
@@ -13,5 +13,6 @@ export const apiClient = createApiClient({
   getUserId: () => useAuthStore.getState().user?.id ?? null,
   onUnauthorized: () => {
     useAuthStore.getState().clear()
+    removeAuthPersistedSnapshot()
   },
 })

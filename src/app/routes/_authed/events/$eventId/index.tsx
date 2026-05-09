@@ -120,10 +120,6 @@ function EventDetailContent({ event, eventId }: { event: Event; eventId: string 
                 </Button>
               )}
               {!isHostPresident && event.status === 'RECRUITING' && <ApplyButton eventId={id} />}
-              <p className="text-center text-[11px] text-muted-foreground lg:text-right">
-                <span className="lg:hidden">아래</span>
-                <span className="hidden lg:inline">오른쪽</span> 채팅 패널에서 소통할 수 있습니다.
-              </p>
             </div>
           </div>
         </div>

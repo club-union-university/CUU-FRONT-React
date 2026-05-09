@@ -2,6 +2,17 @@ import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import type { User } from '@/shared/api/types'
 
+/** Zustand persist 키 — 로그아웃 시 localStorage에서 함께 제거 */
+export const AUTH_STORAGE_KEY = 'cuu.auth'
+
+export function removeAuthPersistedSnapshot(): void {
+  try {
+    localStorage.removeItem(AUTH_STORAGE_KEY)
+  } catch {
+    /* private mode 등 */
+  }
+}
+
 interface AuthState {
   accessToken: string | null
   user: User | null
@@ -48,7 +59,7 @@ export const useAuthStore = create<AuthState>()(
         }),
     }),
     {
-      name: 'cuu.auth',
+      name: AUTH_STORAGE_KEY,
       storage: createJSONStorage(() => localStorage),
       partialize: (s) => ({
         accessToken: s.accessToken,

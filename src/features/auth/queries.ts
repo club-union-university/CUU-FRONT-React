@@ -3,7 +3,8 @@ import { STALE_TIMES } from '@/shared/api'
 import type { User, UserRole } from '@/shared/api/types'
 import { authApi, userApi, type SignupRequest, type UpdateProfileRequest } from './api'
 import { userRequiresSignupAfterLogin } from './profile-completion'
-import { useAuthStore } from './store'
+import { useAuthStore, removeAuthPersistedSnapshot } from './store'
+import { isFirebaseConfigured } from '@/shared/firebase/app'
 
 export const authKeys = {
   all: ['auth'] as const,
@@ -93,6 +94,15 @@ export function useLogout() {
   return () => {
     clear()
     qc.clear()
+    removeAuthPersistedSnapshot()
+    // Google 로그인 세션도 끊어야 다음 로그인 시 완전히 새 토큰을 받기 쉽다.
+    if (isFirebaseConfigured()) {
+      void import('firebase/auth').then(({ signOut }) =>
+        import('@/shared/firebase/app').then(({ getFirebaseAuth }) =>
+          signOut(getFirebaseAuth()).catch(() => {}),
+        ),
+      )
+    }
   }
 }
 

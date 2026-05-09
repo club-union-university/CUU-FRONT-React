@@ -5,7 +5,6 @@ import { eventHandlers } from './event'
 import { participantHandlers } from './participant'
 import { postHandlers } from './post'
 import { commentHandlers } from './comment'
-import { chatHandlers } from './chat'
 import { notificationHandlers } from './notification'
 
 export const handlers = [
@@ -16,6 +15,5 @@ export const handlers = [
   ...participantHandlers,
   ...postHandlers,
   ...commentHandlers,
-  ...chatHandlers,
   ...notificationHandlers,
 ]

@@ -11,7 +11,8 @@ import {
   toast,
 } from '@/shared/ui'
 import {
-  DEFAULT_LOGGED_IN_PATH,
+  defaultLoggedInPathForUser,
+  useAuthStore,
   useDevMockLogin,
   useLogin,
   redirectIfAuthed,
@@ -45,11 +46,12 @@ function LoginPage() {
       navigate({ to: '/signup' })
       return
     }
-    if (search.redirect) {
+    const u = useAuthStore.getState().user
+    if (search.redirect && u?.role !== 'SUPER_ADMIN') {
       window.location.href = search.redirect
       return
     }
-    navigate({ to: DEFAULT_LOGGED_IN_PATH })
+    navigate({ to: defaultLoggedInPathForUser(u) })
   }
 
   const handleDevLogin = (opts: { role: UserRole; isNewUser?: boolean }) => {

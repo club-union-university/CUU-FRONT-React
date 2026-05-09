@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -43,10 +43,11 @@ const schema = z.object({
 })
 
 type Values = z.infer<typeof schema>
+type NewEventSearch = z.infer<typeof newSearchSchema>
 
 function NewEventPage() {
   const navigate = useNavigate()
-  const search = Route.useSearch()
+  const search: NewEventSearch = useSearch({ from: '/_authed/events/new' })
   const user = useAuthStore((s) => s.user)
   const create = useCreateEvent()
   /** 주최 후보: 내가 회장인 승인 동아리 */
@@ -56,7 +57,7 @@ function NewEventPage() {
     resolver: zodResolver(schema),
     defaultValues: {
       type: 'INTRA_CLUB',
-      hostClubId: search.hostClubId ?? 0,
+      hostClubId: 0,
       title: '',
       proposalMessage: '',
     },
@@ -74,7 +75,14 @@ function NewEventPage() {
     form.setValue('partnerClubId', undefined)
   }, [hostClubId])
 
-  const onSubmit = form.handleSubmit(async (v) => {
+  useEffect(() => {
+    const id = search.hostClubId
+    if (id != null && id > 0) {
+      form.setValue('hostClubId', id, { shouldValidate: true })
+    }
+  }, [search.hostClubId, form])
+
+  const onSubmit = form.handleSubmit(async (v: Values) => {
     if (v.type === 'INTER_CLUB' && !v.partnerClubId) {
       form.setError('partnerClubId', { message: '연합은 파트너 동아리를 선택해야 합니다' })
       return
@@ -129,7 +137,7 @@ function NewEventPage() {
               <Label>주최 동아리</Label>
               <Select
                 value={String(form.watch('hostClubId') || '')}
-                onValueChange={(v) =>
+                onValueChange={(v: string) =>
                   form.setValue('hostClubId', Number(v), { shouldValidate: true })
                 }
               >
@@ -165,7 +173,7 @@ function NewEventPage() {
                 <Select
                   key={`partner-${hostClubId}`}
                   value={partnerClubId ? String(partnerClubId) : undefined}
-                  onValueChange={(v) =>
+                  onValueChange={(v: string) =>
                     form.setValue('partnerClubId', Number(v), { shouldValidate: true })
                   }
                   disabled={hostClubId <= 0 || partnerQuery.isLoading}
@@ -233,7 +241,11 @@ function NewEventPage() {
             </div>
 
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="ghost" onClick={() => navigate({ to: '/events' })}>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => void navigate({ to: '/events' } as const)}
+              >
                 취소
               </Button>
               <Button type="submit" disabled={create.isPending}>

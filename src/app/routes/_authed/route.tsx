@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { createFileRoute, Link, Outlet, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Link, Outlet, redirect, useNavigate } from '@tanstack/react-router'
 import { cn } from '@/lib/utils'
 import {
   Avatar,
@@ -14,13 +14,30 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/shared/ui'
-import { requireAuth, useAuthStore, useLogout, userRoleLabel } from '@/features/auth'
+import {
+  DEFAULT_SUPER_ADMIN_PATH,
+  requireAuth,
+  useAuthStore,
+  useLogout,
+  userRoleLabel,
+} from '@/features/auth'
 import { formatSchoolDisplayName, useSchool } from '@/features/school'
 import { NotificationBell } from '@/features/notification'
 import { LogOut, ShieldCheck, UserCog } from 'lucide-react'
 
 export const Route = createFileRoute('/_authed')({
-  beforeLoad: ({ location }) => requireAuth(location.pathname),
+  beforeLoad: ({ location }) => {
+    requireAuth(location.pathname)
+    const { user } = useAuthStore.getState()
+    if (user?.role === 'SUPER_ADMIN') {
+      const path = location.pathname
+      const allowed =
+        path.startsWith('/admin') || path.startsWith('/signup') || path.startsWith('/profile')
+      if (!allowed) {
+        throw redirect({ to: DEFAULT_SUPER_ADMIN_PATH })
+      }
+    }
+  },
   component: AuthedLayout,
 })
 
@@ -40,20 +57,23 @@ function AuthedLayout() {
       <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/70">
         <div className="container flex h-12 items-center justify-between gap-4">
           <Link
-            to="/"
+            to={isSuperAdmin ? DEFAULT_SUPER_ADMIN_PATH : '/'}
             className="rounded-lg px-1 py-0.5 text-foreground outline-none ring-offset-background transition-colors hover:bg-primary-soft/35 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <CuuLogo />
           </Link>
           <nav className="flex flex-1 flex-wrap items-center justify-end gap-1.5 text-sm font-medium">
-            <MainNavLink to="/clubs">내 동아리</MainNavLink>
-            <MainNavLink to="/events">행사</MainNavLink>
-            <MainNavLink to="/schools">학교</MainNavLink>
-            {isSuperAdmin && (
+            {isSuperAdmin ? (
               <MainNavLink to="/admin/clubs" className="inline-flex items-center gap-1">
                 <ShieldCheck className="h-4 w-4 shrink-0 opacity-90" aria-hidden />
                 관리자
               </MainNavLink>
+            ) : (
+              <>
+                <MainNavLink to="/clubs">내 동아리</MainNavLink>
+                <MainNavLink to="/events">행사</MainNavLink>
+                <MainNavLink to="/schools">학교</MainNavLink>
+              </>
             )}
             <NotificationBell />
             <DarkModeToggle />

@@ -16,7 +16,7 @@ import {
   toast,
 } from '@/shared/ui'
 import {
-  DEFAULT_LOGGED_IN_PATH,
+  defaultLoggedInPathForUser,
   useSignup,
   useAuthStore,
   useLogout,
@@ -88,7 +88,7 @@ function SignupPage() {
     try {
       await signup.mutateAsync(values)
       toast.success('회원가입 완료')
-      navigate({ to: DEFAULT_LOGGED_IN_PATH })
+      navigate({ to: defaultLoggedInPathForUser(useAuthStore.getState().user) })
     } catch (e) {
       toast.error(e instanceof Error ? e.message : '가입 실패')
     }

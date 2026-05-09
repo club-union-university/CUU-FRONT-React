@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { z } from 'zod'
 import { ArrowRight, Check, FilePenLine } from 'lucide-react'
@@ -16,6 +17,7 @@ import {
 } from '@/shared/ui'
 import { cn } from '@/lib/utils'
 import {
+  eventKeys,
   useEvent,
   useEventAiStep1,
   useEventAiStep2,
@@ -25,18 +27,32 @@ import {
 import {
   buildAiStep1Body,
   facilityToAiPayload,
+  parseEventCategory,
   schoolToAiPayload,
+  step2AiResultToUpdatePatch,
 } from '@/features/event/aiPayload'
 import { useClub } from '@/features/club'
 import { useSchool, useSchoolFacilities } from '@/features/school/queries'
 import { requirePresident } from '@/features/auth'
 import { ApiError } from '@/shared/api/error'
+import type { Event } from '@/shared/api/types'
 import { useState } from 'react'
 
 function formatAiMutationError(e: unknown, fallback: string) {
   if (e instanceof ApiError && e.status === 403) {
-    return '접근 거부(403). 로그아웃 후 다시 로그인해 보세요. (배포 서버 jwt.secret 변경 시에도 동일 증상)'
+    const serverHint =
+      e.message &&
+      !e.message.startsWith('Request failed with status code') &&
+      e.message.length < 400
+        ? ` (${e.message})`
+        : ''
+    return (
+      '접근 거부(403). 해당 행사의 주최 동아리 회장인지 확인하고, 로그아웃 후 다시 로그인해 보세요.' +
+      serverHint +
+      ' Railway에서 jwt.secret이 바뀌면 기존 토큰으로도 403이 날 수 있습니다.'
+    )
   }
+  if (e instanceof ApiError && e.message) return e.message
   return e instanceof Error ? e.message : fallback
 }
 
@@ -114,6 +130,7 @@ function WizardPage() {
 // ============================================================
 
 function Step1({ eventId, onNext }: { eventId: number; onNext: () => void }) {
+  const qc = useQueryClient()
   const { data: event } = useEvent(eventId)
   const hostClub = useClub(event?.hostClubId ?? 0)
   const partnerClub = useClub(event?.partnerClubId ?? 0)
@@ -152,10 +169,27 @@ function Step1({ eventId, onNext }: { eventId: number; onNext: () => void }) {
   const handleApply = async () => {
     if (!refined) return
     try {
+      const category = parseEventCategory(refined.category)
       await update.mutateAsync({
         title: refined.title || event?.title,
         description: refined.description,
         format: refined.format,
+        ...(category ? { category } : {}),
+      })
+      // PATCH 무효화 후 GET이 끝난 뒤, 편집한 초안을 step1Data에 합쳐 Step2 요청 맥락과 일치시킴
+      await qc.refetchQueries({ queryKey: eventKeys.detail(eventId) })
+      qc.setQueryData<Event | undefined>(eventKeys.detail(eventId), (prev) => {
+        if (!prev) return prev
+        const base =
+          prev.step1Data &&
+          typeof prev.step1Data === 'object' &&
+          !Array.isArray(prev.step1Data)
+            ? { ...(prev.step1Data as Record<string, unknown>) }
+            : {}
+        const edits = Object.fromEntries(
+          Object.entries(refined).filter(([, v]) => v !== undefined),
+        ) as Record<string, unknown>
+        return { ...prev, step1Data: { ...base, ...edits } }
       })
       toast.success('적용 완료')
       onNext()
@@ -284,11 +318,8 @@ function Step2({ eventId, onNext }: { eventId: number; onNext: () => void }) {
   const handleApply = async () => {
     if (!result) return
     try {
-      await update.mutateAsync({
-        locationName: typeof result.locationName === 'string' ? result.locationName : undefined,
-        locationAddress:
-          typeof result.locationAddress === 'string' ? result.locationAddress : undefined,
-      })
+      const patch = step2AiResultToUpdatePatch(result)
+      await update.mutateAsync(patch)
       toast.success('장소/공지 적용 완료')
       onNext()
     } catch (e) {

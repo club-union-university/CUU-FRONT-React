@@ -1,19 +1,23 @@
 # CUU (Club Union University) · 경인권 연합동아리 운영 플랫폼 (Frontend)
 
-자연어 한 줄 → 3-step 위저드 → 다중 노출 자동 발행. 회장이 행사를 만들고, 부원이 자동으로 모이고, 학교 게시판으로 정보가 흐르는 플랫폼.
+자연어 한 줄 → 3-step 위저드 → 장소·공지 초안 → 승인·모집. 회장이 행사를 만들고, 부원이 모이고, 학교 단위로 정보가 흐르는 플랫폼의 **웹 프론트엔드**입니다.
+
+npm 패키지명: **`aingthon`**.
 
 ## 스택
 
-| 영역             | 선택                                        | 비고                                                    |
-| ---------------- | ------------------------------------------- | ------------------------------------------------------- |
-| 빌드             | Vite 6                                      | SPA. Spring 단일 진입점 아키텍처에 부합                 |
-| 언어             | TypeScript 5.7 + React 19                   | strict + verbatimModuleSyntax                           |
-| 라우팅           | TanStack Router (file-based + auto split)   | `src/app/routes/`                                       |
-| 서버 상태        | TanStack Query v5                           | 도메인별 query key factory                              |
-| 클라이언트 상태  | Zustand v5 + persist                        | `useAuthStore` 등 feature 안에 위치                     |
-| 스타일링         | Tailwind v4 (`@theme` CSS-first) + shadcn식 | Primitive → Semantic 2단 토큰                           |
-| HTTP             | axios + 자체 BaseApi 추상                   | 도메인 API는 `BaseApi` 상속 후 prefix 주입              |
-| API 스키마       | openapi-typescript                          | `crew-openapi.yaml` → `src/shared/api/schema.gen.ts`    |
+| 영역            | 선택                                              | 비고                                                       |
+| --------------- | ------------------------------------------------- | ---------------------------------------------------------- |
+| 빌드            | Vite 6                                            | SPA                                                        |
+| 언어            | TypeScript 5.7 + React 19                         | strict                                                     |
+| 라우팅          | TanStack Router (파일 기반 + 코드 스플릿)         | `src/app/routes/`, `routeTree.gen.ts` 자동 생성            |
+| 서버 상태       | TanStack Query v5                                 | 도메인별 `eventKeys` 등 query key factory                  |
+| 클라이언트 상태 | Zustand v5 + persist                              | `features/auth` 등                                         |
+| 폼              | react-hook-form + zod                             |                                                            |
+| 스타일          | Tailwind CSS 3 + CSS 변수(`globals.css`) + shadcn식 | `tailwind.config.ts`에서 토큰 확장                         |
+| HTTP            | axios + `BaseApi`                                 | `src/shared/api/base.ts`                                   |
+| API 타입        | openapi-typescript                                | OpenAPI YAML → `src/shared/api/schema.gen.ts` (수동 수정 금지) |
+| 로컬 API 목업   | MSW v2                                            | `VITE_USE_MOCKS` 로 켜고 끔                               |
 
 ## 시작
 
@@ -23,125 +27,110 @@ cp .env.example .env
 pnpm dev
 ```
 
-`vite.config.ts`의 dev proxy(`/api → localhost:8080`)가 Spring 백엔드로 프록시한다.
+개발 서버: **http://localhost:5173**
+
+`vite.config.ts`의 dev proxy가 **`/api` → `http://localhost:8080`** 으로 넘깁니다. MSW를 켠 상태(`VITE_USE_MOCKS=true`)에서는 브라우저에서 `/api` 요청이 목 워커로 처리되고, Spring 등 실서버만 쓸 때는 `.env`에서 목을 끕니다.
+
+## 환경 변수
+
+`.env.example`을 복사해 사용합니다. 주요 항목:
+
+| 변수                     | 설명                                                                 |
+| ------------------------ | -------------------------------------------------------------------- |
+| `VITE_USE_MOCKS`         | `true`(기본): MSW로 `/api` 모킹. 실백엔드만 쓸 때 **`false`** 로 끔 |
+| `VITE_API_BASE_URL`      | axios baseURL. 보통 `/api`. 원격 백엔드면 절대 URL + `/api` 까지    |
+| `VITE_FIREBASE_*`        | Firebase Auth (미설정 시 mock 로그인 흐름)                           |
+| `VITE_ENABLE_ROLE_SWITCH`| 프로필에서 역할 전환(개발용). 운영에서는 끄는 것을 권장              |
+
+## MSW (Mock Service Worker)
+
+- 엔트리: `src/main.tsx` — `VITE_USE_MOCKS !== 'false'` 이면 `src/mocks/browser.ts` 워커 기동.
+- 핸들러: `src/mocks/handlers/` — 행사 AI Step1/Step2, PATCH 후 `step1Data` 등 인메모리 DB와 맞춰 둠.
+- 프로덕션(Vercel 등)에서 실 API를 쓰려면 **`VITE_USE_MOCKS=false`** 와 올바른 **`VITE_API_BASE_URL`** 을 설정합니다.
+
+## 행사 AI 위저드 (요약)
+
+- 경로: 로그인 후 **`/events/:eventId/wizard`** (Step 1 기본 정보 → Step 2 게시판/장소 → Step 3 승인).
+- Step 1 `POST /events/:id/ai/step1` 성공 시 서버(또는 MSW)가 `step1Data`를 갱신합니다. 프론트는 **`useEventAiStep1` 성공 후 상세 쿼리 캐시를 병합·무효화**해 Step 2에서 `event.step1Data`를 쓸 수 있게 맞춰 두었습니다.
+- Step 2는 `step1Result`(서버 계약상 `event.step1Data`)와 학교·시설 페이로드를 `POST /events/:id/ai/step2`에 넘깁니다.
 
 ## 디렉토리 (FSD-lite)
 
 ```
 src/
-  app/                     앱 셸 (providers, query-client, routes/)
+  app/
+    providers.tsx          QueryClient, Router, 기타 프로바이더
     routes/                TanStack Router 파일 기반 라우트
-      __root.tsx           루트 레이아웃 + Devtools
-      index.tsx            랜딩
-  shared/                  도메인 비의존 재사용 모듈
-    api/
-      base.ts              BaseApi (모든 도메인 API의 부모) + createApiClient
-      client.ts            전역 axios 인스턴스 (auth store 의존성 주입)
-      error.ts             ApiError 정규화
-      query-keys.ts        STALE_TIMES 등 공통 헬퍼
-      schema.gen.ts        OpenAPI 자동 생성 (수정 금지)
-      types.ts             schema.gen → 도메인 친화적 alias
-      index.ts             퍼블릭 API
-    config/env.ts          import.meta.env 정규화
-    lib/cn.ts              clsx + tailwind-merge
-    ui/                    shadcn 스타일 primitive (button, input, card, badge)
-  features/                도메인별 비즈니스 로직
-    <domain>/
-      api.ts               BaseApi 상속 클래스 + 외부 export 인스턴스
-      queries.ts           TanStack Query 훅 + queryKey factory
-      store.ts             Zustand (필요시)
-      index.ts             퍼블릭 API
-  styles/globals.css       Tailwind import + design tokens
-  routeTree.gen.ts         자동 생성 (gitignored)
+      __root.tsx
+      index.tsx             랜딩
+      login.tsx, signup.tsx
+      _authed/
+        route.tsx           인증 레이아웃·가드
+        clubs/, events/, schools/, profile, admin/ …
+  shared/
+    api/                    BaseApi, client, schema.gen.ts, types
+    config/env.ts           import.meta.env 정규화
+    ui/                     공통 UI 프리미티브
+  features/                 도메인별 api.ts · queries.ts · index.ts
+  mocks/                    MSW 브라우저·핸들러·시드 DB
+  styles/globals.css        디자인 토큰(HSL CSS 변수)
+  routeTree.gen.ts          라우트 플러그인 자동 생성 (직접 수정 지양)
 ```
 
-### 왜 BaseApi 상속인가
+### BaseApi 패턴
 
-- 모든 도메인 API는 `BaseApi`를 상속해 `get/post/patch/delete`를 protected로 사용한다.
-- 인증 헤더, 401 핸들링, 에러 정규화가 한 곳에 모인다.
-- 도메인 스펙이 늘어도 BaseApi에 cross-cutting 로직 한 줄 추가하면 모든 API가 혜택을 본다.
-- 컴포넌트는 `apiClient`를 직접 쓰지 않고 항상 도메인 API 인스턴스(`authApi`, `clubApi`, ...)를 호출한다.
+도메인 API는 `BaseApi`를 상속해 `get/post/patch/delete`를 쓰고, 컴포넌트는 `apiClient`가 아니라 **`eventApi`, `clubApi`** 같은 도메인 인스턴스만 호출합니다.
 
-```ts
-// 새 도메인 추가 패턴
-class PostApi extends BaseApi {
-  list(q) { return this.get<Post[]>('', { params: q }) }
-  detail(id) { return this.get<Post>(`/${id}`) }
-}
-export const postApi = new PostApi(apiClient, '/posts')
-```
+### 훅 위치
 
-### 훅 분리 원칙
+페이지 전용 데이터 훅은 **`features/<domain>/queries.ts`** 에 두고, 라우트 파일에서는 조합만 합니다.
 
-각 페이지가 자기 훅을 모두 갖지 않는다. 훅은 도메인(`features/<domain>/queries.ts`)에 모이고, 페이지는 조합만 한다.
+## 디자인 토큰
 
-```ts
-// src/app/routes/clubs.tsx
-import { useClubs } from '@/features/club'
-const { data } = useClubs({ status: 'APPROVED' })
-```
-
-## 디자인 토큰 (seed-design 영감)
-
-`src/styles/globals.css`에 두 단계로 분리:
-
-1. **Primitive** (`@theme`): `--color-indigo-600`, `--color-gray-100` 등 — 색 자체.
-2. **Semantic** (`@theme inline`): `--color-brand`, `--color-bg-canvas`, `--color-fg-default` 등 — 의미.
-
-컴포넌트는 항상 Semantic만 참조한다. 다크모드는 `.dark` 클래스에서 Semantic만 재정의하면 끝.
-
-브랜드 색은 Indigo `#4F46E5` (Linear/Vercel 톤). 정보 밀도 높은 UI에 잘 맞고 `#EEF2FF` ~ `#312E81`까지 명도 폭이 넓어 위계 구성이 쉽다.
+`src/styles/globals.css`의 `:root` / `.dark`에 **HSL CSS 변수**로 surface·brand·타이포를 정의하고, `tailwind.config.ts`의 `extend.colors`로 매핑합니다. 브랜드 프라이머리는 Indigo `#4F46E5` 계열입니다.
 
 ## 스크립트
 
 ```bash
-pnpm dev            # 개발 서버 (5173)
-pnpm build          # tsc 빌드 + vite 빌드
-pnpm preview        # 빌드 결과 미리보기
+pnpm dev            # Vite 개발 서버 (5173)
+pnpm build          # tsc -b && vite build
+pnpm preview        # 빌드 미리보기
 pnpm typecheck      # tsc -b --noEmit
-pnpm openapi:gen    # crew-openapi.yaml → schema.gen.ts 재생성
-pnpm bones:gen      # 실제 DOM에서 skeleton bones 캡처 (dev 서버 필요)
-pnpm bones:watch    # HMR과 함께 bones 자동 재캡처
+pnpm lint           # ESLint
+pnpm format         # Prettier (src ts/tsx/css)
+pnpm openapi:gen    # OpenAPI YAML → schema.gen.ts (package.json의 입력 경로 확인)
+pnpm bones:gen      # Skeleton bones 캡처 (dev 서버 필요)
+pnpm bones:watch    # bones 자동 재캡처
 ```
 
 ## OpenAPI 동기화
 
-스펙이 바뀌면:
+`package.json`의 `openapi:gen` 스크립트는 OpenAPI YAML 경로를 가리킵니다. 스펙 파일 위치에 맞게 경로를 바꾼 뒤:
 
 ```bash
 pnpm openapi:gen
 ```
 
-`schema.gen.ts`는 자동 생성이므로 직접 수정 금지. 필요하면 `src/shared/api/types.ts`에 alias만 추가/조정.
+`src/shared/api/schema.gen.ts`는 생성물이므로 직접 수정하지 않고, 필요 시 `src/shared/api/types.ts`에서 alias만 조정합니다.
 
 ## Skeleton 로딩 (Boneyard)
 
-로딩 자리는 `<Skeleton name="..." loading={isLoading}>...</Skeleton>` 으로 감싼다. 실제 렌더된 DOM을 캡처해 정확히 일치하는 회색 블록(bones)을 표시 — 텍스트 "불러오는 중…" 보다 시각적 안정감이 좋고 layout shift 없음.
+로딩 구간은 `<Skeleton name="..." loading={isLoading}>...</Skeleton>` 으로 감쌉니다. CLI가 실제 DOM 레이아웃을 캡처해 `src/bones/*.bones.json`과 `registry.ts`를 갱신합니다.
 
-### 생성 방법
+1. `pnpm dev`
+2. 다른 터미널에서 `pnpm bones:gen` (또는 `pnpm bones:watch`)
 
-1. dev 서버 실행: `pnpm dev`
-2. 다른 터미널에서: `pnpm bones:gen`
-   - 헤드리스 브라우저가 `?boneAuth=super_admin` 으로 자동 로그인 → 모든 라우트에서 `<Skeleton>` 발견 → 데이터 로드된 DOM의 위치/크기 캡처 → `src/bones/*.bones.json` 생성
-   - 함께 `src/bones/registry.ts` 도 자동 갱신
-3. `main.tsx` 에서 이미 `import './bones/registry'` 함 → bones 자동 로드
+### `boneAuth` (개발·캡처용)
 
-### auto-auth 메커니즘
+`?boneAuth=super_admin|president|member` 가 있고 **MSW가 켜진 환경**에서만 mock 인증을 주입합니다(`src/main.tsx`). 실백엔드만 쓸 때(`VITE_USE_MOCKS=false`)는 동작하지 않습니다.
 
-- `_authed` 가드는 비로그인 시 `/login` 으로 리다이렉트하므로 캡처 불가
-- `main.tsx` 에서 `?boneAuth=role` URL 파라미터 감지 시 즉시 mock 인증 주입 (dev 모드 한정)
-- `super_admin` 으로 캡처하면 admin / president / member 화면 모두 통과
+## 로드맵 / 여유 과제
 
-### 빈 bones 상태
+- 학교 인증·화이트리스트 가드 강화
+- Firebase Auth 운영 연동·mock 로그인 정리
+- 행사 게시판 실시간(STOMP/SSE 등) 다듬기
+- E2E·스토리북(선택)
 
-CLI를 실행하기 전이거나 등록 안된 `name` 일 때 Skeleton은 자체 fallback (회색 블록) 표시. `src/bones/registry.ts` 는 빈 stub 으로 시작 (CLI가 덮어씀).
+---
 
-## 다음 작업 (P0 후보)
-
-- 학교 인증 + 경인권 화이트리스트 가드
-- 회장 동아리 등록 + Super Admin 승인 대시보드
-- 부원 초대 코드 가입 + 역할 선언 폼
-- 위저드 진입 시 행사 타입 선택 (교내/연합)
-- Step 1/2 자연어 정제 화면 (Spring → Nest → Gemini)
-- Step 3 승인 + 다중 노출 발행 트리거
-- 행사 게시판 + 채팅 (STOMP 또는 SSE)
+문의·백엔드 저장소 정책은 팀 내 컨벤션을 따릅니다.

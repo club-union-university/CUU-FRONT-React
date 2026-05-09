@@ -31,7 +31,6 @@ import { Route as AuthedEventsEventIdIndexRouteImport } from './app/routes/_auth
 import { Route as AuthedClubsClubIdIndexRouteImport } from './app/routes/_authed/clubs/$clubId/index'
 import { Route as AuthedSchoolsSchoolIdBoardRouteImport } from './app/routes/_authed/schools/$schoolId/board'
 import { Route as AuthedEventsEventIdWizardRouteImport } from './app/routes/_authed/events/$eventId/wizard'
-import { Route as AuthedEventsEventIdChatRouteImport } from './app/routes/_authed/events/$eventId/chat'
 import { Route as AuthedEventsEventIdBoardRouteImport } from './app/routes/_authed/events/$eventId/board'
 import { Route as AuthedClubsClubIdBoardRouteImport } from './app/routes/_authed/clubs/$clubId/board'
 import { Route as AuthedSchoolsSchoolIdBoardIndexRouteImport } from './app/routes/_authed/schools/$schoolId/board/index'
@@ -153,11 +152,6 @@ const AuthedEventsEventIdWizardRoute =
     path: '/wizard',
     getParentRoute: () => AuthedEventsEventIdRoute,
   } as any)
-const AuthedEventsEventIdChatRoute = AuthedEventsEventIdChatRouteImport.update({
-  id: '/chat',
-  path: '/chat',
-  getParentRoute: () => AuthedEventsEventIdRoute,
-} as any)
 const AuthedEventsEventIdBoardRoute =
   AuthedEventsEventIdBoardRouteImport.update({
     id: '/board',
@@ -226,7 +220,6 @@ export interface FileRoutesByFullPath {
   '/schools/': typeof AuthedSchoolsIndexRoute
   '/clubs/$clubId/board': typeof AuthedClubsClubIdBoardRouteWithChildren
   '/events/$eventId/board': typeof AuthedEventsEventIdBoardRouteWithChildren
-  '/events/$eventId/chat': typeof AuthedEventsEventIdChatRoute
   '/events/$eventId/wizard': typeof AuthedEventsEventIdWizardRoute
   '/schools/$schoolId/board': typeof AuthedSchoolsSchoolIdBoardRouteWithChildren
   '/clubs/$clubId/': typeof AuthedClubsClubIdIndexRoute
@@ -250,7 +243,6 @@ export interface FileRoutesByTo {
   '/clubs': typeof AuthedClubsIndexRoute
   '/events': typeof AuthedEventsIndexRoute
   '/schools': typeof AuthedSchoolsIndexRoute
-  '/events/$eventId/chat': typeof AuthedEventsEventIdChatRoute
   '/events/$eventId/wizard': typeof AuthedEventsEventIdWizardRoute
   '/clubs/$clubId': typeof AuthedClubsClubIdIndexRoute
   '/events/$eventId': typeof AuthedEventsEventIdIndexRoute
@@ -283,7 +275,6 @@ export interface FileRoutesById {
   '/_authed/schools/': typeof AuthedSchoolsIndexRoute
   '/_authed/clubs/$clubId/board': typeof AuthedClubsClubIdBoardRouteWithChildren
   '/_authed/events/$eventId/board': typeof AuthedEventsEventIdBoardRouteWithChildren
-  '/_authed/events/$eventId/chat': typeof AuthedEventsEventIdChatRoute
   '/_authed/events/$eventId/wizard': typeof AuthedEventsEventIdWizardRoute
   '/_authed/schools/$schoolId/board': typeof AuthedSchoolsSchoolIdBoardRouteWithChildren
   '/_authed/clubs/$clubId/': typeof AuthedClubsClubIdIndexRoute
@@ -317,7 +308,6 @@ export interface FileRouteTypes {
     | '/schools/'
     | '/clubs/$clubId/board'
     | '/events/$eventId/board'
-    | '/events/$eventId/chat'
     | '/events/$eventId/wizard'
     | '/schools/$schoolId/board'
     | '/clubs/$clubId/'
@@ -341,7 +331,6 @@ export interface FileRouteTypes {
     | '/clubs'
     | '/events'
     | '/schools'
-    | '/events/$eventId/chat'
     | '/events/$eventId/wizard'
     | '/clubs/$clubId'
     | '/events/$eventId'
@@ -373,7 +362,6 @@ export interface FileRouteTypes {
     | '/_authed/schools/'
     | '/_authed/clubs/$clubId/board'
     | '/_authed/events/$eventId/board'
-    | '/_authed/events/$eventId/chat'
     | '/_authed/events/$eventId/wizard'
     | '/_authed/schools/$schoolId/board'
     | '/_authed/clubs/$clubId/'
@@ -549,13 +537,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedEventsEventIdWizardRouteImport
       parentRoute: typeof AuthedEventsEventIdRoute
     }
-    '/_authed/events/$eventId/chat': {
-      id: '/_authed/events/$eventId/chat'
-      path: '/chat'
-      fullPath: '/events/$eventId/chat'
-      preLoaderRoute: typeof AuthedEventsEventIdChatRouteImport
-      parentRoute: typeof AuthedEventsEventIdRoute
-    }
     '/_authed/events/$eventId/board': {
       id: '/_authed/events/$eventId/board'
       path: '/board'
@@ -692,14 +673,12 @@ const AuthedEventsEventIdBoardRouteWithChildren =
 
 interface AuthedEventsEventIdRouteChildren {
   AuthedEventsEventIdBoardRoute: typeof AuthedEventsEventIdBoardRouteWithChildren
-  AuthedEventsEventIdChatRoute: typeof AuthedEventsEventIdChatRoute
   AuthedEventsEventIdWizardRoute: typeof AuthedEventsEventIdWizardRoute
   AuthedEventsEventIdIndexRoute: typeof AuthedEventsEventIdIndexRoute
 }
 
 const AuthedEventsEventIdRouteChildren: AuthedEventsEventIdRouteChildren = {
   AuthedEventsEventIdBoardRoute: AuthedEventsEventIdBoardRouteWithChildren,
-  AuthedEventsEventIdChatRoute: AuthedEventsEventIdChatRoute,
   AuthedEventsEventIdWizardRoute: AuthedEventsEventIdWizardRoute,
   AuthedEventsEventIdIndexRoute: AuthedEventsEventIdIndexRoute,
 }

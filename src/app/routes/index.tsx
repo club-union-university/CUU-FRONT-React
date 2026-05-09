@@ -1,13 +1,19 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import { ArrowRight, ClipboardList, Megaphone, ShieldCheck } from 'lucide-react'
 import { Button, CuuLogo } from '@/shared/ui'
 import { cn } from '@/lib/utils'
-import { useAuthStore } from '@/features/auth'
+import { DEFAULT_SUPER_ADMIN_PATH, useAuthStore } from '@/features/auth'
 import { useClubs } from '@/features/club'
 import { useEvents } from '@/features/event'
 import { useSchools } from '@/features/school'
 
 export const Route = createFileRoute('/')({
+  beforeLoad: () => {
+    const { isAuthenticated, user } = useAuthStore.getState()
+    if (isAuthenticated && user?.role === 'SUPER_ADMIN') {
+      throw redirect({ to: DEFAULT_SUPER_ADMIN_PATH })
+    }
+  },
   component: LandingPage,
 })
 
