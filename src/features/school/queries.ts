@@ -4,11 +4,7 @@ import { ApiError } from '@/shared/api/error'
 import type { FacilityType } from '@/shared/api/types'
 import type { SchoolListQuery } from './api'
 import { schoolApi } from './api'
-import {
-  applySchoolListQuery,
-  filterLocalSchoolList,
-  schoolByLocalId,
-} from './local-whitelist'
+import { applySchoolListQuery } from './school-list-utils'
 
 export const schoolKeys = {
   all: ['school'] as const,
@@ -18,43 +14,23 @@ export const schoolKeys = {
     [...schoolKeys.all, id, 'facilities', facilityType ?? 'all'] as const,
 }
 
-/** GET /schools + 클라 필터; 실패 시 로컬 화이트리스트 폴백. */
+/** GET /schools + 클라(region / whitelistedOnly) 필터. */
 export function useSchools(q: SchoolListQuery = { whitelistedOnly: true }) {
   return useQuery({
     queryKey: schoolKeys.list(q),
     queryFn: async () => {
-      try {
-        const rows = await schoolApi.list()
-        return applySchoolListQuery(rows, q)
-      } catch (err) {
-        if (
-          err instanceof ApiError &&
-          (err.status === 404 || err.status === 403 || err.status === 0)
-        ) {
-          return filterLocalSchoolList(q)
-        }
-        throw err
-      }
+      const rows = await schoolApi.list()
+      return applySchoolListQuery(rows, q)
     },
     staleTime: STALE_TIMES.long,
   })
 }
 
-/** GET /schools/{id}; 실패 시 로컬 목록 매칭. */
+/** GET /schools/{id} */
 export function useSchool(id: number) {
   return useQuery({
     queryKey: schoolKeys.detail(id),
-    queryFn: async () => {
-      try {
-        return await schoolApi.detail(id)
-      } catch (err) {
-        if (err instanceof ApiError && (err.isNotFound() || err.status === 403)) {
-          const local = schoolByLocalId(id)
-          if (local) return local
-        }
-        throw err
-      }
-    },
+    queryFn: () => schoolApi.detail(id),
     staleTime: STALE_TIMES.long,
     enabled: id > 0,
   })

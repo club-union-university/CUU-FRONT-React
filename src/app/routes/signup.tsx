@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -22,7 +22,7 @@ import {
   useLogout,
   requireSignupIncomplete,
 } from '@/features/auth'
-import { schoolForSignup } from '@/features/school'
+import { matchSchoolByEmail, useSchool, useSchools } from '@/features/school'
 
 export const Route = createFileRoute('/signup')({
   beforeLoad: ({ location }) => requireSignupIncomplete(location.pathname),
@@ -42,7 +42,29 @@ function SignupPage() {
   const user = useAuthStore((s) => s.user)
   const signup = useSignup()
   const logout = useLogout()
-  const resolvedSchool = user ? schoolForSignup(user) : undefined
+  const schoolIdHint = user?.schoolId && user.schoolId > 0 ? user.schoolId : 0
+  const schoolsQ = useSchools({ whitelistedOnly: true })
+  const schoolByIdQ = useSchool(schoolIdHint)
+
+  const resolvedSchool = useMemo(() => {
+    if (!user) return undefined
+    if (schoolIdHint > 0) {
+      if (schoolByIdQ.isPending) return undefined
+      if (schoolByIdQ.data) return schoolByIdQ.data
+    }
+    if (schoolsQ.isPending) return undefined
+    return matchSchoolByEmail(schoolsQ.data ?? [], user.email)
+  }, [
+    user,
+    schoolIdHint,
+    schoolByIdQ.isPending,
+    schoolByIdQ.data,
+    schoolsQ.isPending,
+    schoolsQ.data,
+  ])
+
+  const schoolFieldsPending =
+    schoolIdHint > 0 ? schoolByIdQ.isPending : schoolsQ.isPending
 
   const form = useForm<FormValues>({
     resolver: zodResolver(signupSchema),
@@ -55,13 +77,12 @@ function SignupPage() {
 
   useEffect(() => {
     if (!user) return
-    const school = schoolForSignup(user)
     form.reset({
       nickname: user.nickname?.trim() ?? '',
-      schoolId: school?.id ?? 0,
+      schoolId: resolvedSchool?.id ?? 0,
       bio: user.bio?.trim() ?? '',
     })
-  }, [user, form.reset])
+  }, [user, resolvedSchool?.id, form.reset])
 
   const onSubmit = form.handleSubmit(async (values) => {
     try {
@@ -95,14 +116,20 @@ function SignupPage() {
 
             <div className="space-y-2">
               <Label>소속 학교</Label>
-              {!resolvedSchool ? (
+              {schoolFieldsPending ? (
+                <p className="text-sm text-muted-foreground">학교 정보를 불러오는 중…</p>
+              ) : schoolsQ.isError ? (
+                <div className="space-y-3 rounded-lg border border-destructive/35 bg-destructive/5 p-4 text-sm">
+                  <p className="font-medium text-destructive">학교 목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p>
+                </div>
+              ) : !resolvedSchool ? (
                 <div className="space-y-3 rounded-lg border border-destructive/35 bg-destructive/5 p-4 text-sm">
                   <p className="font-medium text-destructive">
                     로그인한 이메일이 CUU 화이트리스트 학교 도메인과 일치하지 않습니다.
                   </p>
                   <p className="text-muted-foreground">
-                    학교 포털/웹메일 도메인으로 연결된 Google 계정으로 다시 로그인해 주세요. (예: @hanyang.ac.kr,
-                    @inha.ac.kr, @ajou.ac.kr 등 — 서브도메인 가능)
+                    학교 포털/웹메일 도메인으로 연결된 Google 계정으로 다시 로그인해 주세요. (예: @inha.ac.kr,
+                    @inu.ac.kr, @ajou.ac.kr 등 — 서브도메인 가능)
                   </p>
                   {user?.email && (
                     <p className="text-xs text-muted-foreground">
@@ -143,7 +170,7 @@ function SignupPage() {
               type="submit"
               className="w-full"
               size="lg"
-              disabled={signup.isPending || !resolvedSchool}
+              disabled={signup.isPending || schoolFieldsPending || schoolsQ.isError || !resolvedSchool}
             >
               {signup.isPending ? '가입 중…' : '가입 완료'}
             </Button>

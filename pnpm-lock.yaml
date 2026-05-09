@@ -87,6 +87,9 @@ importers:
         specifier: ^5.0.2
         version: 5.0.13(@types/react@19.2.14)(react@19.2.6)(use-sync-external-store@1.6.0(react@19.2.6))
     devDependencies:
+      '@tanstack/router-core':
+        specifier: 1.169.2
+        version: 1.169.2
       '@tanstack/router-devtools':
         specifier: ^1.95.0
         version: 1.166.13(@tanstack/react-router@1.169.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(@tanstack/router-core@1.169.2)(csstype@3.2.3)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)

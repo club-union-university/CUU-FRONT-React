@@ -1,43 +1,73 @@
 import { http, HttpResponse, delay } from 'msw'
 import { API } from './_base'
 import { db, userFromAuthHeader } from '../db'
-import type { Post } from '@/shared/api/types'
+import type { BoardType, Post } from '@/shared/api/types'
+
+function filterScopedPosts(boardType: BoardType, scopeId: number, request: Request) {
+  const url = new URL(request.url)
+  const category = url.searchParams.get('category')
+  let list = db.posts.filter((p) => p.boardType === boardType && p.targetId === scopeId)
+  if (category) list = list.filter((p) => p.category === category)
+  return list
+}
+
+async function createScopedPost(
+  boardType: BoardType,
+  targetId: number,
+  headers: Headers,
+  request: Request,
+) {
+  const me = userFromAuthHeader(headers.get('Authorization'))
+  if (!me) return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 })
+  const body = (await request.json()) as Partial<Post>
+  const post: Post = {
+    id: db.nextId.post++,
+    authorId: me.id!,
+    boardType,
+    targetId,
+    category: body.category,
+    isOfficialNotice: false,
+    title: body.title ?? '',
+    content: body.content ?? '',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  }
+  db.posts.push(post)
+  return HttpResponse.json(post, { status: 201 })
+}
 
 export const postHandlers = [
-  // GET /posts
-  http.get(API('/posts'), async ({ request }) => {
+  // GET /events/{eventId}/posts — Spring PostController
+  http.get(API('/events/:eventId/posts'), async ({ params, request }) => {
     await delay(120)
-    const url = new URL(request.url)
-    const boardType = url.searchParams.get('boardType')
-    const targetId = url.searchParams.get('targetId')
-    const category = url.searchParams.get('category')
-    let list = [...db.posts]
-    if (boardType) list = list.filter((p) => p.boardType === boardType)
-    if (targetId) list = list.filter((p) => p.targetId === Number(targetId))
-    if (category) list = list.filter((p) => p.category === category)
-    return HttpResponse.json(list)
+    return HttpResponse.json(filterScopedPosts('EVENT', Number(params.eventId), request))
   }),
 
-  // POST /posts
-  http.post(API('/posts'), async ({ request }) => {
+  // POST /events/{eventId}/posts
+  http.post(API('/events/:eventId/posts'), async ({ params, request }) => {
     await delay(180)
-    const me = userFromAuthHeader(request.headers.get('Authorization'))
-    if (!me) return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 })
-    const body = (await request.json()) as Partial<Post>
-    const post: Post = {
-      id: db.nextId.post++,
-      authorId: me.id!,
-      boardType: body.boardType!,
-      targetId: body.targetId!,
-      category: body.category,
-      isOfficialNotice: false,
-      title: body.title ?? '',
-      content: body.content ?? '',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }
-    db.posts.push(post)
-    return HttpResponse.json(post, { status: 201 })
+    return createScopedPost('EVENT', Number(params.eventId), request.headers, request)
+  }),
+
+  // GET /schools/{schoolId}/posts — Spring PostController
+  http.get(API('/schools/:schoolId/posts'), async ({ params, request }) => {
+    await delay(120)
+    return HttpResponse.json(filterScopedPosts('SCHOOL', Number(params.schoolId), request))
+  }),
+
+  http.post(API('/schools/:schoolId/posts'), async ({ params, request }) => {
+    await delay(180)
+    return createScopedPost('SCHOOL', Number(params.schoolId), request.headers, request)
+  }),
+
+  http.get(API('/clubs/:clubId/posts'), async ({ params, request }) => {
+    await delay(120)
+    return HttpResponse.json(filterScopedPosts('CLUB', Number(params.clubId), request))
+  }),
+
+  http.post(API('/clubs/:clubId/posts'), async ({ params, request }) => {
+    await delay(180)
+    return createScopedPost('CLUB', Number(params.clubId), request.headers, request)
   }),
 
   // GET /posts/{id}

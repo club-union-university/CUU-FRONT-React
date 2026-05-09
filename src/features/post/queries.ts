@@ -1,9 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { STALE_TIMES } from '@/shared/api'
+import type { Post } from '@/shared/api/types'
 import {
+  clubPostsApi,
   commentApi,
   commentRootApi,
+  eventPostsApi,
   postApi,
+  schoolPostsApi,
   type CreatePostRequest,
   type PostListQuery,
   type UpdatePostRequest,
@@ -21,11 +25,32 @@ export const commentKeys = {
 }
 
 export function usePosts(q: PostListQuery) {
+  const hasTarget = q.targetId > 0
+  const cat = { category: q.category }
+
+  const enabled =
+    hasTarget &&
+    (q.boardType === 'EVENT' ||
+      q.boardType === 'SCHOOL' ||
+      q.boardType === 'CLUB')
+
   return useQuery({
     queryKey: postKeys.list(q),
-    queryFn: () => postApi.list(q),
+    queryFn: (): Promise<Post[]> => {
+      if (!hasTarget) return Promise.resolve([])
+      switch (q.boardType) {
+        case 'EVENT':
+          return eventPostsApi.list(q.targetId, cat)
+        case 'SCHOOL':
+          return schoolPostsApi.list(q.targetId, cat)
+        case 'CLUB':
+          return clubPostsApi.list(q.targetId, cat)
+        default:
+          return Promise.resolve([])
+      }
+    },
     staleTime: STALE_TIMES.short,
-    enabled: q.targetId > 0,
+    enabled,
   })
 }
 
@@ -41,7 +66,23 @@ export function usePost(id: number) {
 export function useCreatePost() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (body: CreatePostRequest) => postApi.create(body),
+    mutationFn: (body: CreatePostRequest) => {
+      const payload = {
+        category: body.category,
+        title: body.title,
+        content: body.content,
+      }
+      if (body.boardType === 'EVENT') {
+        return eventPostsApi.create(body.targetId, payload)
+      }
+      if (body.boardType === 'SCHOOL') {
+        return schoolPostsApi.create(body.targetId, payload)
+      }
+      if (body.boardType === 'CLUB') {
+        return clubPostsApi.create(body.targetId, payload)
+      }
+      return Promise.reject(new Error('지원하지 않는 게시판 유형입니다.'))
+    },
     onSuccess: () => qc.invalidateQueries({ queryKey: postKeys.all }),
   })
 }

@@ -186,7 +186,7 @@ function NewEventPage() {
               <Textarea
                 id="proposalMessage"
                 rows={4}
-                placeholder="예: 한양에리카랑 인하대 멋사가 6월 중순에 합동 해커톤 하고 싶어. 24시간 무박, 백엔드/프론트/디자이너 다 환영, 송도 쪽이면 좋겠음"
+                placeholder="예: 인하대 멋사랑 인천대 동아리가 6월 중순에 합동 해커톤 하고 싶어. 24시간 무박, 송도 쪽이면 좋겠음"
                 {...form.register('proposalMessage')}
               />
               {form.formState.errors.proposalMessage && (

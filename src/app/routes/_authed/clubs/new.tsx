@@ -110,7 +110,7 @@ function ClubRegisterPage() {
 
             <div className="space-y-2">
               <Label htmlFor="name">동아리 이름</Label>
-              <Input id="name" {...form.register('name')} placeholder="예: 한양에리카 멋쟁이사자처럼" />
+              <Input id="name" {...form.register('name')} placeholder="예: 인하대 멋쟁이사자처럼" />
               {form.formState.errors.name && (
                 <p className="text-xs text-destructive">{form.formState.errors.name.message}</p>
               )}

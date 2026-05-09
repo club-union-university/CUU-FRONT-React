@@ -214,13 +214,13 @@ function JoinByCodeButton() {
             <Input
               id="invite-code"
               autoFocus
-              placeholder="예: HYE-LIKELION"
+              placeholder="예: INHA-LIKELION"
               value={code}
               onChange={(e) => setCode(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
             />
             <p className="text-xs text-muted-foreground">
-              데모 시드: HYE-LIKELION / INHA-LIKELION / AJOU-GDSC / GACHON-DESIGN
+              데모 시드: INHA-LIKELION / INHA-DESIGN / AJOU-GDSC / KAU-MAKERS
             </p>
           </div>
           <DialogFooter>

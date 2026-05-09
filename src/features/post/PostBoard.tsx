@@ -46,10 +46,11 @@ export function PostBoard({
   const [editing, setEditing] = useState<Post | null>(null)
 
   const { data: posts, isLoading } = usePosts({ boardType, targetId, category })
+  const canWrite = !readOnly
 
   return (
     <div>
-      {!readOnly && (
+      {canWrite && (
         <div className="mb-4 flex justify-end">
           <Button onClick={() => setWriteOpen(true)}>
             <Plus className="mr-1 h-4 w-4" /> 글쓰기
@@ -90,14 +91,14 @@ export function PostBoard({
               post={post}
               boardType={boardType}
               targetId={targetId}
-              readOnly={readOnly}
+              readOnly={readOnly || !canWrite}
               onEdit={() => setEditing(post)}
             />
           ))}
         </ul>
       )}
 
-      {!readOnly && (
+      {canWrite && (
         <>
           <PostFormDialog
             open={writeOpen}
