@@ -1,11 +1,11 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { Skeleton } from 'boneyard-js/react'
 import { GraduationCap } from 'lucide-react'
 import {
   Badge,
   Card,
   CardContent,
   CardDescription,
+  CardGridSkeleton,
   CardHeader,
   CardTitle,
 } from '@/shared/ui'
@@ -27,17 +27,17 @@ function SchoolsListPage() {
         </p>
       </header>
 
-      <Skeleton name="schools-list" loading={isLoading}>
-        {schools &&
-          (schools.length === 0 ? (
-            <Card>
-              <CardContent className="py-12 text-center text-sm text-muted-foreground">
-                등록된 학교가 없습니다.
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {schools.map((s) => (
+      {isLoading ? (
+        <CardGridSkeleton count={6} className="sm:grid-cols-2 lg:grid-cols-3" />
+      ) : !schools ? null : schools.length === 0 ? (
+        <Card>
+          <CardContent className="py-12 text-center text-sm text-muted-foreground">
+            등록된 학교가 없습니다.
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {schools.map((s) => (
             <Link
               key={s.id}
               to="/schools/$schoolId/board"
@@ -56,12 +56,11 @@ function SchoolsListPage() {
                   <Badge variant="secondary">{s.region}</Badge>
                   {s.campusType && <Badge variant="outline">{s.campusType}</Badge>}
                 </CardContent>
-                </Card>
-              </Link>
-              ))}
-            </div>
+              </Card>
+            </Link>
           ))}
-      </Skeleton>
+        </div>
+      )}
     </main>
   )
 }

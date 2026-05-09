@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Skeleton } from 'boneyard-js/react'
 import { useState, useMemo } from 'react'
 import { ExternalLink } from 'lucide-react'
 import {
@@ -20,6 +19,7 @@ import {
   TableHeader,
   TableRow,
   Textarea,
+  TableSkeleton,
   toast,
 } from '@/shared/ui'
 import { cn } from '@/lib/utils'
@@ -127,101 +127,95 @@ function AdminClubsPage() {
       </div>
 
       <Card>
-        <Skeleton name="admin-pending-clubs" loading={isLoading}>
-          {clubs &&
-            (filtered.length === 0 ? (
-              <CardContent className="py-12 text-center text-sm text-muted-foreground">
-                {tab === 'PENDING' ? '대기 중인 신청이 없습니다.' : '해당 상태의 동아리가 없습니다.'}
-              </CardContent>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[110px]">신청일</TableHead>
-                    <TableHead>동아리명</TableHead>
-                    <TableHead>학교</TableHead>
-                    <TableHead>카테고리</TableHead>
-                    <TableHead>증빙</TableHead>
-                    <TableHead>상태</TableHead>
-                    <TableHead className="w-[180px] text-right">작업</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filtered.map((club) => (
-                    <TableRow key={club.id}>
-                      <TableCell className="text-muted-foreground tabular-nums">
-                        {club.createdAt?.slice(0, 10)}
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        <div>{club.name}</div>
-                        {club.description && (
-                          <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
-                            {club.description}
-                          </p>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {schoolName(club.schoolId)}
-                      </TableCell>
-                      <TableCell>
-                        {club.category && (
-                          <Badge variant="secondary">{CLUB_CATEGORY_LABELS[club.category]}</Badge>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {club.evidenceUrl ? (
-                          <a
-                            href={club.evidenceUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex items-center gap-1 text-primary underline-offset-4 hover:underline"
-                          >
-                            링크 <ExternalLink className="h-3 w-3" />
-                          </a>
-                        ) : (
-                          <span className="text-xs text-muted-foreground">없음</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <StatusBadge status={club.status} />
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {club.status === 'PENDING' ? (
-                          <div className="flex justify-end gap-1.5">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => setRejecting(club)}
-                              disabled={reject.isPending}
-                            >
-                              거절
-                            </Button>
-                            <Button
-                              size="sm"
-                              onClick={() => handleApprove(club.id!)}
-                              disabled={approve.isPending}
-                            >
-                              승인
-                            </Button>
-                          </div>
-                        ) : club.status === 'REJECTED' && club.rejectReason ? (
-                          <span
-                            className="text-xs text-muted-foreground"
-                            title={club.rejectReason}
-                          >
-                            사유: {club.rejectReason.slice(0, 16)}
-                            {club.rejectReason.length > 16 ? '…' : ''}
-                          </span>
-                        ) : (
-                          <span className="text-xs text-muted-foreground">-</span>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            ))}
-        </Skeleton>
+        {isLoading ? (
+          <TableSkeleton cols={7} rows={10} />
+        ) : !clubs ? null : filtered.length === 0 ? (
+          <CardContent className="py-12 text-center text-sm text-muted-foreground">
+            {tab === 'PENDING' ? '대기 중인 신청이 없습니다.' : '해당 상태의 동아리가 없습니다.'}
+          </CardContent>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[110px]">신청일</TableHead>
+                <TableHead>동아리명</TableHead>
+                <TableHead>학교</TableHead>
+                <TableHead>카테고리</TableHead>
+                <TableHead>증빙</TableHead>
+                <TableHead>상태</TableHead>
+                <TableHead className="w-[180px] text-right">작업</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filtered.map((club) => (
+                <TableRow key={club.id}>
+                  <TableCell className="text-muted-foreground tabular-nums">
+                    {club.createdAt?.slice(0, 10)}
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    <div>{club.name}</div>
+                    {club.description && (
+                      <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
+                        {club.description}
+                      </p>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">{schoolName(club.schoolId)}</TableCell>
+                  <TableCell>
+                    {club.category && (
+                      <Badge variant="secondary">{CLUB_CATEGORY_LABELS[club.category]}</Badge>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {club.evidenceUrl ? (
+                      <a
+                        href={club.evidenceUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 text-primary underline-offset-4 hover:underline"
+                      >
+                        링크 <ExternalLink className="h-3 w-3" />
+                      </a>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">없음</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <StatusBadge status={club.status} />
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {club.status === 'PENDING' ? (
+                      <div className="flex justify-end gap-1.5">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setRejecting(club)}
+                          disabled={reject.isPending}
+                        >
+                          거절
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => handleApprove(club.id!)}
+                          disabled={approve.isPending}
+                        >
+                          승인
+                        </Button>
+                      </div>
+                    ) : club.status === 'REJECTED' && club.rejectReason ? (
+                      <span className="text-xs text-muted-foreground" title={club.rejectReason}>
+                        사유: {club.rejectReason.slice(0, 16)}
+                        {club.rejectReason.length > 16 ? '…' : ''}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">-</span>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </Card>
 
       <Dialog open={!!rejecting} onOpenChange={(open) => !open && setRejecting(null)}>

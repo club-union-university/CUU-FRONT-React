@@ -1,4 +1,7 @@
 export * from './api'
+export * from './categories'
 export * from './queries'
+export { BoardPostDetail } from './board-post-detail'
+export type { BoardPostDetailProps } from './board-post-detail'
 export { PostBoard } from './PostBoard'
 export type { PostBoardProps } from './PostBoard'

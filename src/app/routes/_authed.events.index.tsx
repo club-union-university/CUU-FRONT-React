@@ -1,5 +1,4 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { Skeleton } from 'boneyard-js/react'
 import { z } from 'zod'
 import { Calendar, Plus } from 'lucide-react'
 import {
@@ -7,6 +6,7 @@ import {
   Card,
   CardDescription,
   CardFooter,
+  CardGridSkeleton,
   CardHeader,
   CardTitle,
   EmptyState,
@@ -76,37 +76,36 @@ function EventsListPage() {
         </Select>
       </div>
 
-      <Skeleton name="events-list" loading={isLoading}>
-        {events &&
-          (events.length === 0 ? (
-            <Card>
-              <EmptyState
-                icon={Calendar}
-                title="아직 등록된 행사가 없습니다"
-                description={
-                  user?.role === 'PRESIDENT'
-                    ? '새 행사 만들기로 초안을 올려 보세요. 세부 항목은 위저드에서 다듬을 수 있습니다.'
-                    : '곧 행사들이 등록될 예정입니다.'
-                }
-                action={
-                  user?.role === 'PRESIDENT' && (
-                    <Button asChild>
-                      <Link to="/events/new">
-                        <Plus className="mr-1 h-4 w-4" /> 행사 만들기
-                      </Link>
-                    </Button>
-                  )
-                }
-              />
-            </Card>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2">
-              {events.map((ev) => (
-                <EventCard key={ev.id} event={ev} />
-              ))}
-            </div>
+      {isLoading ? (
+        <CardGridSkeleton count={4} />
+      ) : !events ? null : events.length === 0 ? (
+        <Card>
+          <EmptyState
+            icon={Calendar}
+            title="아직 등록된 행사가 없습니다"
+            description={
+              user?.role === 'PRESIDENT'
+                ? '새 행사 만들기로 초안을 올려 보세요. 세부 항목은 위저드에서 다듬을 수 있습니다.'
+                : '곧 행사들이 등록될 예정입니다.'
+            }
+            action={
+              user?.role === 'PRESIDENT' && (
+                <Button asChild>
+                  <Link to="/events/new">
+                    <Plus className="mr-1 h-4 w-4" /> 행사 만들기
+                  </Link>
+                </Button>
+              )
+            }
+          />
+        </Card>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2">
+          {events.map((ev) => (
+            <EventCard key={ev.id} event={ev} />
           ))}
-      </Skeleton>
+        </div>
+      )}
     </main>
   )
 }

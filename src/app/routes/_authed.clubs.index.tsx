@@ -1,5 +1,4 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { Skeleton } from 'boneyard-js/react'
 import { z } from 'zod'
 import { Plus, KeyRound, Building2 } from 'lucide-react'
 import { useState } from 'react'
@@ -8,6 +7,7 @@ import {
   Card,
   CardDescription,
   CardFooter,
+  CardGridSkeleton,
   CardHeader,
   CardTitle,
   Dialog,
@@ -100,37 +100,36 @@ function ClubsListPage() {
         </Select>
       </div>
 
-      <Skeleton name="clubs-list" loading={isLoading}>
-        {clubs &&
-          (clubs.length === 0 ? (
-            <Card>
-              <EmptyState
-                icon={Building2}
-                title="아직 등록된 동아리가 없습니다"
-                description={
-                  user?.role === 'PRESIDENT'
-                    ? '회장이라면 직접 등록을 시작해 보세요.'
-                    : '곧 동아리들이 등록될 예정입니다.'
-                }
-                action={
-                  user?.role === 'PRESIDENT' && (
-                    <Button asChild>
-                      <Link to="/clubs/new">
-                        <Plus className="mr-1 h-4 w-4" /> 동아리 등록
-                      </Link>
-                    </Button>
-                  )
-                }
-              />
-            </Card>
-          ) : (
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {clubs.map((club) => (
-                <ClubCard key={club.id} club={club} />
-              ))}
-            </div>
+      {isLoading ? (
+        <CardGridSkeleton count={6} className="sm:grid-cols-2 xl:grid-cols-3" />
+      ) : !clubs ? null : clubs.length === 0 ? (
+        <Card>
+          <EmptyState
+            icon={Building2}
+            title="아직 등록된 동아리가 없습니다"
+            description={
+              user?.role === 'PRESIDENT'
+                ? '회장이라면 직접 등록을 시작해 보세요.'
+                : '곧 동아리들이 등록될 예정입니다.'
+            }
+            action={
+              user?.role === 'PRESIDENT' && (
+                <Button asChild>
+                  <Link to="/clubs/new">
+                    <Plus className="mr-1 h-4 w-4" /> 동아리 등록
+                  </Link>
+                </Button>
+              )
+            }
+          />
+        </Card>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {clubs.map((club) => (
+            <ClubCard key={club.id} club={club} />
           ))}
-      </Skeleton>
+        </div>
+      )}
     </main>
   )
 }

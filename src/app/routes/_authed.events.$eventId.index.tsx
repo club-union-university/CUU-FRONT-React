@@ -1,5 +1,4 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { Skeleton } from 'boneyard-js/react'
 import { Building2, GraduationCap, Megaphone, Check, X, Calendar, MapPin, Users } from 'lucide-react'
 import {
   Avatar,
@@ -10,6 +9,8 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  EventDetailPageSkeleton,
+  ParticipantListSkeleton,
   toast,
 } from '@/shared/ui'
 import { cn } from '@/lib/utils'
@@ -37,17 +38,19 @@ function EventDetailPage() {
   const id = Number(eventId)
   const { data: event, isLoading } = useEvent(id)
 
-  return (
-    <Skeleton name="event-detail" loading={isLoading}>
-      {!event ? (
-        <main className="container py-10">
-          <p className="text-sm text-muted-foreground">행사를 찾을 수 없습니다.</p>
-        </main>
-      ) : (
-        <EventDetailContent event={event} eventId={eventId} />
-      )}
-    </Skeleton>
-  )
+  if (isLoading) {
+    return <EventDetailPageSkeleton />
+  }
+
+  if (!event) {
+    return (
+      <main className="container py-10">
+        <p className="text-sm text-muted-foreground">행사를 찾을 수 없습니다.</p>
+      </main>
+    )
+  }
+
+  return <EventDetailContent event={event} eventId={eventId} />
 }
 
 function EventDetailContent({ event, eventId }: { event: Event; eventId: string }) {
@@ -276,56 +279,55 @@ function ParticipantsSection({ eventId }: { eventId: number }) {
         <CardDescription>호스트 회장만 볼 수 있습니다.</CardDescription>
       </CardHeader>
       <CardContent>
-        <Skeleton name="participants-list" loading={isLoading}>
-          {participants &&
-            (participants.length === 0 ? (
-              <p className="py-4 text-center text-sm text-muted-foreground">
-                아직 신청자가 없습니다.
-              </p>
-            ) : (
-              <ul className="divide-y">
-                {participants.map((p) => (
-                  <li key={p.id} className="flex items-center justify-between gap-3 py-3">
-                    <div className="flex items-center gap-3">
-                      <Avatar seed={p.userId} name={`User ${p.userId}`} size={36} />
-                      <div>
-                        <p className="text-sm font-medium">사용자 #{p.userId}</p>
-                        <p className="text-xs text-muted-foreground">
-                          신청 {p.appliedAt?.slice(0, 10) ?? '-'}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {p.status && (
-                        <Badge variant={participantStatusLabel[p.status].variant}>
-                          {participantStatusLabel[p.status].label}
-                        </Badge>
-                      )}
-                      {p.status === 'PENDING' && (
-                        <>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleReject(p.id!)}
-                            disabled={reject.isPending}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            onClick={() => handleApprove(p.id!)}
-                            disabled={approve.isPending}
-                          >
-                            <Check className="h-4 w-4" />
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  </li>
-                ))}
-              </ul>
+        {isLoading ? (
+          <ParticipantListSkeleton rows={5} />
+        ) : !participants ? null : participants.length === 0 ? (
+          <p className="py-4 text-center text-sm text-muted-foreground">
+            아직 신청자가 없습니다.
+          </p>
+        ) : (
+          <ul className="divide-y">
+            {participants.map((p) => (
+              <li key={p.id} className="flex items-center justify-between gap-3 py-3">
+                <div className="flex items-center gap-3">
+                  <Avatar seed={p.userId} name={`User ${p.userId}`} size={36} />
+                  <div>
+                    <p className="text-sm font-medium">사용자 #{p.userId}</p>
+                    <p className="text-xs text-muted-foreground">
+                      신청 {p.appliedAt?.slice(0, 10) ?? '-'}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {p.status && (
+                    <Badge variant={participantStatusLabel[p.status].variant}>
+                      {participantStatusLabel[p.status].label}
+                    </Badge>
+                  )}
+                  {p.status === 'PENDING' && (
+                    <>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleReject(p.id!)}
+                        disabled={reject.isPending}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={() => handleApprove(p.id!)}
+                        disabled={approve.isPending}
+                      >
+                        <Check className="h-4 w-4" />
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </li>
             ))}
-        </Skeleton>
+          </ul>
+        )}
       </CardContent>
     </Card>
   )

@@ -187,27 +187,23 @@
   }
 
   /*
-   * 랜딩 전용 — 아주 얕은 타일 + 상단 조명 (SaaS 메시 패턴 아님)
+   * 랜딩 히어로 — 한 겹의 은은한 하이라이트만 (격자·복수 방사형 제거로 본문 대비 확보)
    */
   .landing-hero-backdrop {
     background-color: hsl(var(--background));
-    background-image:
-      radial-gradient(ellipse 120% 80% at 100% -20%, hsl(var(--primary) / 0.09), transparent 55%),
-      radial-gradient(ellipse 70% 50% at 0% 100%, hsl(var(--primary) / 0.06), transparent 50%),
-      linear-gradient(
-        hsl(var(--border) / 0.45) 1px,
-        transparent 1px
-      ),
-      linear-gradient(
-        90deg,
-        hsl(var(--border) / 0.45) 1px,
-        transparent 1px
-      );
-    background-size:
-      auto,
-      auto,
-      28px 28px,
-      28px 28px;
+    background-image: radial-gradient(
+      ellipse 120% 70% at 50% -15%,
+      hsl(var(--primary) / 0.045),
+      transparent 62%
+    );
+  }
+
+  .dark .landing-hero-backdrop {
+    background-image: radial-gradient(
+      ellipse 120% 70% at 50% -15%,
+      hsl(var(--primary) / 0.065),
+      transparent 62%
+    );
   }
 
   /* Surface utilities */
