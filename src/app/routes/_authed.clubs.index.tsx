@@ -115,15 +115,16 @@ function ClubsListPage() {
       </div>
 
       <Skeleton name="clubs-list" loading={isLoading}>
-        {!clubs?.length ? (
-          <Card>
-            <CardContent className="py-12 text-center text-sm text-muted-foreground">
-              아직 등록된 동아리가 없습니다.
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {clubs.map((club) => (
+        {clubs &&
+          (clubs.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center text-sm text-muted-foreground">
+                아직 등록된 동아리가 없습니다.
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {clubs.map((club) => (
             <Link
               key={club.id}
               to="/clubs/$clubId"
@@ -149,11 +150,11 @@ function ClubsListPage() {
                     <Badge variant="secondary">{categoryLabels[club.category]}</Badge>
                   )}
                 </CardContent>
-              </Card>
-            </Link>
+                </Card>
+              </Link>
+            ))}
+            </div>
           ))}
-          </div>
-        )}
       </Skeleton>
     </main>
   )

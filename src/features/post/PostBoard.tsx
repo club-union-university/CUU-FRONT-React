@@ -109,26 +109,27 @@ export function PostBoard({
       </div>
 
       <Skeleton name={`postboard-${boardType.toLowerCase()}`} loading={isLoading}>
-        {!posts?.length ? (
-          <Card>
-            <CardContent className="py-12 text-center text-sm text-muted-foreground">
-              {readOnly
-                ? '아직 게시글이 없습니다.'
-                : '아직 게시글이 없습니다. 첫 글을 작성해 보세요.'}
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-3">
-            {posts.map((post) => (
-              <PostCard
-                key={post.id}
-                post={post}
-                readOnly={readOnly}
-                onEdit={() => setEditing(post)}
-              />
-            ))}
-          </div>
-        )}
+        {posts &&
+          (posts.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center text-sm text-muted-foreground">
+                {readOnly
+                  ? '아직 게시글이 없습니다.'
+                  : '아직 게시글이 없습니다. 첫 글을 작성해 보세요.'}
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-3">
+              {posts.map((post) => (
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  readOnly={readOnly}
+                  onEdit={() => setEditing(post)}
+                />
+              ))}
+            </div>
+          ))}
       </Skeleton>
 
       {!readOnly && (

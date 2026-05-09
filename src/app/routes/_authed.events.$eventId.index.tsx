@@ -221,13 +221,14 @@ function ParticipantsSection({ eventId }: { eventId: number }) {
       </CardHeader>
       <CardContent>
         <Skeleton name="participants-list" loading={isLoading}>
-          {!participants?.length ? (
-            <p className="py-4 text-center text-sm text-muted-foreground">
-              아직 신청자가 없습니다.
-            </p>
-          ) : (
-            <ul className="divide-y">
-              {participants.map((p) => (
+          {participants &&
+            (participants.length === 0 ? (
+              <p className="py-4 text-center text-sm text-muted-foreground">
+                아직 신청자가 없습니다.
+              </p>
+            ) : (
+              <ul className="divide-y">
+                {participants.map((p) => (
                 <li key={p.id} className="flex items-center justify-between gap-3 py-3">
                   <div className="flex items-center gap-3">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-xs font-medium">
@@ -266,10 +267,10 @@ function ParticipantsSection({ eventId }: { eventId: number }) {
                       </>
                     )}
                   </div>
-                </li>
-              ))}
-            </ul>
-          )}
+                  </li>
+                ))}
+              </ul>
+            ))}
         </Skeleton>
       </CardContent>
     </Card>

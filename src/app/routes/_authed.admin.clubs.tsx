@@ -69,15 +69,16 @@ function AdminClubsPage() {
       </div>
 
       <Skeleton name="admin-pending-clubs" loading={pending.isLoading}>
-        {!pending.data?.length ? (
-          <Card>
-            <CardContent className="py-12 text-center text-sm text-muted-foreground">
-              대기 중인 신청이 없습니다.
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-4">
-            {pending.data.map((club) => (
+        {pending.data &&
+          (pending.data.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center text-sm text-muted-foreground">
+                대기 중인 신청이 없습니다.
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-4">
+              {pending.data.map((club) => (
             <Card key={club.id}>
               <CardHeader>
                 <div className="flex items-center justify-between gap-3">
@@ -117,11 +118,11 @@ function AdminClubsPage() {
                     승인
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
-            ))}
-          </div>
-        )}
+                </CardContent>
+              </Card>
+              ))}
+            </div>
+          ))}
       </Skeleton>
 
       <Dialog open={!!rejecting} onOpenChange={(open) => !open && setRejecting(null)}>

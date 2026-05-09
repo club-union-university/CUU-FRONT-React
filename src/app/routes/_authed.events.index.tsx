@@ -80,15 +80,16 @@ function EventsListPage() {
       </div>
 
       <Skeleton name="events-list" loading={isLoading}>
-        {!events?.length ? (
-          <Card>
-            <CardContent className="py-12 text-center text-sm text-muted-foreground">
-              아직 등록된 행사가 없습니다.
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2">
-            {events.map((ev) => (
+        {events &&
+          (events.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center text-sm text-muted-foreground">
+                아직 등록된 행사가 없습니다.
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2">
+              {events.map((ev) => (
             <Link
               key={ev.id}
               to="/events/$eventId"
@@ -115,11 +116,11 @@ function EventsListPage() {
                   </Badge>
                   {ev.category && <Badge variant="outline">{ev.category}</Badge>}
                 </CardContent>
-              </Card>
-            </Link>
-            ))}
-          </div>
-        )}
+                </Card>
+              </Link>
+              ))}
+            </div>
+          ))}
       </Skeleton>
     </main>
   )

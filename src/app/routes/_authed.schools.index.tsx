@@ -28,15 +28,16 @@ function SchoolsListPage() {
       </header>
 
       <Skeleton name="schools-list" loading={isLoading}>
-        {!schools?.length ? (
-          <Card>
-            <CardContent className="py-12 text-center text-sm text-muted-foreground">
-              등록된 학교가 없습니다.
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {schools.map((s) => (
+        {schools &&
+          (schools.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center text-sm text-muted-foreground">
+                등록된 학교가 없습니다.
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {schools.map((s) => (
             <Link
               key={s.id}
               to="/schools/$schoolId/board"
@@ -55,11 +56,11 @@ function SchoolsListPage() {
                   <Badge variant="secondary">{s.region}</Badge>
                   {s.campusType && <Badge variant="outline">{s.campusType}</Badge>}
                 </CardContent>
-              </Card>
-            </Link>
-            ))}
-          </div>
-        )}
+                </Card>
+              </Link>
+              ))}
+            </div>
+          ))}
       </Skeleton>
     </main>
   )
