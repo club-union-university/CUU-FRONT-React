@@ -29,23 +29,20 @@ import {
   toast,
 } from '@/shared/ui'
 import { cn } from '@/lib/utils'
-import { useApproveClub, useClubs, useRejectClub } from '@/features/club'
+import {
+  CLUB_CATEGORY_LABELS,
+  useApproveClub,
+  useClubs,
+  useRejectClub,
+} from '@/features/club'
 import { useSchools } from '@/features/school'
 import { requireSuperAdmin } from '@/features/auth'
-import type { Club, ClubCategory, ClubStatus } from '@/shared/api/types'
+import type { Club, ClubStatus } from '@/shared/api/types'
 
 export const Route = createFileRoute('/_authed/admin/clubs')({
   beforeLoad: ({ location }) => requireSuperAdmin(location.pathname),
   component: AdminClubsPage,
 })
-
-const categoryLabels: Record<ClubCategory, string> = {
-  DEV: '개발',
-  DESIGN: '디자인',
-  STARTUP: '창업',
-  ART: '예술',
-  SPORTS: '스포츠',
-}
 
 type Tab = ClubStatus | 'ALL'
 
@@ -173,7 +170,7 @@ function AdminClubsPage() {
                       </TableCell>
                       <TableCell>
                         {club.category && (
-                          <Badge variant="secondary">{categoryLabels[club.category]}</Badge>
+                          <Badge variant="secondary">{CLUB_CATEGORY_LABELS[club.category]}</Badge>
                         )}
                       </TableCell>
                       <TableCell>

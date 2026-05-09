@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { Skeleton } from 'boneyard-js/react'
 import { z } from 'zod'
-import { Plus, KeyRound } from 'lucide-react'
+import { Plus, KeyRound, Building2 } from 'lucide-react'
 import { useState } from 'react'
 import {
   Badge,
@@ -17,6 +17,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  EmptyState,
   Input,
   Label,
   Select,
@@ -26,9 +27,16 @@ import {
   SelectValue,
   toast,
 } from '@/shared/ui'
-import { useClubs, useJoinClubByCode } from '@/features/club'
+import { cn } from '@/lib/utils'
+import {
+  CLUB_CATEGORY_COLORS,
+  CLUB_CATEGORY_LABELS,
+  CLUB_STATUS_LABELS,
+  useClubs,
+  useJoinClubByCode,
+} from '@/features/club'
 import { useAuthStore } from '@/features/auth'
-import type { ClubCategory, ClubStatus } from '@/shared/api/types'
+import type { Club, ClubCategory } from '@/shared/api/types'
 
 const clubsSearchSchema = z.object({
   clubCategory: z.enum(['DEV', 'DESIGN', 'STARTUP', 'ART', 'SPORTS']).optional(),
@@ -40,20 +48,6 @@ export const Route = createFileRoute('/_authed/clubs/')({
   validateSearch: clubsSearchSchema,
   component: ClubsListPage,
 })
-
-const categoryLabels: Record<ClubCategory, string> = {
-  DEV: '개발',
-  DESIGN: '디자인',
-  STARTUP: '창업',
-  ART: '예술',
-  SPORTS: '스포츠',
-}
-
-const statusBadge: Record<ClubStatus, { label: string; variant: 'default' | 'warning' | 'destructive' }> = {
-  PENDING: { label: '승인 대기', variant: 'warning' },
-  APPROVED: { label: '승인됨', variant: 'default' },
-  REJECTED: { label: '거절됨', variant: 'destructive' },
-}
 
 function ClubsListPage() {
   const search = Route.useSearch()
@@ -105,7 +99,7 @@ function ClubsListPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="ALL">전체 카테고리</SelectItem>
-            {Object.entries(categoryLabels).map(([k, v]) => (
+            {Object.entries(CLUB_CATEGORY_LABELS).map(([k, v]) => (
               <SelectItem key={k} value={k}>
                 {v}
               </SelectItem>
@@ -118,45 +112,77 @@ function ClubsListPage() {
         {clubs &&
           (clubs.length === 0 ? (
             <Card>
-              <CardContent className="py-12 text-center text-sm text-muted-foreground">
-                아직 등록된 동아리가 없습니다.
-              </CardContent>
+              <EmptyState
+                icon={Building2}
+                title="아직 등록된 동아리가 없습니다"
+                description={
+                  user?.role === 'PRESIDENT'
+                    ? '회장이라면 직접 등록을 시작해 보세요.'
+                    : '곧 동아리들이 등록될 예정입니다.'
+                }
+                action={
+                  user?.role === 'PRESIDENT' && (
+                    <Button asChild>
+                      <Link to="/clubs/new">
+                        <Plus className="mr-1 h-4 w-4" /> 동아리 등록
+                      </Link>
+                    </Button>
+                  )
+                }
+              />
             </Card>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {clubs.map((club) => (
-            <Link
-              key={club.id}
-              to="/clubs/$clubId"
-              params={{ clubId: String(club.id) }}
-              className="block transition-transform hover:-translate-y-0.5"
-            >
-              <Card className="h-full">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">{club.name}</CardTitle>
-                    {club.status && (
-                      <Badge variant={statusBadge[club.status].variant}>
-                        {statusBadge[club.status].label}
-                      </Badge>
-                    )}
-                  </div>
-                  <CardDescription className="line-clamp-2">
-                    {club.description ?? '설명 없음'}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {club.category && (
-                    <Badge variant="secondary">{categoryLabels[club.category]}</Badge>
-                  )}
-                </CardContent>
-                </Card>
-              </Link>
-            ))}
+                <ClubCard key={club.id} club={club} />
+              ))}
             </div>
           ))}
       </Skeleton>
     </main>
+  )
+}
+
+function ClubCard({ club }: { club: Club }) {
+  const color = club.category && CLUB_CATEGORY_COLORS[club.category]
+  return (
+    <Link
+      to="/clubs/$clubId"
+      params={{ clubId: String(club.id) }}
+      className="group block"
+    >
+      <Card className="relative h-full overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-md">
+        {color && <div className={cn('absolute inset-y-0 left-0 w-1', color.bar)} />}
+        <CardHeader className="pl-7">
+          <div className="flex items-start justify-between gap-2">
+            <CardTitle className="text-lg leading-tight group-hover:text-primary">
+              {club.name}
+            </CardTitle>
+            {club.status && club.status !== 'APPROVED' && (
+              <Badge variant={CLUB_STATUS_LABELS[club.status].variant}>
+                {CLUB_STATUS_LABELS[club.status].label}
+              </Badge>
+            )}
+          </div>
+          <CardDescription className="line-clamp-2">
+            {club.description ?? '설명 없음'}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pl-7">
+          {club.category && color && (
+            <span
+              className={cn(
+                'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+                color.bg,
+                color.text,
+              )}
+            >
+              {CLUB_CATEGORY_LABELS[club.category]}
+            </span>
+          )}
+        </CardContent>
+      </Card>
+    </Link>
   )
 }
 

@@ -1,7 +1,9 @@
 import { createFileRoute, Link, Outlet, useNavigate } from '@tanstack/react-router'
 import {
+  Avatar,
   Badge,
   Button,
+  DarkModeToggle,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -10,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/shared/ui'
 import { requireAuth, useAuthStore, useLogout, userRoleLabel } from '@/features/auth'
-import { LogOut, User as UserIcon, ShieldCheck } from 'lucide-react'
+import { LogOut, ShieldCheck } from 'lucide-react'
 
 export const Route = createFileRoute('/_authed')({
   beforeLoad: ({ location }) => requireAuth(location.pathname),
@@ -49,11 +51,12 @@ function AuthedLayout() {
                 </span>
               </Link>
             )}
+            <DarkModeToggle />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="gap-2">
-                  <UserIcon className="h-4 w-4" />
-                  <span>{user?.nickname || '사용자'}</span>
+                <Button variant="ghost" size="sm" className="gap-2 pl-1.5">
+                  <Avatar seed={user?.id} name={user?.nickname || 'U'} size={24} />
+                  <span className="max-w-[80px] truncate">{user?.nickname || '사용자'}</span>
                   {user?.role && (
                     <Badge
                       variant={isSuperAdmin ? 'destructive' : isPresident ? 'default' : 'secondary'}

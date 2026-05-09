@@ -10,7 +10,13 @@ import {
   CardHeader,
   CardTitle,
 } from '@/shared/ui'
-import { useClub } from '@/features/club'
+import { cn } from '@/lib/utils'
+import {
+  CLUB_CATEGORY_COLORS,
+  CLUB_CATEGORY_LABELS,
+  CLUB_STATUS_LABELS,
+  useClub,
+} from '@/features/club'
 import { useAuthStore } from '@/features/auth'
 
 export const Route = createFileRoute('/_authed/clubs/$clubId/')({
@@ -23,6 +29,7 @@ function ClubDetailPage() {
   const { data: club, isLoading } = useClub(id)
   const user = useAuthStore((s) => s.user)
   const isPresident = user?.role === 'PRESIDENT' && club?.presidentUserId === user?.id
+  const color = club?.category && CLUB_CATEGORY_COLORS[club.category]
 
   return (
     <Skeleton name="club-detail" loading={isLoading}>
@@ -32,15 +39,30 @@ function ClubDetailPage() {
         </main>
       ) : (
         <main className="container max-w-4xl py-10">
+          {color && (
+            <div className={cn('mb-6 h-1.5 w-24 rounded-full', color.bar)} aria-hidden />
+          )}
           <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">{club.name}</h1>
-              <div className="mt-2 flex gap-2">
-                {club.category && <Badge variant="secondary">{club.category}</Badge>}
-                {club.status === 'PENDING' && <Badge variant="warning">승인 대기</Badge>}
-                {club.status === 'APPROVED' && <Badge>승인됨</Badge>}
-                {club.status === 'REJECTED' && <Badge variant="destructive">거절됨</Badge>}
+            <div className="space-y-2">
+              <div className="flex flex-wrap items-center gap-2">
+                {club.category && color && (
+                  <span
+                    className={cn(
+                      'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+                      color.bg,
+                      color.text,
+                    )}
+                  >
+                    {CLUB_CATEGORY_LABELS[club.category]}
+                  </span>
+                )}
+                {club.status && (
+                  <Badge variant={CLUB_STATUS_LABELS[club.status].variant}>
+                    {CLUB_STATUS_LABELS[club.status].label}
+                  </Badge>
+                )}
               </div>
+              <h1 className="text-3xl font-bold tracking-tight">{club.name}</h1>
             </div>
             <div className="flex gap-2">
               {club.status === 'APPROVED' && (
@@ -86,6 +108,11 @@ function ClubDetailPage() {
                 <div className="text-muted-foreground">
                   승인 일시: {club.approvedAt ?? '아직 승인되지 않음'}
                 </div>
+                {club.status === 'REJECTED' && club.rejectReason && (
+                  <div className="rounded-md border border-red-200 bg-red-50 p-2 text-red-700">
+                    거절 사유: {club.rejectReason}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

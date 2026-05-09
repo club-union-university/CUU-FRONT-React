@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { Skeleton } from 'boneyard-js/react'
-import { Building2, GraduationCap, Megaphone, Check, X } from 'lucide-react'
+import { Building2, GraduationCap, Megaphone, Check, X, Calendar, MapPin, Users } from 'lucide-react'
 import {
+  Avatar,
   Badge,
   Button,
   Card,
@@ -11,7 +12,12 @@ import {
   CardTitle,
   toast,
 } from '@/shared/ui'
+import { cn } from '@/lib/utils'
 import {
+  daysUntil,
+  EVENT_CATEGORY_COLORS,
+  EVENT_CATEGORY_LABELS,
+  EVENT_STATUS_LABELS,
   useEvent,
   useEventParticipants,
   useApplyToEvent,
@@ -20,20 +26,11 @@ import {
 } from '@/features/event'
 import { useClub } from '@/features/club'
 import { useAuthStore } from '@/features/auth'
-import type { Event, EventStatus, ParticipantStatus } from '@/shared/api/types'
+import type { Event, ParticipantStatus } from '@/shared/api/types'
 
 export const Route = createFileRoute('/_authed/events/$eventId/')({
   component: EventDetailPage,
 })
-
-const statusVariant: Record<EventStatus, 'default' | 'warning' | 'destructive' | 'secondary' | 'success'> = {
-  DRAFT: 'secondary',
-  PARTNER_REVIEW: 'warning',
-  APPROVED: 'default',
-  REJECTED: 'destructive',
-  RECRUITING: 'success',
-  CLOSED: 'secondary',
-}
 
 function EventDetailPage() {
   const { eventId } = Route.useParams()
@@ -64,26 +61,64 @@ function EventDetailContent({ event, eventId }: { event: Event; eventId: string 
     user?.role === 'PRESIDENT' &&
     (host.data?.presidentUserId === user?.id || partner.data?.presidentUserId === user?.id)
 
+  const color = event.category && EVENT_CATEGORY_COLORS[event.category]
+  const dDay = daysUntil(event.recruitDeadline)
+  const status = event.status && EVENT_STATUS_LABELS[event.status]
+
   return (
     <main className="container max-w-5xl py-10">
-      <header className="mb-8 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary">{isInter ? '연합 행사' : '교내 행사'}</Badge>
-            {event.status && <Badge variant={statusVariant[event.status]}>{event.status}</Badge>}
-            {event.category && <Badge variant="outline">{event.category}</Badge>}
+      <header className="mb-8">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="min-w-0 flex-1 space-y-2">
+            <div className="flex flex-wrap items-center gap-1.5">
+              {event.category && color && (
+                <span
+                  className={cn(
+                    'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+                    color.bg,
+                    color.text,
+                  )}
+                >
+                  {EVENT_CATEGORY_LABELS[event.category]}
+                </span>
+              )}
+              <Badge variant="secondary">{isInter ? '연합 행사' : '교내 행사'}</Badge>
+              {status && <Badge variant={status.variant}>{status.label}</Badge>}
+            </div>
+            <h1 className="text-3xl font-bold tracking-tight">{event.title}</h1>
+            <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+              {event.startAt && (
+                <span className="inline-flex items-center gap-1.5">
+                  <Calendar className="h-4 w-4" /> {event.startAt.slice(0, 10)}
+                </span>
+              )}
+              {event.locationName && (
+                <span className="inline-flex items-center gap-1.5">
+                  <MapPin className="h-4 w-4" /> {event.locationName}
+                </span>
+              )}
+              {event.maxParticipants && (
+                <span className="inline-flex items-center gap-1.5">
+                  <Users className="h-4 w-4" /> 최대 {event.maxParticipants}명
+                </span>
+              )}
+            </div>
           </div>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight">{event.title}</h1>
-        </div>
-        <div className="flex gap-2">
-          {isHostPresident && event.status === 'DRAFT' && (
-            <Button asChild>
-              <Link to="/events/$eventId/wizard" params={{ eventId }}>
-                위저드 계속하기
-              </Link>
-            </Button>
-          )}
-          {!isHostPresident && event.status === 'RECRUITING' && <ApplyButton eventId={id} />}
+          <div className="flex shrink-0 items-center gap-3">
+            {dDay !== null && event.status === 'RECRUITING' && (
+              <DDayCard days={dDay} />
+            )}
+            <div className="flex flex-col gap-2">
+              {isHostPresident && event.status === 'DRAFT' && (
+                <Button asChild>
+                  <Link to="/events/$eventId/wizard" params={{ eventId }}>
+                    위저드 계속하기
+                  </Link>
+                </Button>
+              )}
+              {!isHostPresident && event.status === 'RECRUITING' && <ApplyButton eventId={id} />}
+            </div>
+          </div>
         </div>
       </header>
 
@@ -99,11 +134,6 @@ function EventDetailContent({ event, eventId }: { event: Event; eventId: string 
             {event.format && (
               <p className="text-muted-foreground">
                 <span className="font-medium text-foreground">형태:</span> {event.format}
-              </p>
-            )}
-            {event.locationName && (
-              <p className="text-muted-foreground">
-                <span className="font-medium text-foreground">장소:</span> {event.locationName}
               </p>
             )}
           </CardContent>
@@ -160,6 +190,25 @@ function EventDetailContent({ event, eventId }: { event: Event; eventId: string 
   )
 }
 
+function DDayCard({ days }: { days: number }) {
+  const urgent = days >= 0 && days <= 7
+  return (
+    <div
+      className={cn(
+        'flex shrink-0 flex-col items-center rounded-lg border px-4 py-2 text-center',
+        urgent ? 'border-red-200 bg-red-50 text-red-700' : 'border-border bg-muted',
+      )}
+    >
+      <span className="text-[10px] font-medium uppercase tracking-wider opacity-70">
+        모집 마감
+      </span>
+      <span className="text-2xl font-bold tabular-nums">
+        {days === 0 ? 'D-day' : days > 0 ? `D-${days}` : `D+${-days}`}
+      </span>
+    </div>
+  )
+}
+
 function ApplyButton({ eventId }: { eventId: number }) {
   const apply = useApplyToEvent(eventId)
   const handleApply = async () => {
@@ -177,7 +226,10 @@ function ApplyButton({ eventId }: { eventId: number }) {
   )
 }
 
-const participantStatusLabel: Record<ParticipantStatus, { label: string; variant: 'default' | 'warning' | 'destructive' | 'secondary' }> = {
+const participantStatusLabel: Record<
+  ParticipantStatus,
+  { label: string; variant: 'default' | 'warning' | 'destructive' | 'secondary' }
+> = {
   PENDING: { label: '대기', variant: 'warning' },
   APPROVED: { label: '승인됨', variant: 'default' },
   REJECTED: { label: '거절됨', variant: 'destructive' },
@@ -229,44 +281,42 @@ function ParticipantsSection({ eventId }: { eventId: number }) {
             ) : (
               <ul className="divide-y">
                 {participants.map((p) => (
-                <li key={p.id} className="flex items-center justify-between gap-3 py-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-xs font-medium">
-                      {String(p.userId).slice(-2)}
+                  <li key={p.id} className="flex items-center justify-between gap-3 py-3">
+                    <div className="flex items-center gap-3">
+                      <Avatar seed={p.userId} name={`User ${p.userId}`} size={36} />
+                      <div>
+                        <p className="text-sm font-medium">사용자 #{p.userId}</p>
+                        <p className="text-xs text-muted-foreground">
+                          신청 {p.appliedAt?.slice(0, 10) ?? '-'}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-medium">사용자 #{p.userId}</p>
-                      <p className="text-xs text-muted-foreground">
-                        신청 {p.appliedAt?.slice(0, 10) ?? '-'}
-                      </p>
+                    <div className="flex items-center gap-2">
+                      {p.status && (
+                        <Badge variant={participantStatusLabel[p.status].variant}>
+                          {participantStatusLabel[p.status].label}
+                        </Badge>
+                      )}
+                      {p.status === 'PENDING' && (
+                        <>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleReject(p.id!)}
+                            disabled={reject.isPending}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => handleApprove(p.id!)}
+                            disabled={approve.isPending}
+                          >
+                            <Check className="h-4 w-4" />
+                          </Button>
+                        </>
+                      )}
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {p.status && (
-                      <Badge variant={participantStatusLabel[p.status].variant}>
-                        {participantStatusLabel[p.status].label}
-                      </Badge>
-                    )}
-                    {p.status === 'PENDING' && (
-                      <>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleReject(p.id!)}
-                          disabled={reject.isPending}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          onClick={() => handleApprove(p.id!)}
-                          disabled={approve.isPending}
-                        >
-                          <Check className="h-4 w-4" />
-                        </Button>
-                      </>
-                    )}
-                  </div>
                   </li>
                 ))}
               </ul>
