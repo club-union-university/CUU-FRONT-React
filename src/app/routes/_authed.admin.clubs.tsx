@@ -1,38 +1,81 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Skeleton } from 'boneyard-js/react'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
+import {
+  CheckCircle2,
+  Clock,
+  ExternalLink,
+  ShieldCheck,
+  XCircle,
+} from 'lucide-react'
 import {
   Badge,
   Button,
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
   Textarea,
   toast,
 } from '@/shared/ui'
+import { cn } from '@/lib/utils'
 import { useApproveClub, useClubs, useRejectClub } from '@/features/club'
+import { useSchools } from '@/features/school'
 import { requireSuperAdmin } from '@/features/auth'
-import type { Club } from '@/shared/api/types'
+import type { Club, ClubCategory, ClubStatus } from '@/shared/api/types'
 
 export const Route = createFileRoute('/_authed/admin/clubs')({
   beforeLoad: ({ location }) => requireSuperAdmin(location.pathname),
   component: AdminClubsPage,
 })
 
+const categoryLabels: Record<ClubCategory, string> = {
+  DEV: '개발',
+  DESIGN: '디자인',
+  STARTUP: '창업',
+  ART: '예술',
+  SPORTS: '스포츠',
+}
+
+type Tab = ClubStatus | 'ALL'
+
 function AdminClubsPage() {
-  const pending = useClubs({ status: 'PENDING' })
+  const { data: clubs, isLoading } = useClubs({})
+  const { data: schools } = useSchools({})
   const approve = useApproveClub()
   const reject = useRejectClub()
+
+  const [tab, setTab] = useState<Tab>('PENDING')
   const [rejecting, setRejecting] = useState<Club | null>(null)
   const [reason, setReason] = useState('')
+
+  const stats = useMemo(() => {
+    const list = clubs ?? []
+    return {
+      total: list.length,
+      pending: list.filter((c) => c.status === 'PENDING').length,
+      approved: list.filter((c) => c.status === 'APPROVED').length,
+      rejected: list.filter((c) => c.status === 'REJECTED').length,
+    }
+  }, [clubs])
+
+  const filtered = useMemo(() => {
+    const list = clubs ?? []
+    return tab === 'ALL' ? list : list.filter((c) => c.status === tab)
+  }, [clubs, tab])
+
+  const schoolName = (id?: number) =>
+    schools?.find((s) => s.id === id)?.name ?? `학교 #${id ?? '-'}`
 
   const handleApprove = async (id: number) => {
     try {
@@ -60,77 +103,141 @@ function AdminClubsPage() {
   }
 
   return (
-    <main className="container max-w-5xl py-10">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight">동아리 승인 대기</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Super Admin 전용. 등록 신청된 동아리를 검토하고 승인 또는 거절합니다.
-        </p>
+    <main className="container max-w-6xl py-10">
+      <header className="mb-6 flex items-center gap-2">
+        <ShieldCheck className="h-5 w-5 text-primary" />
+        <h1 className="text-2xl font-bold tracking-tight">동아리 관리</h1>
+        <Badge variant="outline" className="ml-2">
+          Super Admin
+        </Badge>
+      </header>
+
+      <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard label="전체" value={stats.total} />
+        <StatCard label="승인 대기" value={stats.pending} accent="warning" icon={Clock} />
+        <StatCard label="승인됨" value={stats.approved} accent="success" icon={CheckCircle2} />
+        <StatCard label="거절됨" value={stats.rejected} accent="destructive" icon={XCircle} />
       </div>
 
-      <Skeleton name="admin-pending-clubs" loading={pending.isLoading}>
-        {pending.data &&
-          (pending.data.length === 0 ? (
-            <Card>
+      <div className="mb-4 flex items-center gap-1 border-b">
+        <TabButton active={tab === 'PENDING'} onClick={() => setTab('PENDING')}>
+          승인 대기 <CountChip n={stats.pending} active={tab === 'PENDING'} />
+        </TabButton>
+        <TabButton active={tab === 'APPROVED'} onClick={() => setTab('APPROVED')}>
+          승인됨 <CountChip n={stats.approved} active={tab === 'APPROVED'} />
+        </TabButton>
+        <TabButton active={tab === 'REJECTED'} onClick={() => setTab('REJECTED')}>
+          거절됨 <CountChip n={stats.rejected} active={tab === 'REJECTED'} />
+        </TabButton>
+        <TabButton active={tab === 'ALL'} onClick={() => setTab('ALL')}>
+          전체 <CountChip n={stats.total} active={tab === 'ALL'} />
+        </TabButton>
+      </div>
+
+      <Card>
+        <Skeleton name="admin-pending-clubs" loading={isLoading}>
+          {clubs &&
+            (filtered.length === 0 ? (
               <CardContent className="py-12 text-center text-sm text-muted-foreground">
-                대기 중인 신청이 없습니다.
+                {tab === 'PENDING' ? '대기 중인 신청이 없습니다.' : '해당 상태의 동아리가 없습니다.'}
               </CardContent>
-            </Card>
-          ) : (
-            <div className="space-y-4">
-              {pending.data.map((club) => (
-            <Card key={club.id}>
-              <CardHeader>
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <CardTitle className="text-lg">{club.name}</CardTitle>
-                    <CardDescription className="mt-1">
-                      학교 ID {club.schoolId} · 회장 ID {club.presidentUserId}
-                    </CardDescription>
-                  </div>
-                  <Badge variant="warning">승인 대기</Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <p className="text-sm whitespace-pre-wrap">{club.description ?? '소개 없음'}</p>
-                {club.evidenceUrl && (
-                  <a
-                    href={club.evidenceUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-sm text-primary underline"
-                  >
-                    실재 증빙 자료 보기
-                  </a>
-                )}
-                <div className="flex justify-end gap-2 pt-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => setRejecting(club)}
-                    disabled={reject.isPending}
-                  >
-                    거절
-                  </Button>
-                  <Button
-                    onClick={() => handleApprove(club.id!)}
-                    disabled={approve.isPending}
-                  >
-                    승인
-                  </Button>
-                </div>
-                </CardContent>
-              </Card>
-              ))}
-            </div>
-          ))}
-      </Skeleton>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[110px]">신청일</TableHead>
+                    <TableHead>동아리명</TableHead>
+                    <TableHead>학교</TableHead>
+                    <TableHead>카테고리</TableHead>
+                    <TableHead>증빙</TableHead>
+                    <TableHead>상태</TableHead>
+                    <TableHead className="w-[180px] text-right">작업</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filtered.map((club) => (
+                    <TableRow key={club.id}>
+                      <TableCell className="text-muted-foreground tabular-nums">
+                        {club.createdAt?.slice(0, 10)}
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        <div>{club.name}</div>
+                        {club.description && (
+                          <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
+                            {club.description}
+                          </p>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {schoolName(club.schoolId)}
+                      </TableCell>
+                      <TableCell>
+                        {club.category && (
+                          <Badge variant="secondary">{categoryLabels[club.category]}</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {club.evidenceUrl ? (
+                          <a
+                            href={club.evidenceUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 text-primary underline-offset-4 hover:underline"
+                          >
+                            링크 <ExternalLink className="h-3 w-3" />
+                          </a>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">없음</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <StatusBadge status={club.status} />
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {club.status === 'PENDING' ? (
+                          <div className="flex justify-end gap-1.5">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setRejecting(club)}
+                              disabled={reject.isPending}
+                            >
+                              거절
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={() => handleApprove(club.id!)}
+                              disabled={approve.isPending}
+                            >
+                              승인
+                            </Button>
+                          </div>
+                        ) : club.status === 'REJECTED' && club.rejectReason ? (
+                          <span
+                            className="text-xs text-muted-foreground"
+                            title={club.rejectReason}
+                          >
+                            사유: {club.rejectReason.slice(0, 16)}
+                            {club.rejectReason.length > 16 ? '…' : ''}
+                          </span>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">-</span>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ))}
+        </Skeleton>
+      </Card>
 
       <Dialog open={!!rejecting} onOpenChange={(open) => !open && setRejecting(null)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>거절 사유 입력</DialogTitle>
             <DialogDescription>
-              {rejecting?.name} 등록 신청을 거절합니다. 회장에게 전달됩니다.
+              {rejecting?.name} 등록 신청을 거절합니다. 회장에게 그대로 전달됩니다.
             </DialogDescription>
           </DialogHeader>
           <Textarea
@@ -151,4 +258,124 @@ function AdminClubsPage() {
       </Dialog>
     </main>
   )
+}
+
+// ============================================================
+// Stats Card
+// ============================================================
+
+const ACCENT_CLASSES = {
+  warning: 'text-amber-600',
+  success: 'text-emerald-600',
+  destructive: 'text-red-600',
+} as const
+
+function StatCard({
+  label,
+  value,
+  accent,
+  icon: Icon,
+}: {
+  label: string
+  value: number
+  accent?: keyof typeof ACCENT_CLASSES
+  icon?: React.ComponentType<{ className?: string }>
+}) {
+  return (
+    <Card>
+      <CardContent className="flex items-center justify-between p-5">
+        <div>
+          <p className="text-xs uppercase tracking-wider text-muted-foreground">{label}</p>
+          <p
+            className={cn(
+              'mt-1 text-2xl font-bold tabular-nums',
+              accent && ACCENT_CLASSES[accent],
+            )}
+          >
+            {value}
+          </p>
+        </div>
+        {Icon && (
+          <div
+            className={cn(
+              'rounded-full p-2',
+              accent === 'warning' && 'bg-amber-50',
+              accent === 'success' && 'bg-emerald-50',
+              accent === 'destructive' && 'bg-red-50',
+            )}
+          >
+            <Icon className={cn('h-5 w-5', accent && ACCENT_CLASSES[accent])} />
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
+// ============================================================
+// Tab Bar
+// ============================================================
+
+function TabButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean
+  onClick: () => void
+  children: React.ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        '-mb-px inline-flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-medium transition-colors',
+        active
+          ? 'border-primary text-foreground'
+          : 'border-transparent text-muted-foreground hover:text-foreground',
+      )}
+    >
+      {children}
+    </button>
+  )
+}
+
+function CountChip({ n, active }: { n: number; active: boolean }) {
+  return (
+    <span
+      className={cn(
+        'inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-xs tabular-nums',
+        active ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground',
+      )}
+    >
+      {n}
+    </span>
+  )
+}
+
+// ============================================================
+// Status Badge
+// ============================================================
+
+function StatusBadge({ status }: { status?: ClubStatus }) {
+  if (status === 'PENDING')
+    return (
+      <Badge variant="warning" className="gap-1">
+        <Clock className="h-3 w-3" /> 대기
+      </Badge>
+    )
+  if (status === 'APPROVED')
+    return (
+      <Badge className="gap-1">
+        <CheckCircle2 className="h-3 w-3" /> 승인
+      </Badge>
+    )
+  if (status === 'REJECTED')
+    return (
+      <Badge variant="destructive" className="gap-1">
+        <XCircle className="h-3 w-3" /> 거절
+      </Badge>
+    )
+  return null
 }
