@@ -14,11 +14,14 @@ import { Route as LoginRouteImport } from './app/routes/login'
 import { Route as AuthedRouteImport } from './app/routes/_authed'
 import { Route as IndexRouteImport } from './app/routes/index'
 import { Route as AuthedSchoolsRouteImport } from './app/routes/_authed.schools'
+import { Route as AuthedProfileRouteImport } from './app/routes/_authed.profile'
 import { Route as AuthedEventsRouteImport } from './app/routes/_authed.events'
 import { Route as AuthedClubsRouteImport } from './app/routes/_authed.clubs'
+import { Route as AuthedAdminRouteImport } from './app/routes/_authed.admin'
 import { Route as AuthedSchoolsIndexRouteImport } from './app/routes/_authed.schools.index'
 import { Route as AuthedEventsIndexRouteImport } from './app/routes/_authed.events.index'
 import { Route as AuthedClubsIndexRouteImport } from './app/routes/_authed.clubs.index'
+import { Route as AuthedAdminIndexRouteImport } from './app/routes/_authed.admin.index'
 import { Route as AuthedEventsNewRouteImport } from './app/routes/_authed.events.new'
 import { Route as AuthedEventsEventIdRouteImport } from './app/routes/_authed.events.$eventId'
 import { Route as AuthedClubsNewRouteImport } from './app/routes/_authed.clubs.new'
@@ -28,6 +31,7 @@ import { Route as AuthedEventsEventIdIndexRouteImport } from './app/routes/_auth
 import { Route as AuthedClubsClubIdIndexRouteImport } from './app/routes/_authed.clubs.$clubId.index'
 import { Route as AuthedSchoolsSchoolIdBoardRouteImport } from './app/routes/_authed.schools.$schoolId.board'
 import { Route as AuthedEventsEventIdWizardRouteImport } from './app/routes/_authed.events.$eventId.wizard'
+import { Route as AuthedEventsEventIdChatRouteImport } from './app/routes/_authed.events.$eventId.chat'
 import { Route as AuthedEventsEventIdBoardRouteImport } from './app/routes/_authed.events.$eventId.board'
 import { Route as AuthedClubsClubIdBoardRouteImport } from './app/routes/_authed.clubs.$clubId.board'
 
@@ -55,6 +59,11 @@ const AuthedSchoolsRoute = AuthedSchoolsRouteImport.update({
   path: '/schools',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AuthedProfileRoute = AuthedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthedRoute,
+} as any)
 const AuthedEventsRoute = AuthedEventsRouteImport.update({
   id: '/events',
   path: '/events',
@@ -63,6 +72,11 @@ const AuthedEventsRoute = AuthedEventsRouteImport.update({
 const AuthedClubsRoute = AuthedClubsRouteImport.update({
   id: '/clubs',
   path: '/clubs',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedAdminRoute = AuthedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => AuthedRoute,
 } as any)
 const AuthedSchoolsIndexRoute = AuthedSchoolsIndexRouteImport.update({
@@ -79,6 +93,11 @@ const AuthedClubsIndexRoute = AuthedClubsIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthedClubsRoute,
+} as any)
+const AuthedAdminIndexRoute = AuthedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthedAdminRoute,
 } as any)
 const AuthedEventsNewRoute = AuthedEventsNewRouteImport.update({
   id: '/new',
@@ -101,9 +120,9 @@ const AuthedClubsClubIdRoute = AuthedClubsClubIdRouteImport.update({
   getParentRoute: () => AuthedClubsRoute,
 } as any)
 const AuthedAdminClubsRoute = AuthedAdminClubsRouteImport.update({
-  id: '/admin/clubs',
-  path: '/admin/clubs',
-  getParentRoute: () => AuthedRoute,
+  id: '/clubs',
+  path: '/clubs',
+  getParentRoute: () => AuthedAdminRoute,
 } as any)
 const AuthedEventsEventIdIndexRoute =
   AuthedEventsEventIdIndexRouteImport.update({
@@ -128,6 +147,11 @@ const AuthedEventsEventIdWizardRoute =
     path: '/wizard',
     getParentRoute: () => AuthedEventsEventIdRoute,
   } as any)
+const AuthedEventsEventIdChatRoute = AuthedEventsEventIdChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => AuthedEventsEventIdRoute,
+} as any)
 const AuthedEventsEventIdBoardRoute =
   AuthedEventsEventIdBoardRouteImport.update({
     id: '/board',
@@ -144,19 +168,23 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/admin': typeof AuthedAdminRouteWithChildren
   '/clubs': typeof AuthedClubsRouteWithChildren
   '/events': typeof AuthedEventsRouteWithChildren
+  '/profile': typeof AuthedProfileRoute
   '/schools': typeof AuthedSchoolsRouteWithChildren
   '/admin/clubs': typeof AuthedAdminClubsRoute
   '/clubs/$clubId': typeof AuthedClubsClubIdRouteWithChildren
   '/clubs/new': typeof AuthedClubsNewRoute
   '/events/$eventId': typeof AuthedEventsEventIdRouteWithChildren
   '/events/new': typeof AuthedEventsNewRoute
+  '/admin/': typeof AuthedAdminIndexRoute
   '/clubs/': typeof AuthedClubsIndexRoute
   '/events/': typeof AuthedEventsIndexRoute
   '/schools/': typeof AuthedSchoolsIndexRoute
   '/clubs/$clubId/board': typeof AuthedClubsClubIdBoardRoute
   '/events/$eventId/board': typeof AuthedEventsEventIdBoardRoute
+  '/events/$eventId/chat': typeof AuthedEventsEventIdChatRoute
   '/events/$eventId/wizard': typeof AuthedEventsEventIdWizardRoute
   '/schools/$schoolId/board': typeof AuthedSchoolsSchoolIdBoardRoute
   '/clubs/$clubId/': typeof AuthedClubsClubIdIndexRoute
@@ -166,14 +194,17 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/profile': typeof AuthedProfileRoute
   '/admin/clubs': typeof AuthedAdminClubsRoute
   '/clubs/new': typeof AuthedClubsNewRoute
   '/events/new': typeof AuthedEventsNewRoute
+  '/admin': typeof AuthedAdminIndexRoute
   '/clubs': typeof AuthedClubsIndexRoute
   '/events': typeof AuthedEventsIndexRoute
   '/schools': typeof AuthedSchoolsIndexRoute
   '/clubs/$clubId/board': typeof AuthedClubsClubIdBoardRoute
   '/events/$eventId/board': typeof AuthedEventsEventIdBoardRoute
+  '/events/$eventId/chat': typeof AuthedEventsEventIdChatRoute
   '/events/$eventId/wizard': typeof AuthedEventsEventIdWizardRoute
   '/schools/$schoolId/board': typeof AuthedSchoolsSchoolIdBoardRoute
   '/clubs/$clubId': typeof AuthedClubsClubIdIndexRoute
@@ -185,19 +216,23 @@ export interface FileRoutesById {
   '/_authed': typeof AuthedRouteWithChildren
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/_authed/admin': typeof AuthedAdminRouteWithChildren
   '/_authed/clubs': typeof AuthedClubsRouteWithChildren
   '/_authed/events': typeof AuthedEventsRouteWithChildren
+  '/_authed/profile': typeof AuthedProfileRoute
   '/_authed/schools': typeof AuthedSchoolsRouteWithChildren
   '/_authed/admin/clubs': typeof AuthedAdminClubsRoute
   '/_authed/clubs/$clubId': typeof AuthedClubsClubIdRouteWithChildren
   '/_authed/clubs/new': typeof AuthedClubsNewRoute
   '/_authed/events/$eventId': typeof AuthedEventsEventIdRouteWithChildren
   '/_authed/events/new': typeof AuthedEventsNewRoute
+  '/_authed/admin/': typeof AuthedAdminIndexRoute
   '/_authed/clubs/': typeof AuthedClubsIndexRoute
   '/_authed/events/': typeof AuthedEventsIndexRoute
   '/_authed/schools/': typeof AuthedSchoolsIndexRoute
   '/_authed/clubs/$clubId/board': typeof AuthedClubsClubIdBoardRoute
   '/_authed/events/$eventId/board': typeof AuthedEventsEventIdBoardRoute
+  '/_authed/events/$eventId/chat': typeof AuthedEventsEventIdChatRoute
   '/_authed/events/$eventId/wizard': typeof AuthedEventsEventIdWizardRoute
   '/_authed/schools/$schoolId/board': typeof AuthedSchoolsSchoolIdBoardRoute
   '/_authed/clubs/$clubId/': typeof AuthedClubsClubIdIndexRoute
@@ -209,19 +244,23 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/signup'
+    | '/admin'
     | '/clubs'
     | '/events'
+    | '/profile'
     | '/schools'
     | '/admin/clubs'
     | '/clubs/$clubId'
     | '/clubs/new'
     | '/events/$eventId'
     | '/events/new'
+    | '/admin/'
     | '/clubs/'
     | '/events/'
     | '/schools/'
     | '/clubs/$clubId/board'
     | '/events/$eventId/board'
+    | '/events/$eventId/chat'
     | '/events/$eventId/wizard'
     | '/schools/$schoolId/board'
     | '/clubs/$clubId/'
@@ -231,14 +270,17 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/signup'
+    | '/profile'
     | '/admin/clubs'
     | '/clubs/new'
     | '/events/new'
+    | '/admin'
     | '/clubs'
     | '/events'
     | '/schools'
     | '/clubs/$clubId/board'
     | '/events/$eventId/board'
+    | '/events/$eventId/chat'
     | '/events/$eventId/wizard'
     | '/schools/$schoolId/board'
     | '/clubs/$clubId'
@@ -249,19 +291,23 @@ export interface FileRouteTypes {
     | '/_authed'
     | '/login'
     | '/signup'
+    | '/_authed/admin'
     | '/_authed/clubs'
     | '/_authed/events'
+    | '/_authed/profile'
     | '/_authed/schools'
     | '/_authed/admin/clubs'
     | '/_authed/clubs/$clubId'
     | '/_authed/clubs/new'
     | '/_authed/events/$eventId'
     | '/_authed/events/new'
+    | '/_authed/admin/'
     | '/_authed/clubs/'
     | '/_authed/events/'
     | '/_authed/schools/'
     | '/_authed/clubs/$clubId/board'
     | '/_authed/events/$eventId/board'
+    | '/_authed/events/$eventId/chat'
     | '/_authed/events/$eventId/wizard'
     | '/_authed/schools/$schoolId/board'
     | '/_authed/clubs/$clubId/'
@@ -312,6 +358,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedSchoolsRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/profile': {
+      id: '/_authed/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthedProfileRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/events': {
       id: '/_authed/events'
       path: '/events'
@@ -324,6 +377,13 @@ declare module '@tanstack/react-router' {
       path: '/clubs'
       fullPath: '/clubs'
       preLoaderRoute: typeof AuthedClubsRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/admin': {
+      id: '/_authed/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthedAdminRouteImport
       parentRoute: typeof AuthedRoute
     }
     '/_authed/schools/': {
@@ -346,6 +406,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/clubs/'
       preLoaderRoute: typeof AuthedClubsIndexRouteImport
       parentRoute: typeof AuthedClubsRoute
+    }
+    '/_authed/admin/': {
+      id: '/_authed/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthedAdminIndexRouteImport
+      parentRoute: typeof AuthedAdminRoute
     }
     '/_authed/events/new': {
       id: '/_authed/events/new'
@@ -377,10 +444,10 @@ declare module '@tanstack/react-router' {
     }
     '/_authed/admin/clubs': {
       id: '/_authed/admin/clubs'
-      path: '/admin/clubs'
+      path: '/clubs'
       fullPath: '/admin/clubs'
       preLoaderRoute: typeof AuthedAdminClubsRouteImport
-      parentRoute: typeof AuthedRoute
+      parentRoute: typeof AuthedAdminRoute
     }
     '/_authed/events/$eventId/': {
       id: '/_authed/events/$eventId/'
@@ -410,6 +477,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedEventsEventIdWizardRouteImport
       parentRoute: typeof AuthedEventsEventIdRoute
     }
+    '/_authed/events/$eventId/chat': {
+      id: '/_authed/events/$eventId/chat'
+      path: '/chat'
+      fullPath: '/events/$eventId/chat'
+      preLoaderRoute: typeof AuthedEventsEventIdChatRouteImport
+      parentRoute: typeof AuthedEventsEventIdRoute
+    }
     '/_authed/events/$eventId/board': {
       id: '/_authed/events/$eventId/board'
       path: '/board'
@@ -426,6 +500,20 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AuthedAdminRouteChildren {
+  AuthedAdminClubsRoute: typeof AuthedAdminClubsRoute
+  AuthedAdminIndexRoute: typeof AuthedAdminIndexRoute
+}
+
+const AuthedAdminRouteChildren: AuthedAdminRouteChildren = {
+  AuthedAdminClubsRoute: AuthedAdminClubsRoute,
+  AuthedAdminIndexRoute: AuthedAdminIndexRoute,
+}
+
+const AuthedAdminRouteWithChildren = AuthedAdminRoute._addFileChildren(
+  AuthedAdminRouteChildren,
+)
 
 interface AuthedClubsClubIdRouteChildren {
   AuthedClubsClubIdBoardRoute: typeof AuthedClubsClubIdBoardRoute
@@ -458,12 +546,14 @@ const AuthedClubsRouteWithChildren = AuthedClubsRoute._addFileChildren(
 
 interface AuthedEventsEventIdRouteChildren {
   AuthedEventsEventIdBoardRoute: typeof AuthedEventsEventIdBoardRoute
+  AuthedEventsEventIdChatRoute: typeof AuthedEventsEventIdChatRoute
   AuthedEventsEventIdWizardRoute: typeof AuthedEventsEventIdWizardRoute
   AuthedEventsEventIdIndexRoute: typeof AuthedEventsEventIdIndexRoute
 }
 
 const AuthedEventsEventIdRouteChildren: AuthedEventsEventIdRouteChildren = {
   AuthedEventsEventIdBoardRoute: AuthedEventsEventIdBoardRoute,
+  AuthedEventsEventIdChatRoute: AuthedEventsEventIdChatRoute,
   AuthedEventsEventIdWizardRoute: AuthedEventsEventIdWizardRoute,
   AuthedEventsEventIdIndexRoute: AuthedEventsEventIdIndexRoute,
 }
@@ -502,17 +592,19 @@ const AuthedSchoolsRouteWithChildren = AuthedSchoolsRoute._addFileChildren(
 )
 
 interface AuthedRouteChildren {
+  AuthedAdminRoute: typeof AuthedAdminRouteWithChildren
   AuthedClubsRoute: typeof AuthedClubsRouteWithChildren
   AuthedEventsRoute: typeof AuthedEventsRouteWithChildren
+  AuthedProfileRoute: typeof AuthedProfileRoute
   AuthedSchoolsRoute: typeof AuthedSchoolsRouteWithChildren
-  AuthedAdminClubsRoute: typeof AuthedAdminClubsRoute
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
+  AuthedAdminRoute: AuthedAdminRouteWithChildren,
   AuthedClubsRoute: AuthedClubsRouteWithChildren,
   AuthedEventsRoute: AuthedEventsRouteWithChildren,
+  AuthedProfileRoute: AuthedProfileRoute,
   AuthedSchoolsRoute: AuthedSchoolsRouteWithChildren,
-  AuthedAdminClubsRoute: AuthedAdminClubsRoute,
 }
 
 const AuthedRouteWithChildren =

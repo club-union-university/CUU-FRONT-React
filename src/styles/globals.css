@@ -3,75 +3,133 @@
 @tailwind utilities;
 
 /*
- * 디자인 토큰 — shadcn HSL 컨벤션 + Indigo (#4F46E5) 브랜드
- * - HSL 값을 변수로 두면 Tailwind config의 hsl(var(--x))가 alpha modifier도 지원함
- *   예) bg-primary/50 → hsl(var(--primary) / 0.5)
- * - 다크모드는 .dark 클래스 토글로 동일 변수만 재정의
+ * Crew Design System v2 — 정체성 부여 + 정보 밀도 + 모션 폴리시
+ *
+ * 1. Surface 4단계: canvas (가장 낮음) → paper → elevated → sunken
+ *    Linear 톤의 미세한 명도 차이로 깊이감.
+ * 2. Brand: Indigo→Periwinkle 시프트 (246° 80% 60%) — generic indigo 회피.
+ * 3. Display 타이포: Pretendard 800/700 + 3-track size scale.
+ * 4. Shadows: 다층 + brand glow (key CTA에만).
+ * 5. Motion: 표준 ease/duration 토큰.
  */
 
 @layer base {
   :root {
-    /* Surfaces */
-    --background: 0 0% 100%;
+    /* === Surfaces (4-step) === */
+    --background: 220 30% 98.5%;       /* canvas — 페이지 배경, 약간 따뜻한 화이트 */
     --foreground: 222 47% 11%;
+    --paper: 0 0% 100%;                /* 카드/입력 등 일반 surface */
+    --paper-foreground: 222 47% 11%;
+    --elevated: 0 0% 100%;             /* 떠 있는 surface (modal/popover) */
+    --elevated-foreground: 222 47% 11%;
+    --sunken: 220 26% 96%;             /* 안으로 들어간 영역 (footer, code) */
 
+    /* === Card / Popover (shadcn 호환) === */
     --card: 0 0% 100%;
     --card-foreground: 222 47% 11%;
-
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    /* Brand: Indigo #4F46E5 */
-    --primary: 244 76% 59%;
+    /* === Brand: Indigo + Periwinkle 시프트 === */
+    --primary: 246 80% 60%;            /* #5347E8 — 약간 violet shift */
     --primary-foreground: 0 0% 100%;
+    --primary-soft: 246 100% 96%;      /* hover/subtle bg */
+    --primary-soft-foreground: 246 80% 32%;
+    --primary-muted: 246 50% 88%;      /* secondary CTA */
 
-    --secondary: 210 40% 96%;
+    /* === Secondary === */
+    --secondary: 220 15% 95%;
     --secondary-foreground: 222 47% 11%;
 
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
+    /* === Muted (subtle text/bg) === */
+    --muted: 220 15% 95%;
+    --muted-foreground: 220 9% 45%;
 
-    --accent: 244 100% 97%;        /* indigo-50 톤: hover/subtle */
-    --accent-foreground: 244 76% 30%;
+    /* === Accent (hover bg) === */
+    --accent: 246 100% 97%;
+    --accent-foreground: 246 80% 32%;
 
+    /* === Status === */
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
+    --success: 152 62% 42%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 222 47% 11%;
+    --info: 200 88% 50%;
+    --info-foreground: 0 0% 100%;
 
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 244 76% 59%;
+    /* === Border / Input / Ring === */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 246 80% 60%;
 
-    --radius: 0.5rem;
+    /* === Radius === */
+    --radius: 0.625rem;                /* 10px — 부드럽지만 너무 둥글지 않게 */
+
+    /* === Motion === */
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);    /* Linear ease-out-expo */
+    --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+    --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+    --duration-fast: 150ms;
+    --duration-normal: 200ms;
+    --duration-slow: 300ms;
+
+    /* === Shadows (다층 + 브랜드 glow) === */
+    --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+    --shadow-sm: 0 1px 2px -1px rgb(0 0 0 / 0.05), 0 1px 3px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 2px 4px -2px rgb(0 0 0 / 0.05), 0 4px 8px -2px rgb(0 0 0 / 0.05);
+    --shadow-lg: 0 4px 6px -4px rgb(0 0 0 / 0.06), 0 12px 24px -8px rgb(0 0 0 / 0.08);
+    --shadow-xl: 0 8px 16px -8px rgb(0 0 0 / 0.08), 0 24px 48px -12px rgb(0 0 0 / 0.12);
+    --shadow-glow: 0 0 0 1px hsl(var(--primary) / 0.08), 0 8px 24px -8px hsl(var(--primary) / 0.32);
   }
 
   .dark {
-    --background: 222 47% 5%;
-    --foreground: 210 40% 98%;
+    /* Dark: Linear 톤 — 순흑 대신 차가운 graphite + 차분한 채도 */
+    --background: 222 18% 7%;
+    --foreground: 210 20% 98%;
+    --paper: 222 16% 10%;
+    --paper-foreground: 210 20% 98%;
+    --elevated: 222 16% 13%;
+    --elevated-foreground: 210 20% 98%;
+    --sunken: 222 22% 5%;
 
-    --card: 222 47% 7%;
-    --card-foreground: 210 40% 98%;
+    --card: 222 16% 10%;
+    --card-foreground: 210 20% 98%;
+    --popover: 222 16% 13%;
+    --popover-foreground: 210 20% 98%;
 
-    --popover: 222 47% 7%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 244 76% 65%;
+    --primary: 246 90% 70%;
     --primary-foreground: 222 47% 11%;
+    --primary-soft: 246 50% 18%;
+    --primary-soft-foreground: 246 100% 88%;
+    --primary-muted: 246 30% 30%;
 
-    --secondary: 217 33% 18%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 220 14% 18%;
+    --secondary-foreground: 210 20% 98%;
 
-    --muted: 217 33% 18%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 220 14% 16%;
+    --muted-foreground: 220 9% 65%;
 
-    --accent: 244 50% 18%;
-    --accent-foreground: 244 100% 90%;
+    --accent: 246 50% 20%;
+    --accent-foreground: 246 100% 90%;
 
-    --destructive: 0 62% 50%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 152 50% 50%;
+    --warning: 38 88% 58%;
+    --info: 200 80% 58%;
 
-    --border: 217 33% 18%;
-    --input: 217 33% 18%;
-    --ring: 244 76% 65%;
+    --border: 220 14% 18%;
+    --input: 220 14% 18%;
+    --ring: 246 90% 70%;
+
+    --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.5);
+    --shadow-sm: 0 1px 2px -1px rgb(0 0 0 / 0.6), 0 1px 3px 0 rgb(0 0 0 / 0.5);
+    --shadow-md: 0 2px 4px -2px rgb(0 0 0 / 0.6), 0 4px 8px -2px rgb(0 0 0 / 0.5);
+    --shadow-lg: 0 4px 6px -4px rgb(0 0 0 / 0.7), 0 12px 24px -8px rgb(0 0 0 / 0.6);
+    --shadow-xl: 0 8px 16px -8px rgb(0 0 0 / 0.8), 0 24px 48px -12px rgb(0 0 0 / 0.7);
+    --shadow-glow: 0 0 0 1px hsl(var(--primary) / 0.2), 0 8px 24px -8px hsl(var(--primary) / 0.5);
   }
 }
 
@@ -89,5 +147,60 @@
     font-family:
       'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui,
       'Segoe UI', Roboto, sans-serif;
+    font-feature-settings: 'ss01', 'ss02', 'cv01', 'cv11';
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Display 위계 — 글자 간격 살짝 좁게, 무게는 800 */
+  h1,
+  h2,
+  h3 {
+    letter-spacing: -0.02em;
+  }
+
+  /* Selection 색상 — 브랜드 톤 */
+  ::selection {
+    background-color: hsl(var(--primary) / 0.22);
+    color: inherit;
+  }
+
+  /* tabular-nums가 자주 쓰이는 곳 (숫자/D-day/통계) */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer utilities {
+  /* Brand glow shadow — key CTA에 사용 */
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+  /* Hover lift 패턴 — 카드 등 */
+  .hover-lift {
+    transition:
+      transform var(--duration-normal) var(--ease-out),
+      box-shadow var(--duration-normal) var(--ease-out);
+  }
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  /* 그라데이션 배경 — hero 등 */
+  .bg-grid {
+    background-image:
+      radial-gradient(ellipse 800px 600px at 50% -20%, hsl(var(--primary) / 0.12), transparent 60%),
+      linear-gradient(to bottom, hsl(var(--background)), hsl(var(--background)));
+  }
+  /* Surface utilities */
+  .surface-paper {
+    background-color: hsl(var(--paper));
+    color: hsl(var(--paper-foreground));
+  }
+  .surface-elevated {
+    background-color: hsl(var(--elevated));
+    color: hsl(var(--elevated-foreground));
+  }
+  .surface-sunken {
+    background-color: hsl(var(--sunken));
   }
 }

@@ -3,6 +3,7 @@ import {
   Avatar,
   Badge,
   Button,
+  CrewLogo,
   DarkModeToggle,
   DropdownMenu,
   DropdownMenuContent,
@@ -32,8 +33,11 @@ function AuthedLayout() {
     <div className="min-h-screen">
       <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
         <div className="container flex h-14 items-center justify-between">
-          <Link to="/" className="font-semibold tracking-tight">
-            Crew
+          <Link
+            to="/"
+            className="text-foreground transition-colors hover:text-primary"
+          >
+            <CrewLogo />
           </Link>
           <nav className="flex items-center gap-4 text-sm">
             <Link to="/clubs" className="text-muted-foreground hover:text-foreground">
