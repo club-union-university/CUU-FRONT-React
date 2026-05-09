@@ -79,7 +79,7 @@ function ClubsListPage() {
           value={search.clubCategory ?? 'ALL'}
           onValueChange={(v) =>
             navigate({
-              search: (s) => ({
+              search: (s: z.infer<typeof clubsSearchSchema>) => ({
                 ...s,
                 clubCategory: v === 'ALL' ? undefined : (v as ClubCategory),
               }),

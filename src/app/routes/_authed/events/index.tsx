@@ -62,7 +62,12 @@ function EventsListPage() {
         <Select
           value={search.type ?? 'ALL'}
           onValueChange={(v) =>
-            navigate({ search: (s) => ({ ...s, type: v === 'ALL' ? undefined : (v as EventType) }) })
+            navigate({
+              search: (s: z.infer<typeof searchSchema>) => ({
+                ...s,
+                type: v === 'ALL' ? undefined : (v as EventType),
+              }),
+            })
           }
         >
           <SelectTrigger className="w-44">

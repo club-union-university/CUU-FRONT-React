@@ -10,10 +10,10 @@
       "Bash(git push *)",
       "Bash(pnpm add *)",
       "Bash(grep -A 3 'clubs/$clubId/board' src/routeTree.gen.ts)",
-      "Bash(grep -B 1 -A 5 \"validateSearch\" src/app/routes/_authed.clubs.\\\\$clubId.tsx 2>&1 | head -10 *)",
+      "Bash(grep -B 1 -A 5 \"validateSearch\" src/app/routes/_authed/clubs/\\\\$clubId.tsx 2>&1 | head -10 *)",
       "Read(//Users/liupei8979/Develop/aingthon/src/app/routes/**)",
       "Bash(pnpm remove *)",
-      "Bash(head -3 src/app/routes/_authed.events.\\\\$eventId.chat.tsx)"
+      "Bash(head -3 src/app/routes/_authed/events/\\\\$eventId/chat.tsx)"
     ]
   }
 }

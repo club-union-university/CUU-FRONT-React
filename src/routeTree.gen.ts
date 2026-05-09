@@ -11,35 +11,35 @@
 import { Route as rootRouteImport } from './app/routes/__root'
 import { Route as SignupRouteImport } from './app/routes/signup'
 import { Route as LoginRouteImport } from './app/routes/login'
-import { Route as AuthedRouteImport } from './app/routes/_authed'
+import { Route as AuthedRouteRouteImport } from './app/routes/_authed/route'
 import { Route as IndexRouteImport } from './app/routes/index'
-import { Route as AuthedSchoolsRouteImport } from './app/routes/_authed.schools'
-import { Route as AuthedProfileRouteImport } from './app/routes/_authed.profile'
-import { Route as AuthedEventsRouteImport } from './app/routes/_authed.events'
-import { Route as AuthedClubsRouteImport } from './app/routes/_authed.clubs'
-import { Route as AuthedAdminRouteImport } from './app/routes/_authed.admin'
-import { Route as AuthedSchoolsIndexRouteImport } from './app/routes/_authed.schools.index'
-import { Route as AuthedEventsIndexRouteImport } from './app/routes/_authed.events.index'
-import { Route as AuthedClubsIndexRouteImport } from './app/routes/_authed.clubs.index'
-import { Route as AuthedAdminIndexRouteImport } from './app/routes/_authed.admin.index'
-import { Route as AuthedEventsNewRouteImport } from './app/routes/_authed.events.new'
-import { Route as AuthedEventsEventIdRouteImport } from './app/routes/_authed.events.$eventId'
-import { Route as AuthedClubsNewRouteImport } from './app/routes/_authed.clubs.new'
-import { Route as AuthedClubsClubIdRouteImport } from './app/routes/_authed.clubs.$clubId'
-import { Route as AuthedAdminClubsRouteImport } from './app/routes/_authed.admin.clubs'
-import { Route as AuthedEventsEventIdIndexRouteImport } from './app/routes/_authed.events.$eventId.index'
-import { Route as AuthedClubsClubIdIndexRouteImport } from './app/routes/_authed.clubs.$clubId.index'
-import { Route as AuthedSchoolsSchoolIdBoardRouteImport } from './app/routes/_authed.schools.$schoolId.board'
-import { Route as AuthedEventsEventIdWizardRouteImport } from './app/routes/_authed.events.$eventId.wizard'
-import { Route as AuthedEventsEventIdChatRouteImport } from './app/routes/_authed.events.$eventId.chat'
-import { Route as AuthedEventsEventIdBoardRouteImport } from './app/routes/_authed.events.$eventId.board'
-import { Route as AuthedClubsClubIdBoardRouteImport } from './app/routes/_authed.clubs.$clubId.board'
-import { Route as AuthedSchoolsSchoolIdBoardIndexRouteImport } from './app/routes/_authed.schools.$schoolId.board.index'
-import { Route as AuthedEventsEventIdBoardIndexRouteImport } from './app/routes/_authed.events.$eventId.board.index'
-import { Route as AuthedClubsClubIdBoardIndexRouteImport } from './app/routes/_authed.clubs.$clubId.board.index'
-import { Route as AuthedSchoolsSchoolIdBoardPostIdRouteImport } from './app/routes/_authed.schools.$schoolId.board.$postId'
-import { Route as AuthedEventsEventIdBoardPostIdRouteImport } from './app/routes/_authed.events.$eventId.board.$postId'
-import { Route as AuthedClubsClubIdBoardPostIdRouteImport } from './app/routes/_authed.clubs.$clubId.board.$postId'
+import { Route as AuthedSchoolsRouteImport } from './app/routes/_authed/schools'
+import { Route as AuthedProfileRouteImport } from './app/routes/_authed/profile'
+import { Route as AuthedEventsRouteImport } from './app/routes/_authed/events'
+import { Route as AuthedClubsRouteImport } from './app/routes/_authed/clubs'
+import { Route as AuthedAdminRouteImport } from './app/routes/_authed/admin'
+import { Route as AuthedSchoolsIndexRouteImport } from './app/routes/_authed/schools/index'
+import { Route as AuthedEventsIndexRouteImport } from './app/routes/_authed/events/index'
+import { Route as AuthedClubsIndexRouteImport } from './app/routes/_authed/clubs/index'
+import { Route as AuthedAdminIndexRouteImport } from './app/routes/_authed/admin/index'
+import { Route as AuthedEventsNewRouteImport } from './app/routes/_authed/events/new'
+import { Route as AuthedEventsEventIdRouteImport } from './app/routes/_authed/events/$eventId'
+import { Route as AuthedClubsNewRouteImport } from './app/routes/_authed/clubs/new'
+import { Route as AuthedClubsClubIdRouteImport } from './app/routes/_authed/clubs/$clubId'
+import { Route as AuthedAdminClubsRouteImport } from './app/routes/_authed/admin/clubs'
+import { Route as AuthedEventsEventIdIndexRouteImport } from './app/routes/_authed/events/$eventId/index'
+import { Route as AuthedClubsClubIdIndexRouteImport } from './app/routes/_authed/clubs/$clubId/index'
+import { Route as AuthedSchoolsSchoolIdBoardRouteImport } from './app/routes/_authed/schools/$schoolId/board'
+import { Route as AuthedEventsEventIdWizardRouteImport } from './app/routes/_authed/events/$eventId/wizard'
+import { Route as AuthedEventsEventIdChatRouteImport } from './app/routes/_authed/events/$eventId/chat'
+import { Route as AuthedEventsEventIdBoardRouteImport } from './app/routes/_authed/events/$eventId/board'
+import { Route as AuthedClubsClubIdBoardRouteImport } from './app/routes/_authed/clubs/$clubId/board'
+import { Route as AuthedSchoolsSchoolIdBoardIndexRouteImport } from './app/routes/_authed/schools/$schoolId/board/index'
+import { Route as AuthedEventsEventIdBoardIndexRouteImport } from './app/routes/_authed/events/$eventId/board/index'
+import { Route as AuthedClubsClubIdBoardIndexRouteImport } from './app/routes/_authed/clubs/$clubId/board/index'
+import { Route as AuthedSchoolsSchoolIdBoardPostIdRouteImport } from './app/routes/_authed/schools/$schoolId/board/$postId'
+import { Route as AuthedEventsEventIdBoardPostIdRouteImport } from './app/routes/_authed/events/$eventId/board/$postId'
+import { Route as AuthedClubsClubIdBoardPostIdRouteImport } from './app/routes/_authed/clubs/$clubId/board/$postId'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -51,7 +51,7 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthedRoute = AuthedRouteImport.update({
+const AuthedRouteRoute = AuthedRouteRouteImport.update({
   id: '/_authed',
   getParentRoute: () => rootRouteImport,
 } as any)
@@ -63,27 +63,27 @@ const IndexRoute = IndexRouteImport.update({
 const AuthedSchoolsRoute = AuthedSchoolsRouteImport.update({
   id: '/schools',
   path: '/schools',
-  getParentRoute: () => AuthedRoute,
+  getParentRoute: () => AuthedRouteRoute,
 } as any)
 const AuthedProfileRoute = AuthedProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
-  getParentRoute: () => AuthedRoute,
+  getParentRoute: () => AuthedRouteRoute,
 } as any)
 const AuthedEventsRoute = AuthedEventsRouteImport.update({
   id: '/events',
   path: '/events',
-  getParentRoute: () => AuthedRoute,
+  getParentRoute: () => AuthedRouteRoute,
 } as any)
 const AuthedClubsRoute = AuthedClubsRouteImport.update({
   id: '/clubs',
   path: '/clubs',
-  getParentRoute: () => AuthedRoute,
+  getParentRoute: () => AuthedRouteRoute,
 } as any)
 const AuthedAdminRoute = AuthedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
-  getParentRoute: () => AuthedRoute,
+  getParentRoute: () => AuthedRouteRoute,
 } as any)
 const AuthedSchoolsIndexRoute = AuthedSchoolsIndexRouteImport.update({
   id: '/',
@@ -264,7 +264,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/_authed': typeof AuthedRouteWithChildren
+  '/_authed': typeof AuthedRouteRouteWithChildren
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/_authed/admin': typeof AuthedAdminRouteWithChildren
@@ -388,7 +388,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AuthedRoute: typeof AuthedRouteWithChildren
+  AuthedRouteRoute: typeof AuthedRouteRouteWithChildren
   LoginRoute: typeof LoginRoute
   SignupRoute: typeof SignupRoute
 }
@@ -413,7 +413,7 @@ declare module '@tanstack/react-router' {
       id: '/_authed'
       path: ''
       fullPath: '/'
-      preLoaderRoute: typeof AuthedRouteImport
+      preLoaderRoute: typeof AuthedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -428,35 +428,35 @@ declare module '@tanstack/react-router' {
       path: '/schools'
       fullPath: '/schools'
       preLoaderRoute: typeof AuthedSchoolsRouteImport
-      parentRoute: typeof AuthedRoute
+      parentRoute: typeof AuthedRouteRoute
     }
     '/_authed/profile': {
       id: '/_authed/profile'
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof AuthedProfileRouteImport
-      parentRoute: typeof AuthedRoute
+      parentRoute: typeof AuthedRouteRoute
     }
     '/_authed/events': {
       id: '/_authed/events'
       path: '/events'
       fullPath: '/events'
       preLoaderRoute: typeof AuthedEventsRouteImport
-      parentRoute: typeof AuthedRoute
+      parentRoute: typeof AuthedRouteRoute
     }
     '/_authed/clubs': {
       id: '/_authed/clubs'
       path: '/clubs'
       fullPath: '/clubs'
       preLoaderRoute: typeof AuthedClubsRouteImport
-      parentRoute: typeof AuthedRoute
+      parentRoute: typeof AuthedRouteRoute
     }
     '/_authed/admin': {
       id: '/_authed/admin'
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AuthedAdminRouteImport
-      parentRoute: typeof AuthedRoute
+      parentRoute: typeof AuthedRouteRoute
     }
     '/_authed/schools/': {
       id: '/_authed/schools/'
@@ -754,7 +754,7 @@ const AuthedSchoolsRouteWithChildren = AuthedSchoolsRoute._addFileChildren(
   AuthedSchoolsRouteChildren,
 )
 
-interface AuthedRouteChildren {
+interface AuthedRouteRouteChildren {
   AuthedAdminRoute: typeof AuthedAdminRouteWithChildren
   AuthedClubsRoute: typeof AuthedClubsRouteWithChildren
   AuthedEventsRoute: typeof AuthedEventsRouteWithChildren
@@ -762,7 +762,7 @@ interface AuthedRouteChildren {
   AuthedSchoolsRoute: typeof AuthedSchoolsRouteWithChildren
 }
 
-const AuthedRouteChildren: AuthedRouteChildren = {
+const AuthedRouteRouteChildren: AuthedRouteRouteChildren = {
   AuthedAdminRoute: AuthedAdminRouteWithChildren,
   AuthedClubsRoute: AuthedClubsRouteWithChildren,
   AuthedEventsRoute: AuthedEventsRouteWithChildren,
@@ -770,12 +770,13 @@ const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedSchoolsRoute: AuthedSchoolsRouteWithChildren,
 }
 
-const AuthedRouteWithChildren =
-  AuthedRoute._addFileChildren(AuthedRouteChildren)
+const AuthedRouteRouteWithChildren = AuthedRouteRoute._addFileChildren(
+  AuthedRouteRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AuthedRoute: AuthedRouteWithChildren,
+  AuthedRouteRoute: AuthedRouteRouteWithChildren,
   LoginRoute: LoginRoute,
   SignupRoute: SignupRoute,
 }
