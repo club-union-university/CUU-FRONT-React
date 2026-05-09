@@ -12,7 +12,8 @@ import {
   DropdownMenuTrigger,
 } from '@/shared/ui'
 import { requireAuth, useAuthStore, useLogout, userRoleLabel } from '@/features/auth'
-import { LogOut, ShieldCheck } from 'lucide-react'
+import { NotificationBell } from '@/features/notification'
+import { LogOut, ShieldCheck, UserCog } from 'lucide-react'
 
 export const Route = createFileRoute('/_authed')({
   beforeLoad: ({ location }) => requireAuth(location.pathname),
@@ -51,6 +52,7 @@ function AuthedLayout() {
                 </span>
               </Link>
             )}
+            <NotificationBell />
             <DarkModeToggle />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -72,6 +74,10 @@ function AuthedLayout() {
                   <span className="text-sm font-medium">{user?.nickname}</span>
                   <span className="text-xs font-normal text-muted-foreground">{user?.email}</span>
                 </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate({ to: '/profile' })}>
+                  <UserCog className="mr-2 h-4 w-4" /> 프로필 편집
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => {
