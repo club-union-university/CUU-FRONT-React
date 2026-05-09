@@ -39,7 +39,7 @@ export const useAuthStore = create<AuthState>()(
         }),
     }),
     {
-      name: 'crew.auth',
+      name: 'cuu.auth',
       storage: createJSONStorage(() => localStorage),
       partialize: (s) => ({
         accessToken: s.accessToken,

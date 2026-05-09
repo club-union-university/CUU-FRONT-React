@@ -5,6 +5,10 @@ import { Calendar, Plus } from 'lucide-react'
 import {
   Button,
   Card,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
   EmptyState,
   Select,
   SelectContent,
@@ -19,6 +23,7 @@ import {
   useEvents,
 } from '@/features/event'
 import { useAuthStore } from '@/features/auth'
+import { cn } from '@/lib/utils'
 import type { Event, EventType } from '@/shared/api/types'
 
 const searchSchema = z.object({
@@ -38,7 +43,7 @@ function EventsListPage() {
   const { data: events, isLoading } = useEvents({ type: search.type, status: search.status })
 
   return (
-    <main className="container max-w-5xl py-10">
+    <main className="container max-w-6xl py-10">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">행사</h1>
@@ -95,12 +100,10 @@ function EventsListPage() {
               />
             </Card>
           ) : (
-            <div className="overflow-hidden rounded-md border bg-card">
-              <ul className="divide-y divide-border">
-                {events.map((ev) => (
-                  <EventRow key={ev.id} event={ev} />
-                ))}
-              </ul>
+            <div className="grid gap-4 md:grid-cols-2">
+              {events.map((ev) => (
+                <EventCard key={ev.id} event={ev} />
+              ))}
             </div>
           ))}
       </Skeleton>
@@ -114,7 +117,7 @@ function formatRecruitDdLabel(days: number) {
   return `마감 D+${-days}`
 }
 
-function EventRow({ event: ev }: { event: Event }) {
+function EventCard({ event: ev }: { event: Event }) {
   const dDay = daysUntil(ev.recruitDeadline)
   const isRecruiting = ev.status === 'RECRUITING'
   const status = ev.status && EVENT_STATUS_LABELS[ev.status]
@@ -126,9 +129,9 @@ function EventRow({ event: ev }: { event: Event }) {
   const metaPrimary = bits.join(' · ')
 
   const extras: string[] = []
+  if (ev.startAt) extras.push(ev.startAt.slice(0, 10))
   if (ev.locationName) extras.push(ev.locationName)
   if (ev.maxParticipants) extras.push(`최대 ${ev.maxParticipants}명`)
-  if (ev.startAt) extras.push(ev.startAt.slice(0, 10))
   const metaSecondary = extras.length > 0 ? extras.join(' · ') : null
 
   const summary = (ev.description ?? ev.proposalMessage)?.trim()
@@ -137,33 +140,33 @@ function EventRow({ event: ev }: { event: Event }) {
     isRecruiting && dDay !== null ? formatRecruitDdLabel(dDay) : null
 
   return (
-    <li>
-      <Link
-        to="/events/$eventId"
-        params={{ eventId: String(ev.id) }}
-        className="group block px-4 py-3.5 transition-colors hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset sm:py-4"
-      >
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
-          <div className="min-w-0 flex-1 space-y-1">
-            <p className="font-medium leading-snug text-foreground group-hover:underline group-hover:decoration-muted-foreground/60">
-              {ev.title}
-            </p>
-            <p className="text-xs leading-relaxed text-muted-foreground">{metaPrimary}</p>
-            {summary && (
-              <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">{summary}</p>
-            )}
-            {metaSecondary && (
-              <p className="text-xs text-muted-foreground/90">{metaSecondary}</p>
-            )}
+    <Link
+      to="/events/$eventId"
+      params={{ eventId: String(ev.id) }}
+      className="group block h-full min-h-[160px] rounded-md outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+    >
+      <Card className="relative flex h-full flex-col border-border/90 transition-colors group-hover:border-primary/35 group-hover:bg-muted/[0.25]">
+        {recruitLine && (
+          <div className="absolute right-4 top-4 text-right">
+            <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">모집</p>
+            <p className="text-sm font-semibold tabular-nums">{recruitLine}</p>
           </div>
-          {recruitLine && (
-            <div className="shrink-0 text-right">
-              <p className="text-xs text-muted-foreground">모집</p>
-              <p className="text-sm font-medium tabular-nums text-foreground">{recruitLine}</p>
-            </div>
-          )}
-        </div>
-      </Link>
-    </li>
+        )}
+        <CardHeader className={cn('flex-1 space-y-2 pb-2 pr-24', !recruitLine && 'pr-5')}>
+          <CardTitle className="text-base leading-snug transition-colors group-hover:text-primary">
+            {ev.title}
+          </CardTitle>
+          <p className="text-[12px] leading-relaxed text-muted-foreground">{metaPrimary}</p>
+          {summary ? (
+            <CardDescription className="line-clamp-2 text-[13px] leading-relaxed">{summary}</CardDescription>
+          ) : null}
+        </CardHeader>
+        {metaSecondary && (
+          <CardFooter className="border-t border-border/80 bg-muted/[0.2] px-5 py-3 text-[12px] text-muted-foreground">
+            {metaSecondary}
+          </CardFooter>
+        )}
+      </Card>
+    </Link>
   )
 }

@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.1",
   "type": "module",
-  "description": "경인권 연합동아리 운영 자동화 플랫폼 (Crew) — Frontend",
+  "description": "CUU (Club Union University) — 경인권 연합동아리 운영 플랫폼 Frontend",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

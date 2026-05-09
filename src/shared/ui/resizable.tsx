@@ -1,8 +1,10 @@
+import * as React from 'react'
 import { GripVertical } from 'lucide-react'
 import {
-  PanelGroup,
   Panel,
+  PanelGroup,
   PanelResizeHandle,
+  type ImperativePanelHandle,
   type PanelGroupProps,
   type PanelProps,
   type PanelResizeHandleProps,
@@ -22,9 +24,14 @@ export function ResizablePanelGroup({ className, ...props }: PanelGroupProps) {
   )
 }
 
-export function ResizablePanel(props: PanelProps) {
-  return <Panel {...props} />
-}
+/** `collapse`/`expand` 제어를 위해 ref 전달 필요 시 사용합니다. */
+export const ResizablePanel = React.forwardRef<ImperativePanelHandle, PanelProps>(
+  function ResizablePanel(props, ref) {
+    return <Panel ref={ref} {...props} />
+  },
+)
+
+export type { ImperativePanelHandle }
 
 export function ResizableHandle({
   withHandle,

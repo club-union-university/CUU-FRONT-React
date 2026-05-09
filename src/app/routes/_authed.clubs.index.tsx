@@ -6,6 +6,10 @@ import { useState } from 'react'
 import {
   Button,
   Card,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -50,7 +54,7 @@ function ClubsListPage() {
   const canJoin = user?.role !== 'SUPER_ADMIN'
 
   return (
-    <main className="container max-w-5xl py-10">
+    <main className="container max-w-6xl py-10">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">동아리</h1>
@@ -120,12 +124,10 @@ function ClubsListPage() {
               />
             </Card>
           ) : (
-            <div className="overflow-hidden rounded-md border bg-card">
-              <ul className="divide-y divide-border">
-                {clubs.map((club) => (
-                  <ClubRow key={club.id} club={club} />
-                ))}
-              </ul>
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              {clubs.map((club) => (
+                <ClubCard key={club.id} club={club} />
+              ))}
             </div>
           ))}
       </Skeleton>
@@ -133,39 +135,39 @@ function ClubsListPage() {
   )
 }
 
-function ClubRow({ club }: { club: Club }) {
+function ClubCard({ club }: { club: Club }) {
   const statusMeta =
     club.status && club.status !== 'APPROVED' ? CLUB_STATUS_LABELS[club.status] : null
 
   return (
-    <li>
-      <Link
-        to="/clubs/$clubId"
-        params={{ clubId: String(club.id) }}
-        className="group block px-4 py-3.5 transition-colors hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset sm:py-4"
-      >
-        <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
-          <div className="min-w-0 flex-1">
-            <span className="font-medium leading-snug text-foreground group-hover:underline group-hover:decoration-muted-foreground/60">
-              {club.name}
+    <Link
+      to="/clubs/$clubId"
+      params={{ clubId: String(club.id) }}
+      className="group block h-full min-h-[140px] rounded-md outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+    >
+      <Card className="flex h-full flex-col border-border/90 transition-colors group-hover:border-primary/35 group-hover:bg-muted/[0.25]">
+        <CardHeader className="flex-1 space-y-2 pb-2">
+          <CardTitle className="text-base leading-snug transition-colors group-hover:text-primary">
+            {club.name}
+          </CardTitle>
+          <CardDescription className="line-clamp-3 text-[13px] leading-relaxed">
+            {club.description?.trim() || '등록된 설명이 없습니다.'}
+          </CardDescription>
+        </CardHeader>
+        <CardFooter className="mt-auto flex flex-wrap items-center gap-2 border-t border-border/80 bg-muted/[0.2] px-5 py-3 text-xs">
+          {club.category && (
+            <span className="rounded-sm border border-border bg-background px-2 py-0.5 font-medium text-foreground">
+              {CLUB_CATEGORY_LABELS[club.category]}
             </span>
-            <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
-              {club.description?.trim() || '등록된 설명이 없습니다.'}
-            </p>
-          </div>
-          <div className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground sm:flex-col sm:items-end sm:text-right">
-            {club.category && (
-              <span>{CLUB_CATEGORY_LABELS[club.category]}</span>
-            )}
-            {statusMeta && (
-              <span className="rounded border border-border bg-muted/40 px-1.5 py-px text-[11px] text-foreground">
-                {statusMeta.label}
-              </span>
-            )}
-          </div>
-        </div>
-      </Link>
-    </li>
+          )}
+          {statusMeta && (
+            <span className="rounded-sm border border-border px-2 py-0.5 font-medium text-muted-foreground">
+              {statusMeta.label}
+            </span>
+          )}
+        </CardFooter>
+      </Card>
+    </Link>
   )
 }
 

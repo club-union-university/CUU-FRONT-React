@@ -3,7 +3,7 @@ import {
   Avatar,
   Badge,
   Button,
-  CrewLogo,
+  CuuLogo,
   DarkModeToggle,
   DropdownMenu,
   DropdownMenuContent,
@@ -34,7 +34,7 @@ function AuthedLayout() {
       <header className="sticky top-0 z-40 border-b bg-muted/25">
         <div className="container flex h-12 items-center justify-between gap-4">
           <Link to="/" className="text-foreground">
-            <CrewLogo />
+            <CuuLogo />
           </Link>
           <nav className="flex flex-1 flex-wrap items-center justify-end gap-1 text-sm">
             <Link

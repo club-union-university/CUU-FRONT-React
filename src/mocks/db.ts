@@ -105,7 +105,7 @@ export const db = {
       nickname: '운영자',
       profileImage: '',
       schoolId: 1,
-      bio: 'Crew 운영 담당',
+      bio: 'CUU 운영 담당',
       role: 'SUPER_ADMIN',
       createdAt: now(),
       updatedAt: now(),

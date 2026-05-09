@@ -1,13 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Skeleton } from 'boneyard-js/react'
 import { useState, useMemo } from 'react'
-import {
-  CheckCircle2,
-  Clock,
-  ExternalLink,
-  ShieldCheck,
-  XCircle,
-} from 'lucide-react'
+import { ExternalLink } from 'lucide-react'
 import {
   Badge,
   Button,
@@ -101,19 +95,20 @@ function AdminClubsPage() {
 
   return (
     <main className="container max-w-6xl py-10">
-      <header className="mb-6 flex items-center gap-2">
-        <ShieldCheck className="h-5 w-5 text-primary" />
-        <h1 className="text-2xl font-bold tracking-tight">동아리 관리</h1>
-        <Badge variant="outline" className="ml-2">
-          Super Admin
-        </Badge>
+      <header className="mb-6 border-b border-border pb-5">
+        <h1 className="text-2xl font-semibold tracking-tight">동아리 관리</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Super Admin · 등록 신청 검토 및 승인·거절 처리
+        </p>
       </header>
 
-      <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="전체" value={stats.total} />
-        <StatCard label="승인 대기" value={stats.pending} accent="warning" icon={Clock} />
-        <StatCard label="승인됨" value={stats.approved} accent="success" icon={CheckCircle2} />
-        <StatCard label="거절됨" value={stats.rejected} accent="destructive" icon={XCircle} />
+      <div className="mb-6 overflow-hidden rounded-md border border-border bg-card">
+        <div className="grid divide-y divide-border sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-4">
+          <StatCell label="전체" value={stats.total} />
+          <StatCell label="승인 대기" value={stats.pending} />
+          <StatCell label="승인됨" value={stats.approved} />
+          <StatCell label="거절됨" value={stats.rejected} />
+        </div>
       </div>
 
       <div className="mb-4 flex items-center gap-1 border-b">
@@ -258,54 +253,15 @@ function AdminClubsPage() {
 }
 
 // ============================================================
-// Stats Card
+// 요약 수치 (아이콘·파스텀 원 없이 표 형태)
 // ============================================================
 
-const ACCENT_CLASSES = {
-  warning: 'text-amber-600',
-  success: 'text-emerald-600',
-  destructive: 'text-red-600',
-} as const
-
-function StatCard({
-  label,
-  value,
-  accent,
-  icon: Icon,
-}: {
-  label: string
-  value: number
-  accent?: keyof typeof ACCENT_CLASSES
-  icon?: React.ComponentType<{ className?: string }>
-}) {
+function StatCell({ label, value }: { label: string; value: number }) {
   return (
-    <Card>
-      <CardContent className="flex items-center justify-between p-5">
-        <div>
-          <p className="text-xs uppercase tracking-wider text-muted-foreground">{label}</p>
-          <p
-            className={cn(
-              'mt-1 text-2xl font-bold tabular-nums',
-              accent && ACCENT_CLASSES[accent],
-            )}
-          >
-            {value}
-          </p>
-        </div>
-        {Icon && (
-          <div
-            className={cn(
-              'rounded-full p-2',
-              accent === 'warning' && 'bg-amber-50',
-              accent === 'success' && 'bg-emerald-50',
-              accent === 'destructive' && 'bg-red-50',
-            )}
-          >
-            <Icon className={cn('h-5 w-5', accent && ACCENT_CLASSES[accent])} />
-          </div>
-        )}
-      </CardContent>
-    </Card>
+    <div className="px-4 py-3.5 sm:py-4">
+      <p className="text-[13px] font-medium text-muted-foreground">{label}</p>
+      <p className="mt-1 text-2xl font-semibold tabular-nums tracking-tight">{value}</p>
+    </div>
   )
 }
 
@@ -358,21 +314,21 @@ function CountChip({ n, active }: { n: number; active: boolean }) {
 function StatusBadge({ status }: { status?: ClubStatus }) {
   if (status === 'PENDING')
     return (
-      <Badge variant="warning" className="gap-1">
-        <Clock className="h-3 w-3" /> 대기
-      </Badge>
+      <span className="inline-flex rounded-sm border border-border bg-muted/50 px-2 py-px text-[11px] font-medium text-foreground">
+        대기
+      </span>
     )
   if (status === 'APPROVED')
     return (
-      <Badge className="gap-1">
-        <CheckCircle2 className="h-3 w-3" /> 승인
-      </Badge>
+      <span className="inline-flex rounded-sm border border-border px-2 py-px text-[11px] font-medium text-foreground">
+        승인
+      </span>
     )
   if (status === 'REJECTED')
     return (
-      <Badge variant="destructive" className="gap-1">
-        <XCircle className="h-3 w-3" /> 거절
-      </Badge>
+      <span className="inline-flex rounded-sm border border-destructive/40 bg-destructive/5 px-2 py-px text-[11px] font-medium text-destructive">
+        거절
+      </span>
     )
   return null
 }

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Moon, Sun } from 'lucide-react'
 import { Button } from './button'
 
-const STORAGE_KEY = 'crew.theme'
+const STORAGE_KEY = 'cuu.theme'
 
 function getInitialDark(): boolean {
   if (typeof window === 'undefined') return false
