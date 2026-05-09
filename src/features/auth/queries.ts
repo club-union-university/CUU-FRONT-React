@@ -34,7 +34,7 @@ export function useLogin() {
   return useMutation({
     mutationFn: (firebaseIdToken: string) => authApi.login(firebaseIdToken),
     onSuccess: (data) => {
-      setAuth({ accessToken: data.accessToken, user: data.user })
+      setAuth({ accessToken: data.accessToken, user: data.user, isNewUser: data.isNewUser })
       qc.setQueryData(authKeys.me(), data.user)
     },
   })
@@ -42,11 +42,13 @@ export function useLogin() {
 
 export function useSignup() {
   const setUser = useAuthStore((s) => s.setUser)
+  const completeSignup = useAuthStore((s) => s.completeSignup)
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (body: SignupRequest) => authApi.signup(body),
     onSuccess: (user: User) => {
       setUser(user)
+      completeSignup()
       qc.setQueryData(authKeys.me(), user)
     },
   })
@@ -70,5 +72,30 @@ export function useLogout() {
   return () => {
     clear()
     qc.clear()
+  }
+}
+
+/**
+ * 개발용 mock 로그인 — Firebase 미설정 환경에서 시연/개발 진행용.
+ * 백엔드가 없을 때도 작동하도록 직접 store에 fake auth 주입.
+ */
+export function useDevMockLogin() {
+  const setAuth = useAuthStore((s) => s.setAuth)
+  return (opts?: { role?: User['role']; isNewUser?: boolean }) => {
+    setAuth({
+      accessToken: 'dev-mock-token',
+      user: {
+        id: 1,
+        firebaseUid: 'dev-uid',
+        authProvider: 'GOOGLE',
+        email: 'dev@aingthon.local',
+        nickname: opts?.isNewUser ? '' : '데모유저',
+        schoolId: 1,
+        personalRole: 'FRONTEND',
+        bio: '',
+        role: opts?.role ?? 'PRESIDENT',
+      },
+      isNewUser: !!opts?.isNewUser,
+    })
   }
 }

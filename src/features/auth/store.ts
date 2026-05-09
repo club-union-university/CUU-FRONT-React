@@ -6,27 +6,37 @@ interface AuthState {
   accessToken: string | null
   user: User | null
   isAuthenticated: boolean
-  setAuth: (payload: { accessToken: string; user: User }) => void
+  /** 백엔드 login 응답에서 isNewUser=true일 때 set. signup 완료시 false로. */
+  requiresSignup: boolean
+  setAuth: (payload: { accessToken: string; user: User; isNewUser?: boolean }) => void
   setUser: (user: User) => void
+  completeSignup: () => void
   clear: () => void
 }
 
-/**
- * 클라이언트 인증 상태.
- * - persist: localStorage에 토큰 + 사용자 보관 (refresh 토큰 흐름 도입 전 임시)
- * - 보안 강화 시 httpOnly 쿠키로 이관 고려
- */
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       accessToken: null,
       user: null,
       isAuthenticated: false,
-      setAuth: ({ accessToken, user }) =>
-        set({ accessToken, user, isAuthenticated: true }),
+      requiresSignup: false,
+      setAuth: ({ accessToken, user, isNewUser }) =>
+        set({
+          accessToken,
+          user,
+          isAuthenticated: true,
+          requiresSignup: !!isNewUser,
+        }),
       setUser: (user) => set({ user }),
+      completeSignup: () => set({ requiresSignup: false }),
       clear: () =>
-        set({ accessToken: null, user: null, isAuthenticated: false }),
+        set({
+          accessToken: null,
+          user: null,
+          isAuthenticated: false,
+          requiresSignup: false,
+        }),
     }),
     {
       name: 'crew.auth',
@@ -35,6 +45,7 @@ export const useAuthStore = create<AuthState>()(
         accessToken: s.accessToken,
         user: s.user,
         isAuthenticated: s.isAuthenticated,
+        requiresSignup: s.requiresSignup,
       }),
     },
   ),
