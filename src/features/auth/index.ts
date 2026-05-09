@@ -1,4 +1,5 @@
 export * from './api'
 export * from './queries'
+export * from './labels'
 export { useAuthStore } from './store'
 export { requireAuth, redirectIfAuthed, requireSuperAdmin, requirePresident } from './guard'

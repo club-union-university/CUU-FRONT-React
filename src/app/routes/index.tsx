@@ -1,12 +1,12 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import {
-  Button,
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
   Badge,
+  Button,
 } from '@/shared/ui'
 import { useAuthStore } from '@/features/auth'
 
@@ -58,7 +58,7 @@ function LandingPage() {
           <CardHeader>
             <CardTitle className="text-lg">다중 노출 자동 발행</CardTitle>
             <CardDescription>
-              교내 3곳 / 연합 5곳 게시판에 동시에 발행. 다른 학교 학생도 read-only 열람.
+              교내 3곳 / 연합 5곳 게시판에 동시 발행. 다른 학교 학생도 read-only 열람.
             </CardDescription>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground">
@@ -67,13 +67,13 @@ function LandingPage() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">역할 기반 매칭</CardTitle>
+            <CardTitle className="text-lg">검증된 동아리만</CardTitle>
             <CardDescription>
-              디자이너/프론트/백엔드 역할 선언 → 행사 모집 시 자동 매칭.
+              관리자가 등록 신청을 검토합니다. 사칭/유령 동아리를 차단해 신뢰도를 유지.
             </CardDescription>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground">
-            사람이 아니라 동아리를 매칭한다. 사람은 따라온다.
+            사람이 아니라 동아리를 매칭한다.
           </CardContent>
         </Card>
       </section>

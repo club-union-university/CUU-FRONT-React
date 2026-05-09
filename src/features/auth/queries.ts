@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { STALE_TIMES } from '@/shared/api'
-import type { User } from '@/shared/api/types'
+import type { User, UserRole } from '@/shared/api/types'
 import { authApi, userApi, type SignupRequest, type UpdateProfileRequest } from './api'
 import { useAuthStore } from './store'
 
@@ -76,26 +76,40 @@ export function useLogout() {
 }
 
 /**
- * 개발용 mock 로그인 — Firebase 미설정 환경에서 시연/개발 진행용.
- * 백엔드가 없을 때도 작동하도록 직접 store에 fake auth 주입.
+ * 개발용 mock 로그인 — Firebase/백엔드 미설정 환경에서 시연/개발 진행용.
+ * UserRole(SUPER_ADMIN/PRESIDENT/MEMBER)을 시뮬레이션해 화면 분기를 검증한다.
  */
+export interface DevLoginOpts {
+  role?: UserRole
+  isNewUser?: boolean
+  /** 같은 role이라도 사용자별 id를 다르게 — club president 매칭 시뮬레이션용 */
+  id?: number
+  nickname?: string
+}
+
+const ROLE_DEFAULT_ID: Record<UserRole, number> = {
+  SUPER_ADMIN: 100,
+  PRESIDENT: 101,
+  MEMBER: 102,
+}
+
 export function useDevMockLogin() {
   const setAuth = useAuthStore((s) => s.setAuth)
-  return (opts?: { role?: User['role']; isNewUser?: boolean }) => {
+  return (opts: DevLoginOpts = {}) => {
+    const role = opts.role ?? 'MEMBER'
     setAuth({
-      accessToken: 'dev-mock-token',
+      accessToken: `dev-mock-token-${role.toLowerCase()}`,
       user: {
-        id: 1,
-        firebaseUid: 'dev-uid',
+        id: opts.id ?? ROLE_DEFAULT_ID[role],
+        firebaseUid: `dev-${role.toLowerCase()}`,
         authProvider: 'GOOGLE',
-        email: 'dev@aingthon.local',
-        nickname: opts?.isNewUser ? '' : '데모유저',
+        email: `${role.toLowerCase()}@aingthon.local`,
+        nickname: opts.isNewUser ? '' : (opts.nickname ?? `데모-${role}`),
         schoolId: 1,
-        personalRole: 'FRONTEND',
         bio: '',
-        role: opts?.role ?? 'PRESIDENT',
+        role,
       },
-      isNewUser: !!opts?.isNewUser,
+      isNewUser: !!opts.isNewUser,
     })
   }
 }

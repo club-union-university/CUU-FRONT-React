@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { Building2, GraduationCap, Megaphone } from 'lucide-react'
+import { Building2, GraduationCap, Megaphone, Check, X } from 'lucide-react'
 import {
   Badge,
   Button,
@@ -8,11 +8,18 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  toast,
 } from '@/shared/ui'
-import { useEvent } from '@/features/event'
+import {
+  useEvent,
+  useEventParticipants,
+  useApplyToEvent,
+  useApproveParticipant,
+  useRejectParticipant,
+} from '@/features/event'
 import { useClub } from '@/features/club'
 import { useAuthStore } from '@/features/auth'
-import type { EventStatus } from '@/shared/api/types'
+import type { EventStatus, ParticipantStatus } from '@/shared/api/types'
 
 export const Route = createFileRoute('/_authed/events/$eventId')({
   component: EventDetailPage,
@@ -41,7 +48,8 @@ function EventDetailPage() {
 
   const isInter = event.type === 'INTER_CLUB'
   const isHostPresident =
-    user?.role === 'PRESIDENT' && event.hostClubId === host.data?.id && host.data?.presidentUserId === user?.id
+    user?.role === 'PRESIDENT' &&
+    (host.data?.presidentUserId === user?.id || partner.data?.presidentUserId === user?.id)
 
   return (
     <main className="container max-w-5xl py-10">
@@ -56,13 +64,18 @@ function EventDetailPage() {
           </div>
           <h1 className="mt-2 text-3xl font-bold tracking-tight">{event.title}</h1>
         </div>
-        {isHostPresident && event.status === 'DRAFT' && (
-          <Button asChild>
-            <Link to="/events/$eventId/wizard" params={{ eventId }}>
-              위저드 계속하기
-            </Link>
-          </Button>
-        )}
+        <div className="flex gap-2">
+          {isHostPresident && event.status === 'DRAFT' && (
+            <Button asChild>
+              <Link to="/events/$eventId/wizard" params={{ eventId }}>
+                위저드 계속하기
+              </Link>
+            </Button>
+          )}
+          {!isHostPresident && event.status === 'RECRUITING' && (
+            <ApplyButton eventId={id} />
+          )}
+        </div>
       </header>
 
       <div className="grid gap-4 lg:grid-cols-3">
@@ -128,7 +141,132 @@ function EventDetailPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* 호스트 회장만 보는 참여자 섹션 */}
+      {isHostPresident && <ParticipantsSection eventId={id} />}
     </main>
+  )
+}
+
+// ============================================================
+// 참여 신청 (MEMBER + 다른 동아리 PRESIDENT 모두 가능)
+// ============================================================
+
+function ApplyButton({ eventId }: { eventId: number }) {
+  const apply = useApplyToEvent(eventId)
+  const handleApply = async () => {
+    try {
+      await apply.mutateAsync()
+      toast.success('신청 완료. 호스트 검토를 기다립니다.')
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : '신청 실패')
+    }
+  }
+  return (
+    <Button onClick={handleApply} disabled={apply.isPending}>
+      {apply.isPending ? '신청 중…' : '참여 신청'}
+    </Button>
+  )
+}
+
+// ============================================================
+// 참여자 섹션 (호스트 회장만)
+// ============================================================
+
+const participantStatusLabel: Record<ParticipantStatus, { label: string; variant: 'default' | 'warning' | 'destructive' | 'secondary' }> = {
+  PENDING: { label: '대기', variant: 'warning' },
+  APPROVED: { label: '승인됨', variant: 'default' },
+  REJECTED: { label: '거절됨', variant: 'destructive' },
+}
+
+function ParticipantsSection({ eventId }: { eventId: number }) {
+  const { data: participants, isLoading } = useEventParticipants(eventId)
+  const approve = useApproveParticipant(eventId)
+  const reject = useRejectParticipant(eventId)
+
+  const pending = participants?.filter((p) => p.status === 'PENDING') ?? []
+  const approved = participants?.filter((p) => p.status === 'APPROVED') ?? []
+
+  const handleApprove = async (id: number) => {
+    try {
+      await approve.mutateAsync(id)
+      toast.success('승인 완료')
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : '승인 실패')
+    }
+  }
+  const handleReject = async (id: number) => {
+    try {
+      await reject.mutateAsync(id)
+      toast.success('거절 완료')
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : '거절 실패')
+    }
+  }
+
+  return (
+    <Card className="mt-6">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg">참여자</CardTitle>
+          <span className="text-sm text-muted-foreground">
+            승인 {approved.length} · 대기 {pending.length}
+          </span>
+        </div>
+        <CardDescription>호스트 회장만 볼 수 있습니다.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <p className="text-sm text-muted-foreground">불러오는 중…</p>
+        ) : !participants?.length ? (
+          <p className="py-4 text-center text-sm text-muted-foreground">아직 신청자가 없습니다.</p>
+        ) : (
+          <ul className="divide-y">
+            {participants.map((p) => (
+              <li key={p.id} className="flex items-center justify-between gap-3 py-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-xs font-medium">
+                    {String(p.userId).slice(-2)}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">사용자 #{p.userId}</p>
+                    <p className="text-xs text-muted-foreground">
+                      신청 {p.appliedAt?.slice(0, 10) ?? '-'}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {p.status && (
+                    <Badge variant={participantStatusLabel[p.status].variant}>
+                      {participantStatusLabel[p.status].label}
+                    </Badge>
+                  )}
+                  {p.status === 'PENDING' && (
+                    <>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleReject(p.id!)}
+                        disabled={reject.isPending}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={() => handleApprove(p.id!)}
+                        disabled={approve.isPending}
+                      >
+                        <Check className="h-4 w-4" />
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </CardContent>
+    </Card>
   )
 }
 

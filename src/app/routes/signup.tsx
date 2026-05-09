@@ -21,29 +21,15 @@ import {
 } from '@/shared/ui'
 import { useSignup, requireAuth } from '@/features/auth'
 import { useSchools } from '@/features/school'
-import type { PersonalRole } from '@/shared/api/types'
 
 export const Route = createFileRoute('/signup')({
-  beforeLoad: ({ location }) => {
-    // 로그인은 됐어야 하지만 signup 미완료여야 함 → 일반 requireAuth 대신 직접
-    requireAuth(location.pathname)
-  },
+  beforeLoad: ({ location }) => requireAuth(location.pathname),
   component: SignupPage,
 })
-
-const personalRoles: { value: PersonalRole; label: string }[] = [
-  { value: 'DESIGNER', label: '디자이너' },
-  { value: 'FRONTEND', label: '프론트엔드' },
-  { value: 'BACKEND', label: '백엔드' },
-  { value: 'PLANNER', label: '기획자' },
-  { value: 'IOS', label: 'iOS' },
-  { value: 'ANDROID', label: '안드로이드' },
-]
 
 const signupSchema = z.object({
   nickname: z.string().min(2, '닉네임은 2자 이상').max(20),
   schoolId: z.coerce.number().int().positive('학교를 선택하세요'),
-  personalRole: z.enum(['DESIGNER', 'FRONTEND', 'BACKEND', 'PLANNER', 'IOS', 'ANDROID']).optional(),
   bio: z.string().max(200).optional(),
 })
 
@@ -74,7 +60,7 @@ function SignupPage() {
       <Card>
         <CardHeader>
           <CardTitle>회원가입</CardTitle>
-          <CardDescription>닉네임과 학교를 선택해 주세요. 역할은 나중에 바꿀 수 있습니다.</CardDescription>
+          <CardDescription>닉네임과 학교를 선택해 주세요.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={onSubmit} className="space-y-5">
@@ -107,26 +93,6 @@ function SignupPage() {
               {form.formState.errors.schoolId && (
                 <p className="text-xs text-destructive">{form.formState.errors.schoolId.message}</p>
               )}
-            </div>
-
-            <div className="space-y-2">
-              <Label>역할 (선택)</Label>
-              <Select
-                onValueChange={(v) =>
-                  form.setValue('personalRole', v as PersonalRole, { shouldValidate: true })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="기여 가능한 역할" />
-                </SelectTrigger>
-                <SelectContent>
-                  {personalRoles.map((r) => (
-                    <SelectItem key={r.value} value={r.value}>
-                      {r.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
 
             <div className="space-y-2">

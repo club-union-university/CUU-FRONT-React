@@ -1,5 +1,6 @@
 import { createFileRoute, Link, Outlet, useNavigate } from '@tanstack/react-router'
 import {
+  Badge,
   Button,
   DropdownMenu,
   DropdownMenuContent,
@@ -8,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/shared/ui'
-import { requireAuth, useAuthStore, useLogout } from '@/features/auth'
+import { requireAuth, useAuthStore, useLogout, userRoleLabel } from '@/features/auth'
 import { LogOut, User as UserIcon, ShieldCheck } from 'lucide-react'
 
 export const Route = createFileRoute('/_authed')({
@@ -20,6 +21,9 @@ function AuthedLayout() {
   const user = useAuthStore((s) => s.user)
   const logout = useLogout()
   const navigate = useNavigate()
+
+  const isSuperAdmin = user?.role === 'SUPER_ADMIN'
+  const isPresident = user?.role === 'PRESIDENT'
 
   return (
     <div className="min-h-screen">
@@ -35,7 +39,7 @@ function AuthedLayout() {
             <Link to="/events" className="text-muted-foreground hover:text-foreground">
               행사
             </Link>
-            {user?.role === 'SUPER_ADMIN' && (
+            {isSuperAdmin && (
               <Link to="/admin/clubs" className="text-muted-foreground hover:text-foreground">
                 <span className="inline-flex items-center gap-1">
                   <ShieldCheck className="h-4 w-4" /> 관리자
@@ -46,11 +50,22 @@ function AuthedLayout() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="gap-2">
                   <UserIcon className="h-4 w-4" />
-                  {user?.nickname ?? '사용자'}
+                  <span>{user?.nickname || '사용자'}</span>
+                  {user?.role && (
+                    <Badge
+                      variant={isSuperAdmin ? 'destructive' : isPresident ? 'default' : 'secondary'}
+                      className="ml-1 px-1.5 py-0 text-[10px] font-normal"
+                    >
+                      {userRoleLabel(user.role)}
+                    </Badge>
+                  )}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-44">
-                <DropdownMenuLabel>{user?.email}</DropdownMenuLabel>
+              <DropdownMenuContent align="end" className="w-52">
+                <DropdownMenuLabel className="flex flex-col gap-0.5">
+                  <span className="text-sm font-medium">{user?.nickname}</span>
+                  <span className="text-xs font-normal text-muted-foreground">{user?.email}</span>
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => {
