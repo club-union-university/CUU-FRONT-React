@@ -10,7 +10,12 @@ import {
   CardTitle,
   toast,
 } from '@/shared/ui'
-import { useDevMockLogin, useLogin, redirectIfAuthed } from '@/features/auth'
+import {
+  DEFAULT_LOGGED_IN_PATH,
+  useDevMockLogin,
+  useLogin,
+  redirectIfAuthed,
+} from '@/features/auth'
 import type { UserRole } from '@/shared/api/types'
 
 const loginSearchSchema = z.object({
@@ -38,7 +43,7 @@ function LoginPage() {
       window.location.href = search.redirect
       return
     }
-    navigate({ to: '/' })
+    navigate({ to: DEFAULT_LOGGED_IN_PATH })
   }
 
   const handleDevLogin = (opts: { role: UserRole; isNewUser?: boolean }) => {

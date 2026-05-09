@@ -16,7 +16,13 @@ import {
   Textarea,
   toast,
 } from '@/shared/ui'
-import { requireAuth, useAuthStore, useUpdateMe, userRoleLabel } from '@/features/auth'
+import {
+  DEFAULT_LOGGED_IN_PATH,
+  requireAuth,
+  useAuthStore,
+  useUpdateMe,
+  userRoleLabel,
+} from '@/features/auth'
 
 export const Route = createFileRoute('/_authed/profile')({
   beforeLoad: ({ location }) => requireAuth(location.pathname),
@@ -104,7 +110,7 @@ function ProfilePage() {
               />
             </div>
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="ghost" onClick={() => navigate({ to: '/' })}>
+              <Button type="button" variant="ghost" onClick={() => navigate({ to: DEFAULT_LOGGED_IN_PATH })}>
                 취소
               </Button>
               <Button type="submit" disabled={update.isPending}>

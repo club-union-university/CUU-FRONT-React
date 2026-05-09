@@ -1,4 +1,5 @@
 import { redirect } from '@tanstack/react-router'
+import { DEFAULT_LOGGED_IN_PATH } from './paths'
 import { useAuthStore } from './store'
 
 /**
@@ -20,7 +21,7 @@ export function requireAuth(currentPath: string) {
 export function redirectIfAuthed() {
   const { isAuthenticated, requiresSignup } = useAuthStore.getState()
   if (isAuthenticated) {
-    throw redirect({ to: requiresSignup ? '/signup' : '/' })
+    throw redirect({ to: requiresSignup ? '/signup' : DEFAULT_LOGGED_IN_PATH })
   }
 }
 
@@ -29,7 +30,7 @@ export function requireSuperAdmin(currentPath: string) {
   requireAuth(currentPath)
   const { user } = useAuthStore.getState()
   if (user?.role !== 'SUPER_ADMIN') {
-    throw redirect({ to: '/' })
+    throw redirect({ to: DEFAULT_LOGGED_IN_PATH })
   }
 }
 
@@ -38,6 +39,6 @@ export function requirePresident(currentPath: string) {
   requireAuth(currentPath)
   const { user } = useAuthStore.getState()
   if (user?.role !== 'PRESIDENT' && user?.role !== 'SUPER_ADMIN') {
-    throw redirect({ to: '/' })
+    throw redirect({ to: DEFAULT_LOGGED_IN_PATH })
   }
 }
