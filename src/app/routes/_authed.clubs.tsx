@@ -1,6 +1,7 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { z } from 'zod'
-import { Plus } from 'lucide-react'
+import { Plus, KeyRound } from 'lucide-react'
+import { useState } from 'react'
 import {
   Badge,
   Button,
@@ -9,13 +10,22 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  toast,
 } from '@/shared/ui'
-import { useClubs } from '@/features/club'
+import { useClubs, useJoinClubByCode } from '@/features/club'
 import { useAuthStore } from '@/features/auth'
 import type { ClubCategory, ClubStatus } from '@/shared/api/types'
 
@@ -54,6 +64,8 @@ function ClubsListPage() {
     schoolId: search.schoolId,
   })
 
+  const canJoin = user?.role !== 'SUPER_ADMIN'
+
   return (
     <main className="container max-w-5xl py-10">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
@@ -63,13 +75,16 @@ function ClubsListPage() {
             경인권 화이트리스트 학교의 승인된 동아리를 둘러봅니다.
           </p>
         </div>
-        {user?.role === 'PRESIDENT' && (
-          <Button asChild>
-            <Link to="/clubs/new">
-              <Plus className="mr-1 h-4 w-4" /> 동아리 등록
-            </Link>
-          </Button>
-        )}
+        <div className="flex gap-2">
+          {canJoin && <JoinByCodeButton />}
+          {user?.role === 'PRESIDENT' && (
+            <Button asChild>
+              <Link to="/clubs/new">
+                <Plus className="mr-1 h-4 w-4" /> 동아리 등록
+              </Link>
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="mb-6 flex flex-wrap gap-3">
@@ -137,5 +152,76 @@ function ClubsListPage() {
         </div>
       )}
     </main>
+  )
+}
+
+// ============================================================
+// 초대 코드 가입 다이얼로그
+// ============================================================
+
+function JoinByCodeButton() {
+  const [open, setOpen] = useState(false)
+  const [code, setCode] = useState('')
+  const navigate = useNavigate()
+  const join = useJoinClubByCode()
+
+  const reset = () => {
+    setCode('')
+    setOpen(false)
+  }
+
+  const handleSubmit = async () => {
+    if (!code.trim()) {
+      toast.error('초대 코드를 입력하세요')
+      return
+    }
+    try {
+      const member = await join.mutateAsync(code.trim())
+      toast.success('가입 완료')
+      reset()
+      navigate({ to: '/clubs/$clubId', params: { clubId: String(member.clubId) } })
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : '가입 실패 — 코드를 확인하세요')
+    }
+  }
+
+  return (
+    <>
+      <Button variant="outline" onClick={() => setOpen(true)}>
+        <KeyRound className="mr-1 h-4 w-4" /> 초대 코드 가입
+      </Button>
+      <Dialog open={open} onOpenChange={(v) => (v ? setOpen(v) : reset())}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>동아리 초대 코드</DialogTitle>
+            <DialogDescription>
+              회장에게서 받은 초대 코드를 입력하세요. 즉시 부원으로 등록됩니다.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label htmlFor="invite-code">초대 코드</Label>
+            <Input
+              id="invite-code"
+              autoFocus
+              placeholder="예: HYE-LIKELION"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+            />
+            <p className="text-xs text-muted-foreground">
+              데모 시드: HYE-LIKELION / INHA-LIKELION / AJOU-GDSC / GACHON-DESIGN
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={reset}>
+              취소
+            </Button>
+            <Button onClick={handleSubmit} disabled={join.isPending}>
+              {join.isPending ? '확인 중…' : '가입'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
