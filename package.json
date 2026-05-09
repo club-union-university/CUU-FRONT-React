@@ -12,7 +12,7 @@
     "typecheck": "tsc -b --noEmit",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
     "openapi:gen": "openapi-typescript ../../Downloads/crew-openapi.yaml -o src/shared/api/schema.gen.ts",
-    "bones:gen": "boneyard-js build \"http://localhost:5173/?boneAuth=super_admin\"",
+    "bones:gen": "node scripts/gen-bones.mjs",
     "bones:watch": "boneyard-js build \"http://localhost:5173/?boneAuth=super_admin\" --watch"
   },
   "dependencies": {
