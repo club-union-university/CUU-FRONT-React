@@ -38,13 +38,22 @@ function ClubDetailPage() {
             {club.status === 'REJECTED' && <Badge variant="destructive">거절됨</Badge>}
           </div>
         </div>
-        {isPresident && club.status === 'APPROVED' && (
-          <Button asChild>
-            <Link to="/events/new" search={{ hostClubId: club.id }}>
-              <Plus className="mr-1 h-4 w-4" /> 행사 만들기
-            </Link>
-          </Button>
-        )}
+        <div className="flex gap-2">
+          {club.status === 'APPROVED' && (
+            <Button variant="outline" asChild>
+              <Link to="/clubs/$clubId/board" params={{ clubId: String(club.id) }}>
+                동아리 게시판
+              </Link>
+            </Button>
+          )}
+          {isPresident && club.status === 'APPROVED' && (
+            <Button asChild>
+              <Link to="/events/new" search={{ hostClubId: club.id }}>
+                <Plus className="mr-1 h-4 w-4" /> 행사 만들기
+              </Link>
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">

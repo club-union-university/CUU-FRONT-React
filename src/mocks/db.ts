@@ -410,7 +410,98 @@ export const db = {
       category: 'NOTICE',
       isOfficialNotice: true,
       title: '[교내 행사] ERICA 멋사 19기 OT',
-      content: 'D-7. 강의실 101에서 진행됩니다.',
+      content: 'D-7. 강의실 101에서 진행됩니다.\n자세히 보기: /events/2',
+      createdAt: now(),
+      updatedAt: now(),
+    },
+    // ===== 다중 노출 슬롯: 송도 해커톤 (event 1) =====
+    {
+      id: 10,
+      authorId: 101,
+      boardType: 'CLUB',
+      targetId: 1, // 한양에리카 멋사
+      category: 'NOTICE',
+      isOfficialNotice: true,
+      title: '[연합 행사] 송도 24시간 무박 해커톤',
+      content:
+        '인하대 멋사와 합동으로 진행하는 해커톤입니다.\nD-20 / 인하대 60주년기념관\n자세히 보기: /events/1',
+      createdAt: now(),
+      updatedAt: now(),
+    },
+    {
+      id: 11,
+      authorId: 103,
+      boardType: 'CLUB',
+      targetId: 2, // 인하대 멋사
+      category: 'NOTICE',
+      isOfficialNotice: true,
+      title: '[연합 행사] 송도 24시간 무박 해커톤',
+      content:
+        '한양에리카 멋사와 합동으로 진행하는 해커톤입니다.\nD-20 / 인하대 60주년기념관\n자세히 보기: /events/1',
+      createdAt: now(),
+      updatedAt: now(),
+    },
+    {
+      id: 12,
+      authorId: 101,
+      boardType: 'SCHOOL',
+      targetId: 1, // 한양대 ERICA
+      category: 'NOTICE',
+      isOfficialNotice: true,
+      title: '[연합 행사] 송도 24시간 무박 해커톤 — 한양에리카×인하대',
+      content:
+        '한양에리카 멋사가 인하대 멋사와 함께 진행하는 해커톤입니다.\nD-20 / 인하대 60주년기념관\n자세히 보기: /events/1',
+      createdAt: now(),
+      updatedAt: now(),
+    },
+    {
+      id: 13,
+      authorId: 103,
+      boardType: 'SCHOOL',
+      targetId: 2, // 인하대
+      category: 'NOTICE',
+      isOfficialNotice: true,
+      title: '[연합 행사] 송도 24시간 무박 해커톤 — 인하대×한양에리카',
+      content:
+        '인하대 멋사가 한양에리카 멋사와 함께 진행하는 해커톤입니다.\nD-20 / 인하대 60주년기념관\n자세히 보기: /events/1',
+      createdAt: now(),
+      updatedAt: now(),
+    },
+    // ===== 다중 노출: ERICA OT (event 2, INTRA_CLUB) =====
+    {
+      id: 14,
+      authorId: 101,
+      boardType: 'SCHOOL',
+      targetId: 1, // 한양대 ERICA
+      category: 'NOTICE',
+      isOfficialNotice: true,
+      title: '[교내 행사] ERICA 멋사 19기 OT',
+      content: '한양에리카 멋사가 19기 신규 부원을 맞이합니다.\nD-7\n자세히 보기: /events/2',
+      createdAt: now(),
+      updatedAt: now(),
+    },
+    // ===== 다른 학교 발견용: 아주대-가천대 워크샵 =====
+    {
+      id: 15,
+      authorId: 104,
+      boardType: 'CLUB',
+      targetId: 3, // 아주 GDSC
+      category: 'NOTICE',
+      title: '[연합 행사] 아주 GDSC × 가천 디자인 워크샵 (검토 중)',
+      content: '가천 디자인과 합동 워크샵을 제안했습니다. 가천 측 회장 승인 대기 중입니다.',
+      createdAt: now(),
+      updatedAt: now(),
+    },
+    // ===== 학교 게시판 일반 안내 =====
+    {
+      id: 16,
+      authorId: 101,
+      boardType: 'SCHOOL',
+      targetId: 3, // 아주대
+      category: 'NOTICE',
+      title: '[안내] 다른 학교 행사도 둘러보세요',
+      content:
+        '아주대학교 게시판입니다. 우리 학교 동아리들이 주최/참여한 행사가 자동으로 노출됩니다.\n\n다른 학교 행사도 read-only로 열람 가능합니다. 영감을 받았다면 우리 학교 회장에게 연합 행사를 제안해 보세요.',
       createdAt: now(),
       updatedAt: now(),
     },

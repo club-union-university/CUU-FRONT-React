@@ -39,6 +39,9 @@ function AuthedLayout() {
             <Link to="/events" className="text-muted-foreground hover:text-foreground">
               행사
             </Link>
+            <Link to="/schools" className="text-muted-foreground hover:text-foreground">
+              학교
+            </Link>
             {isSuperAdmin && (
               <Link to="/admin/clubs" className="text-muted-foreground hover:text-foreground">
                 <span className="inline-flex items-center gap-1">

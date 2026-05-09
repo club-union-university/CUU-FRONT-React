@@ -115,27 +115,31 @@ function EventDetailPage() {
             <ExposureItem
               icon={<Building2 className="h-4 w-4" />}
               label={`동아리 게시판 (${host.data?.name ?? '주최'})`}
-              to="/clubs/$clubId"
+              to="/clubs/$clubId/board"
               params={{ clubId: String(event.hostClubId) }}
             />
             {isInter && partner.data && (
               <ExposureItem
                 icon={<Building2 className="h-4 w-4" />}
                 label={`동아리 게시판 (${partner.data.name})`}
-                to="/clubs/$clubId"
+                to="/clubs/$clubId/board"
                 params={{ clubId: String(event.partnerClubId) }}
               />
             )}
-            <ExposureItem
-              icon={<GraduationCap className="h-4 w-4" />}
-              label={`학교 게시판 (${host.data?.schoolId ? `학교 #${host.data.schoolId}` : '주최 학교'})`}
-              disabled
-            />
-            {isInter && (
+            {host.data?.schoolId && (
               <ExposureItem
                 icon={<GraduationCap className="h-4 w-4" />}
-                label={`학교 게시판 (${partner.data?.schoolId ? `학교 #${partner.data.schoolId}` : '파트너 학교'})`}
-                disabled
+                label={`학교 게시판 (학교 #${host.data.schoolId})`}
+                to="/schools/$schoolId/board"
+                params={{ schoolId: String(host.data.schoolId) }}
+              />
+            )}
+            {isInter && partner.data?.schoolId && (
+              <ExposureItem
+                icon={<GraduationCap className="h-4 w-4" />}
+                label={`학교 게시판 (학교 #${partner.data.schoolId})`}
+                to="/schools/$schoolId/board"
+                params={{ schoolId: String(partner.data.schoolId) }}
               />
             )}
           </CardContent>
@@ -279,7 +283,7 @@ function ExposureItem({
 }: {
   icon: React.ReactNode
   label: string
-  to?: '/events/$eventId/board' | '/clubs/$clubId'
+  to?: '/events/$eventId/board' | '/clubs/$clubId/board' | '/schools/$schoolId/board'
   params?: Record<string, string>
   disabled?: boolean
 }) {

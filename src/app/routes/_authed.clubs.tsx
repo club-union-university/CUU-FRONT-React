@@ -30,7 +30,7 @@ import { useAuthStore } from '@/features/auth'
 import type { ClubCategory, ClubStatus } from '@/shared/api/types'
 
 const clubsSearchSchema = z.object({
-  category: z.enum(['DEV', 'DESIGN', 'STARTUP', 'ART', 'SPORTS']).optional(),
+  clubCategory: z.enum(['DEV', 'DESIGN', 'STARTUP', 'ART', 'SPORTS']).optional(),
   status: z.enum(['PENDING', 'APPROVED', 'REJECTED']).optional(),
   schoolId: z.coerce.number().int().optional(),
 })
@@ -59,7 +59,7 @@ function ClubsListPage() {
   const navigate = Route.useNavigate()
   const user = useAuthStore((s) => s.user)
   const { data: clubs, isLoading } = useClubs({
-    category: search.category,
+    category: search.clubCategory,
     status: search.status ?? 'APPROVED',
     schoolId: search.schoolId,
   })
@@ -89,10 +89,13 @@ function ClubsListPage() {
 
       <div className="mb-6 flex flex-wrap gap-3">
         <Select
-          value={search.category ?? 'ALL'}
+          value={search.clubCategory ?? 'ALL'}
           onValueChange={(v) =>
             navigate({
-              search: (s) => ({ ...s, category: v === 'ALL' ? undefined : (v as ClubCategory) }),
+              search: (s) => ({
+                ...s,
+                clubCategory: v === 'ALL' ? undefined : (v as ClubCategory),
+              }),
             })
           }
         >
