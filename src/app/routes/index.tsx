@@ -49,8 +49,8 @@ function LandingPage() {
       <section className="relative border-b border-border bg-background">
         <div className="pointer-events-none absolute inset-0 landing-hero-backdrop" aria-hidden />
 
-        <div className="container relative max-w-6xl px-4 py-14 sm:py-16 lg:py-20">
-          <header className="flex flex-wrap items-center justify-between gap-4 pb-8">
+        <div className="container relative max-w-6xl px-4 py-7 sm:py-8 lg:py-10">
+          <header className="flex flex-wrap items-center justify-between gap-4 pb-6">
             <CuuLogo className="text-foreground" />
             {!isAuthed ? (
               <Button asChild variant="outline" size="sm">
@@ -62,12 +62,12 @@ function LandingPage() {
               </Button>
             )}
           </header>
-          <div className="section-flow-divider mb-12 shrink-0" aria-hidden />
+          <div className="section-flow-divider mb-8 shrink-0" aria-hidden />
 
-          <div className="grid items-start gap-12 lg:grid-cols-[1fr,minmax(272px,340px)] lg:gap-16">
+          <div className="grid items-start gap-8 lg:grid-cols-[1fr,minmax(272px,340px)] lg:gap-12">
             {/* 왼쪽: 카피 + CTA */}
-            <div className="space-y-6">
-              <p className="motion-safe:animate-fade-in-up border-l-2 border-foreground/20 pl-3 text-[13px] font-semibold tracking-wide text-muted-foreground">
+            <div className="space-y-5">
+              <p className="motion-safe:animate-fade-in-up border-l-2 border-primary/25 pl-3 text-copy-sm font-semibold tracking-wide text-muted-foreground">
                 경인권 연합 · CUU
               </p>
 
@@ -83,7 +83,7 @@ function LandingPage() {
                 </span>
               </h1>
 
-              <p className="motion-safe:animate-fade-in-up motion-safe:[animation-delay:90ms] max-w-lg text-[15px] leading-[1.75] text-muted-foreground sm:text-base">
+              <p className="motion-safe:animate-fade-in-up motion-safe:[animation-delay:90ms] max-w-lg text-copy text-muted-foreground sm:text-base sm:leading-7">
                 같은 내용을 단톡·문서·게시판에 여러 번 쓰지 않도록, 흐름을 한곳으로 모았습니다. 노출 형식만
                 맞추면 교차 게시까지 이어집니다.
               </p>
@@ -100,7 +100,7 @@ function LandingPage() {
                         ⟶
                       </span>
                     )}
-                    <span className="rounded-md bg-background px-2 py-0.5 text-[13px] font-medium text-foreground shadow-xs">
+                    <span className="rounded-md bg-background px-2 py-0.5 text-copy-sm font-medium text-foreground shadow-xs">
                       {step}
                     </span>
                   </span>
@@ -129,7 +129,7 @@ function LandingPage() {
 
             {/* 오른쪽: 수치 패널 (스택 + 강조) */}
             <div className="flex flex-col gap-3 lg:sticky lg:top-8">
-              <p className="text-[12px] font-semibold tracking-wide text-muted-foreground motion-safe:animate-fade-in-up motion-safe:[animation-delay:220ms]">
+              <p className="text-label uppercase text-muted-foreground motion-safe:animate-fade-in-up motion-safe:[animation-delay:220ms]">
                 지금 규모
               </p>
               {stats.map((s, i) => (
@@ -143,7 +143,7 @@ function LandingPage() {
                       : 'hover:border-border',
                   )}
                 >
-                  <p className="text-[13px] text-muted-foreground">{s.label}</p>
+                  <p className="text-copy-sm text-muted-foreground">{s.label}</p>
                   <p className="mt-1 flex items-baseline gap-1.5 tabular-nums">
                     <span className="text-3xl font-semibold tracking-tight">{s.value}</span>
                     <span className="text-sm font-normal text-muted-foreground">{s.suffix}</span>
@@ -157,20 +157,20 @@ function LandingPage() {
 
       {/* —— 운영 원칙 —— */}
       <section className="border-b border-border bg-muted/25 dark:bg-muted/15">
-        <div className="container max-w-6xl px-4 py-14 sm:py-16">
-          <div className="grid gap-10 lg:grid-cols-[220px_1fr] lg:gap-14">
+        <div className="container max-w-6xl px-4 py-7 sm:py-8 lg:py-10">
+          <div className="grid gap-8 lg:grid-cols-[220px_1fr] lg:gap-10">
             <div className="lg:sticky lg:top-10 lg:self-start">
               <h2 className="text-xl font-semibold tracking-tight">운영 원칙</h2>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                 작성은 단계로 나누고, 교차 업로드는 같은 출처만 쓰고, 가입·등록은 관리 화면에서
                 걸러냅니다.
               </p>
-              <div className="mt-8 hidden h-16 w-px bg-border lg:block" aria-hidden />
+              <div className="mt-6 hidden h-12 w-px bg-border lg:block" aria-hidden />
             </div>
 
             <ol className="divide-y divide-border overflow-hidden rounded-xl border border-border/65 bg-card shadow-xs transition-shadow duration-normal ease-out-expo hover:shadow-sm">
               {features.map(({ icon: Icon, title, body }, i) => (
-                <li key={title} className="flex gap-5 bg-card px-5 py-6 sm:gap-6 sm:px-7 sm:py-8">
+                <li key={title} className="flex gap-5 bg-card px-5 py-5 sm:gap-6 sm:px-6 sm:py-6">
                   <div className="flex shrink-0 items-start gap-2 pt-1 sm:flex-col sm:items-center sm:gap-3">
                     <span
                       className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-border/70 bg-muted text-sm font-bold tabular-nums text-foreground shadow-xs"
@@ -182,7 +182,7 @@ function LandingPage() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <h3 className="text-lg font-semibold leading-snug">{title}</h3>
-                    <p className="mt-2 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
+                    <p className="mt-2 max-w-xl text-copy leading-relaxed text-muted-foreground">
                       {body}
                     </p>
                   </div>
@@ -194,7 +194,7 @@ function LandingPage() {
       </section>
 
       {/* —— 마무리 띠 —— */}
-      <footer className="border-t border-border bg-background py-10">
+      <footer className="border-t border-border bg-background py-8 lg:py-10">
         <div className="container flex max-w-6xl flex-col items-start justify-between gap-4 px-4 sm:flex-row sm:items-center">
           <div>
             <p className="text-sm font-semibold text-foreground">CUU</p>

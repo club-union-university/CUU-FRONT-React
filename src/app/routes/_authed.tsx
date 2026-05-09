@@ -1,4 +1,6 @@
+import type { ReactNode } from 'react'
 import { createFileRoute, Link, Outlet, useNavigate } from '@tanstack/react-router'
+import { cn } from '@/lib/utils'
 import {
   Avatar,
   Badge,
@@ -31,37 +33,23 @@ function AuthedLayout() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-40 border-b bg-muted/25">
+      <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/70">
         <div className="container flex h-12 items-center justify-between gap-4">
-          <Link to="/" className="text-foreground">
+          <Link
+            to="/"
+            className="rounded-lg px-1 py-0.5 text-foreground outline-none ring-offset-background transition-colors hover:bg-primary-soft/35 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
             <CuuLogo />
           </Link>
-          <nav className="flex flex-1 flex-wrap items-center justify-end gap-1 text-sm">
-            <Link
-              to="/clubs"
-              className="rounded-sm px-2.5 py-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
-            >
-              동아리
-            </Link>
-            <Link
-              to="/events"
-              className="rounded-sm px-2.5 py-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
-            >
-              행사
-            </Link>
-            <Link
-              to="/schools"
-              className="rounded-sm px-2.5 py-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
-            >
-              학교
-            </Link>
+          <nav className="flex flex-1 flex-wrap items-center justify-end gap-1.5 text-sm font-medium">
+            <MainNavLink to="/clubs">동아리</MainNavLink>
+            <MainNavLink to="/events">행사</MainNavLink>
+            <MainNavLink to="/schools">학교</MainNavLink>
             {isSuperAdmin && (
-              <Link
-                to="/admin/clubs"
-                className="inline-flex items-center gap-1 rounded-sm px-2.5 py-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
-              >
-                <ShieldCheck className="h-4 w-4 shrink-0" /> 관리자
-              </Link>
+              <MainNavLink to="/admin/clubs" className="inline-flex items-center gap-1">
+                <ShieldCheck className="h-4 w-4 shrink-0 opacity-90" aria-hidden />
+                관리자
+              </MainNavLink>
             )}
             <NotificationBell />
             <DarkModeToggle />
@@ -105,5 +93,33 @@ function AuthedLayout() {
       </header>
       <Outlet />
     </div>
+  )
+}
+
+function MainNavLink({
+  to,
+  className,
+  children,
+}: {
+  to: '/clubs' | '/events' | '/schools' | '/admin/clubs'
+  className?: string
+  children: ReactNode
+}) {
+  return (
+    <Link
+      to={to}
+      className={cn(
+        'rounded-lg px-3 py-2 text-muted-foreground',
+        'transition-[background-color,color,box-shadow] duration-normal ease-out-expo',
+        'hover:bg-primary-soft/55 hover:text-foreground',
+        className,
+      )}
+      activeProps={{
+        className:
+          'bg-primary-soft px-3 py-2 font-semibold text-primary-soft-foreground shadow-xs hover:bg-primary-soft hover:text-primary-soft-foreground',
+      }}
+    >
+      {children}
+    </Link>
   )
 }

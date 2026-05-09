@@ -15,15 +15,18 @@ export function Skeleton({ className, ...rest }: HTMLAttributes<HTMLDivElement>)
 /** 게시판 글 목록 */
 export function PostBoardListSkeleton({ rows = 6 }: { rows?: number }) {
   return (
-    <div className="divide-y divide-border overflow-hidden rounded-md border border-border bg-card">
+    <div className="flex flex-col gap-3">
       {Array.from({ length: rows }, (_, i) => (
-        <div key={i} className="flex items-stretch gap-3 px-4 py-3.5 sm:px-5 sm:py-4">
-          <div className="min-w-0 flex-1 space-y-2">
-            <Skeleton className="h-3 w-[40%] max-w-[200px]" />
-            <Skeleton className="h-4 w-[75%] max-w-md" />
+        <div
+          key={i}
+          className="flex items-stretch overflow-hidden rounded-lg border border-border/60 bg-card shadow-xs"
+        >
+          <div className="min-w-0 flex-1 space-y-2 px-4 py-4 sm:px-5 sm:py-[1.125rem]">
+            <Skeleton className="h-3.5 w-[38%] max-w-[180px]" />
+            <Skeleton className="h-5 w-[78%] max-w-lg" />
           </div>
-          <div className="flex shrink-0 items-center border-l border-border/80 pl-2 sm:pl-3">
-            <Skeleton className="h-5 w-5 shrink-0 rounded-sm" />
+          <div className="flex shrink-0 items-center border-l border-border/50 bg-muted/20 px-2">
+            <Skeleton className="h-4 w-4 shrink-0 rounded-sm opacity-70" />
           </div>
         </div>
       ))}
@@ -42,7 +45,7 @@ export function CardGridSkeleton({
   return (
     <div className={cn('grid gap-4 md:grid-cols-2', className)}>
       {Array.from({ length: count }, (_, i) => (
-        <div key={i} className="rounded-md border border-border bg-card p-5 shadow-xs">
+        <div key={i} className="rounded-lg border border-border/60 bg-card p-5 shadow-xs">
           <Skeleton className="mb-3 h-5 w-[55%]" />
           <Skeleton className="mb-2 h-3 w-full" />
           <Skeleton className="h-3 w-[40%]" />

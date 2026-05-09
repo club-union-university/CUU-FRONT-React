@@ -76,14 +76,14 @@ export function PostBoard({
         <PostBoardListSkeleton rows={8} />
       ) : !posts ? null : posts.length === 0 ? (
         <Card>
-          <CardContent className="py-12 text-center text-sm text-muted-foreground">
+          <CardContent className="py-12 text-center text-copy text-muted-foreground">
             {readOnly
               ? '아직 게시글이 없습니다.'
               : '아직 게시글이 없습니다. 첫 글을 작성해 보세요.'}
           </CardContent>
         </Card>
       ) : (
-        <ul className="divide-y divide-border overflow-hidden rounded-md border border-border bg-card">
+        <ul className="flex flex-col gap-3">
           {posts.map((post) => (
             <PostRow
               key={post.id}
@@ -223,6 +223,17 @@ function PostDetailLink({
   return null
 }
 
+function formatPostedAt(iso: string | undefined): string {
+  if (!iso) return ''
+  try {
+    const d = new Date(iso)
+    if (Number.isNaN(d.getTime())) return iso.slice(0, 10)
+    return d.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })
+  } catch {
+    return iso.slice(0, 10)
+  }
+}
+
 function CategoryChip({
   children,
   active,
@@ -275,30 +286,51 @@ function PostRow({
     }
   }
 
+  const postedMeta = formatPostedAt(post.createdAt)
+  const selfLabel =
+    user?.id !== undefined &&
+    user.id !== null &&
+    post.authorId !== undefined &&
+    user.id === post.authorId ? (
+      <span className="text-copy-sm font-medium text-primary">내 글</span>
+    ) : null
+
   return (
-    <li className="flex items-stretch transition-colors hover:bg-muted/35">
+    <li className="group/post-row flex items-stretch overflow-hidden rounded-lg border border-border/60 bg-card shadow-xs ring-offset-background transition-[box-shadow,border-color] duration-normal ease-out-expo hover:border-border hover:shadow-sm">
       <PostDetailLink
         boardType={boardType}
         targetId={targetId}
         postId={post.id!}
-        className="flex min-w-0 flex-1 flex-col gap-1 px-4 py-3.5 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:px-5 sm:py-4"
+        className="flex min-w-0 flex-1 flex-col gap-1.5 px-4 py-4 outline-none transition-colors group-hover/post-row:bg-primary-soft/35 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:px-5 sm:py-[1.125rem]"
       >
-        <div className="mb-0.5 flex flex-wrap items-center gap-2 text-xs">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           {post.isOfficialNotice && <Badge variant="warning">공식 공지</Badge>}
           {post.category && (
             <Badge variant="secondary">{postCategoryLabel(post.category)}</Badge>
           )}
-          <span className="text-muted-foreground">
-            작성자 #{post.authorId} · {post.createdAt?.slice(0, 10)}
-          </span>
+          {postedMeta && (
+            <span className="text-copy-sm text-muted-foreground">{postedMeta}</span>
+          )}
+          {postedMeta && selfLabel && (
+            <span className="text-copy-sm text-muted-foreground/80" aria-hidden>
+              ·
+            </span>
+          )}
+          {selfLabel}
         </div>
         <CardTitle className="text-left text-base font-semibold leading-snug">{post.title}</CardTitle>
       </PostDetailLink>
-      <div className="flex shrink-0 items-center gap-1 border-l border-border/80 px-2 sm:px-3">
+      <div className="flex shrink-0 items-center gap-0.5 border-l border-border/50 bg-muted/20 px-1.5 sm:px-2">
         {isAuthor && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="글 메뉴">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 text-muted-foreground hover:text-foreground"
+                aria-label="글 메뉴"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -315,7 +347,10 @@ function PostRow({
             </DropdownMenuContent>
           </DropdownMenu>
         )}
-        <ChevronRight className="h-5 w-5 text-muted-foreground" aria-hidden />
+        <ChevronRight
+          className="mr-0.5 h-4 w-4 shrink-0 text-muted-foreground/70 transition-transform duration-normal ease-out-expo group-hover/post-row:translate-x-0.5"
+          aria-hidden
+        />
       </div>
     </li>
   )
