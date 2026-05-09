@@ -74,6 +74,19 @@ export function useUpdateMe() {
   })
 }
 
+/** 백엔드 테스트용: 내 역할을 SUPER_ADMIN / PRESIDENT / MEMBER 로 전환 */
+export function useUpdateMyRole() {
+  const setUser = useAuthStore((s) => s.setUser)
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (role: UserRole) => userApi.updateMyRole(role),
+    onSuccess: (user: User) => {
+      setUser(user)
+      qc.setQueryData(authKeys.me(), user)
+    },
+  })
+}
+
 export function useLogout() {
   const clear = useAuthStore((s) => s.clear)
   const qc = useQueryClient()

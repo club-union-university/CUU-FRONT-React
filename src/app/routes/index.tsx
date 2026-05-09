@@ -34,12 +34,17 @@ const features = [
 function LandingPage() {
   const isAuthed = useAuthStore((s) => s.isAuthenticated)
   const { data: schools } = useSchools({ region: 'GYEONGIN', whitelistedOnly: true })
-  const { data: clubs } = useClubs({ status: 'APPROVED' })
+  const { data: myApprovedClubs } = useClubs({ status: 'APPROVED' }, { enabled: isAuthed })
   const { data: events } = useEvents({})
 
   const stats = [
     { label: '등록 학교', value: schools?.length ?? 0, suffix: '곳', emphasis: true as const },
-    { label: '승인 동아리', value: clubs?.length ?? 0, suffix: '개', emphasis: false as const },
+    {
+      label: isAuthed ? '내 동아리 (승인)' : '내 동아리',
+      value: isAuthed ? (myApprovedClubs?.length ?? 0) : '—',
+      suffix: isAuthed ? '개' : '',
+      emphasis: false as const,
+    },
     { label: '행사', value: events?.length ?? 0, suffix: '건', emphasis: false as const },
   ]
 

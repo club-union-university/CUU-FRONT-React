@@ -24,7 +24,10 @@ export interface UpdateClubRequest {
 }
 
 class ClubApi extends BaseApi {
-  /** GET /api/clubs — 서버 선택 쿼리: schoolId, category, status (Spring ClubController 와 동일). */
+  /**
+   * GET /api/clubs — 로그인 사용자가 승인 부원으로 가입한 동아리만.
+   * 선택 쿼리: schoolId, category, status (가입 목록 위 추가 필터).
+   */
   list(q: ClubListQuery = {}) {
     return this.get<Club[]>('', { params: q })
   }

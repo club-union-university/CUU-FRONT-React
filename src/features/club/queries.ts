@@ -9,11 +9,17 @@ export const clubKeys = {
   members: (clubId: number) => [...clubKeys.all, clubId, 'members'] as const,
 }
 
-export function useClubs(q: ClubListQuery = {}) {
+export interface UseClubsOptions {
+  /** false 면 요청 안 함 (비로그인 랜딩 등) */
+  enabled?: boolean
+}
+
+export function useClubs(q: ClubListQuery = {}, opts?: UseClubsOptions) {
   return useQuery({
     queryKey: clubKeys.list(q),
     queryFn: () => clubApi.list(q),
     staleTime: STALE_TIMES.medium,
+    enabled: opts?.enabled ?? true,
   })
 }
 

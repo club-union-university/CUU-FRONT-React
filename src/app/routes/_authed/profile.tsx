@@ -16,14 +16,22 @@ import {
   Textarea,
   toast,
 } from '@/shared/ui'
+import type { UserRole } from '@/shared/api/types'
 import {
   DEFAULT_LOGGED_IN_PATH,
   requireAuth,
   useAuthStore,
   useUpdateMe,
+  useUpdateMyRole,
   userRoleLabel,
 } from '@/features/auth'
 import { formatSchoolDisplayName, useSchool } from '@/features/school'
+
+const SWITCHABLE_ROLES: readonly UserRole[] = ['MEMBER', 'PRESIDENT', 'SUPER_ADMIN']
+
+function showRoleSwitchPanel() {
+  return import.meta.env.DEV || import.meta.env.VITE_ENABLE_ROLE_SWITCH === 'true'
+}
 
 export const Route = createFileRoute('/_authed/profile')({
   beforeLoad: ({ location }) => requireAuth(location.pathname),
@@ -42,6 +50,7 @@ function ProfilePage() {
   const navigate = useNavigate()
   const user = useAuthStore((s) => s.user)
   const update = useUpdateMe()
+  const updateRole = useUpdateMyRole()
   const schoolId = user?.schoolId && user.schoolId > 0 ? user.schoolId : 0
   const schoolQ = useSchool(schoolId)
   const schoolLabel = schoolQ.data?.name ?? formatSchoolDisplayName(user?.schoolId)
@@ -125,6 +134,39 @@ function ProfilePage() {
           </form>
         </CardContent>
       </Card>
+
+      {showRoleSwitchPanel() && (
+        <Card className="mt-6 border-dashed">
+          <CardHeader>
+            <CardTitle className="text-lg">역할 전환 (백엔드 테스트)</CardTitle>
+            <CardDescription>
+              PATCH /api/users/me/role/(MEMBER|PRESIDENT|SUPER_ADMIN). 프로덕션 노출은 Vite 환경변수
+              VITE_ENABLE_ROLE_SWITCH 로만 켜세요.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-2">
+            {SWITCHABLE_ROLES.map((role) => (
+              <Button
+                key={role}
+                type="button"
+                variant={user?.role === role ? 'default' : 'outline'}
+                size="sm"
+                disabled={updateRole.isPending || user?.role === role}
+                onClick={async () => {
+                  try {
+                    await updateRole.mutateAsync(role)
+                    toast.success(`역할: ${userRoleLabel(role)}`)
+                  } catch (e) {
+                    toast.error(e instanceof Error ? e.message : '역할 변경 실패')
+                  }
+                }}
+              >
+                {userRoleLabel(role)}
+              </Button>
+            ))}
+          </CardContent>
+        </Card>
+      )}
     </main>
   )
 }

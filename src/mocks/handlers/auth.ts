@@ -1,7 +1,9 @@
 import { http, HttpResponse, delay } from 'msw'
 import { API } from './_base'
 import { db, userFromAuthHeader } from '../db'
-import type { User } from '@/shared/api/types'
+import type { User, UserRole } from '@/shared/api/types'
+
+const SWITCHABLE_USER_ROLES: readonly UserRole[] = ['SUPER_ADMIN', 'PRESIDENT', 'MEMBER']
 
 function stripBearer(authorization: string | null): string | null {
   if (!authorization) return null
@@ -78,6 +80,20 @@ export const authHandlers = [
     if (!me) return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 })
     const patch = (await request.json()) as Partial<User>
     Object.assign(me, patch, { updatedAt: new Date().toISOString() })
+    return HttpResponse.json(me)
+  }),
+
+  // PATCH /users/me/role/{role}
+  http.patch(API('/users/me/role/:role'), async ({ params, request }) => {
+    await delay(120)
+    const me = userFromXUserIdOrBearer(request)
+    if (!me) return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 })
+    const role = params.role as string
+    if (!SWITCHABLE_USER_ROLES.includes(role as UserRole)) {
+      return HttpResponse.json({ message: 'Invalid role' }, { status: 400 })
+    }
+    me.role = role as UserRole
+    me.updatedAt = new Date().toISOString()
     return HttpResponse.json(me)
   }),
 ]

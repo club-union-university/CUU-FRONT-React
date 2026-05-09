@@ -48,6 +48,7 @@ function NewEventPage() {
   const search = Route.useSearch()
   const user = useAuthStore((s) => s.user)
   const create = useCreateEvent()
+  /** 가입한 동아리만 — 연합 행사 파트너도 내가 부원인 동아리 중에서만 선택 가능 */
   const clubs = useClubs({ status: 'APPROVED' })
 
   const form = useForm<Values>({

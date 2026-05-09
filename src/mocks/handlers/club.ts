@@ -4,14 +4,21 @@ import { db, userFromAuthHeader } from '../db'
 import type { Club, ClubMember } from '@/shared/api/types'
 
 export const clubHandlers = [
-  // GET /clubs
+  // GET /clubs — Spring: 가입(APPROVED 부원) 동아리만 + 선택 필터
   http.get(API('/clubs'), async ({ request }) => {
     await delay(150)
+    const me = userFromAuthHeader(request.headers.get('Authorization'))
+    if (!me) return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 })
     const url = new URL(request.url)
     const schoolId = url.searchParams.get('schoolId')
     const category = url.searchParams.get('category')
     const status = url.searchParams.get('status')
-    let list = [...db.clubs]
+    const joinedIds = new Set(
+      db.clubMembers
+        .filter((m) => m.userId === me.id && m.status === 'APPROVED')
+        .map((m) => m.clubId),
+    )
+    let list = db.clubs.filter((c) => joinedIds.has(c.id))
     if (schoolId) list = list.filter((c) => c.schoolId === Number(schoolId))
     if (category) list = list.filter((c) => c.category === category)
     if (status) list = list.filter((c) => c.status === status)

@@ -45,9 +45,10 @@ function ClubsListPage() {
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
   const user = useAuthStore((s) => s.user)
+  /** 백엔드: 내가 부원인 동아리만. status 미지정이면 승인 여부와 관계없이 전부 */
   const { data: clubs, isLoading } = useClubs({
     category: search.clubCategory,
-    status: search.status ?? 'APPROVED',
+    status: search.status,
     schoolId: search.schoolId,
   })
 
@@ -57,9 +58,10 @@ function ClubsListPage() {
     <main className="container max-w-6xl py-10">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">동아리</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">내 동아리</h1>
           <p className="mt-1 max-w-xl text-sm text-muted-foreground">
-            화이트리스트 학교 기준, 필터된 목록입니다 (GET /api/clubs).
+            서버에서 내가 가입한 동아리만 내려줍니다 (GET /api/clubs). 카테고리·상태 필터는 그 목록 안에서만
+            좁힙니다.
           </p>
         </div>
         <div className="flex gap-2">
@@ -98,6 +100,30 @@ function ClubsListPage() {
             ))}
           </SelectContent>
         </Select>
+        <Select
+          value={search.status ?? 'ALL'}
+          onValueChange={(v) =>
+            navigate({
+              search: (s: z.infer<typeof clubsSearchSchema>) => ({
+                ...s,
+                status:
+                  v === 'ALL' ? undefined : (v as z.infer<typeof clubsSearchSchema>['status']),
+              }),
+            })
+          }
+        >
+          <SelectTrigger className="w-44">
+            <SelectValue placeholder="동아리 상태" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ALL">전체 상태</SelectItem>
+            {Object.entries(CLUB_STATUS_LABELS).map(([k, v]) => (
+              <SelectItem key={k} value={k}>
+                {v.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {isLoading ? (
@@ -106,11 +132,11 @@ function ClubsListPage() {
         <Card>
           <EmptyState
             icon={Building2}
-            title="아직 등록된 동아리가 없습니다"
+            title="가입한 동아리가 없습니다"
             description={
               user?.role === 'PRESIDENT'
-                ? '회장이라면 직접 등록을 시작해 보세요.'
-                : '곧 동아리들이 등록될 예정입니다.'
+                ? '동아리를 새로 등록하거나, 초대 코드로 가입해 보세요.'
+                : '초대 코드로 동아리에 가입하면 여기에 표시됩니다.'
             }
             action={
               user?.role === 'PRESIDENT' && (

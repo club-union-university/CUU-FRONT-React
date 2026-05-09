@@ -1,7 +1,7 @@
 import { BaseApi, apiClient } from '@/shared/api'
 import { SKIP_JWT_AUTH_HEADER } from '@/shared/api/base'
 import { useAuthStore } from './store'
-import type { User, PersonalRole } from '@/shared/api/types'
+import type { User, PersonalRole, UserRole } from '@/shared/api/types'
 
 export interface LoginResponse {
   accessToken: string
@@ -81,6 +81,11 @@ class UserApi extends BaseApi {
 
   updateMe(body: UpdateProfileRequest) {
     return this.patch<User>('/me', body)
+  }
+
+  /** Spring 테스트용 PATCH /users/me/role/{role} */
+  updateMyRole(role: UserRole) {
+    return this.patch<User>(`/me/role/${encodeURIComponent(role)}`, {})
   }
 }
 

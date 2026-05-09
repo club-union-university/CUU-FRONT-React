@@ -46,7 +46,7 @@ function AuthedLayout() {
             <CuuLogo />
           </Link>
           <nav className="flex flex-1 flex-wrap items-center justify-end gap-1.5 text-sm font-medium">
-            <MainNavLink to="/clubs">동아리</MainNavLink>
+            <MainNavLink to="/clubs">내 동아리</MainNavLink>
             <MainNavLink to="/events">행사</MainNavLink>
             <MainNavLink to="/schools">학교</MainNavLink>
             {isSuperAdmin && (
