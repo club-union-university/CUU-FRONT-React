@@ -163,30 +163,43 @@ function MessageBubble({ m, mine }: { m: ChatMessage; mine: boolean }) {
 function MessageComposer({ chatRoomId }: { chatRoomId: number }) {
   const [text, setText] = useState('')
   const send = useSendChatMessage(chatRoomId)
+  const sendingRef = useRef(false)
 
-  const handleSend = async () => {
-    if (!text.trim()) return
+  /**
+   * Form 패턴 + ref 가드.
+   * - Enter on Input → form.onSubmit (브라우저 기본 동작)
+   * - Button type="submit" 클릭 → form.onSubmit
+   *   둘 다 한 경로로 모이고 Button onClick 별도 핸들러 없음 → 이벤트 중복 사라짐
+   * - sendingRef로 mutateAsync 진행 중에 재진입 방지 (StrictMode 안전망)
+   */
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (sendingRef.current) return
+    const value = text.trim()
+    if (!value) return
+    sendingRef.current = true
     try {
-      await send.mutateAsync(text.trim())
+      await send.mutateAsync(value)
       setText('')
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : '전송 실패')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : '전송 실패')
+    } finally {
+      sendingRef.current = false
     }
   }
 
   return (
-    <div className="flex gap-2 border-t p-3">
+    <form onSubmit={handleSubmit} className="flex gap-2 border-t p-3">
       <Input
         placeholder="메시지 입력 후 Enter"
         value={text}
         onChange={(e) => setText(e.target.value)}
-        onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
         disabled={send.isPending}
       />
-      <Button onClick={handleSend} disabled={send.isPending || !text.trim()}>
+      <Button type="submit" disabled={send.isPending || !text.trim()}>
         <Send className="mr-1 h-4 w-4" /> 전송
       </Button>
-    </div>
+    </form>
   )
 }
 
