@@ -3,10 +3,26 @@
 import { registerBones } from 'boneyard-js'
 import { configureBoneyard } from 'boneyard-js/react'
 
+import _admin_pending_clubs from './admin-pending-clubs.bones.json'
+import _club_detail from './club-detail.bones.json'
 import _clubs_list from './clubs-list.bones.json'
+import _event_detail from './event-detail.bones.json'
+import _events_list from './events-list.bones.json'
+import _postboard_club from './postboard-club.bones.json'
+import _postboard_event from './postboard-event.bones.json'
+import _postboard_school from './postboard-school.bones.json'
+import _schools_list from './schools-list.bones.json'
 
 configureBoneyard({"animate":"shimmer","speed":"1.5s","stagger":60,"transition":200})
 
 registerBones({
+  "admin-pending-clubs": _admin_pending_clubs,
+  "club-detail": _club_detail,
   "clubs-list": _clubs_list,
+  "event-detail": _event_detail,
+  "events-list": _events_list,
+  "postboard-club": _postboard_club,
+  "postboard-event": _postboard_event,
+  "postboard-school": _postboard_school,
+  "schools-list": _schools_list,
 })

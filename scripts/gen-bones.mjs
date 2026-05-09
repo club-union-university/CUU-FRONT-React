@@ -13,30 +13,34 @@
 import { spawnSync } from 'node:child_process'
 
 const BASE = process.env.BONEYARD_BASE ?? 'http://localhost:5173'
-const AUTH = 'boneAuth=super_admin'
 
 /**
- * 캡처할 라우트 목록.
- * 각 항목은 dev 서버에서 mock 데이터로 정상 렌더되는 URL이어야 함.
+ * 캡처할 라우트 목록 + 사용할 mock role.
  * mock DB 시드 기준으로 club id 1, event id 1, school id 1 모두 존재.
+ *
+ * 대부분 super_admin이면 충분하지만 일부 화면은 role-aware 분기가 있어
+ * 그 화면이 마운트되는 시점의 role을 명시한다.
+ *  - /events/1 의 ParticipantsSection 은 호스트 회장에게만 보이므로
+ *    PRESIDENT(id=101, club 1 회장)로 캡처 → participants-list bones 확보
  */
 const ROUTES = [
-  '/clubs',
-  '/clubs/1',
-  '/clubs/1/board',
-  '/events',
-  '/events/1',
-  '/events/1/board',
-  '/schools',
-  '/schools/1/board',
-  '/admin/clubs',
+  ['/clubs', 'super_admin'],
+  ['/clubs/1', 'super_admin'],
+  ['/clubs/1/board', 'super_admin'],
+  ['/events', 'super_admin'],
+  ['/events/1', 'super_admin'],
+  ['/events/1', 'president'], // 호스트 회장 시점 → participants-list 캡처
+  ['/events/1/board', 'super_admin'],
+  ['/schools', 'super_admin'],
+  ['/schools/1/board', 'super_admin'],
+  ['/admin/clubs', 'super_admin'],
 ]
 
 let ok = 0
 let fail = 0
-for (const path of ROUTES) {
-  const url = `${BASE}${path}${path.includes('?') ? '&' : '?'}${AUTH}`
-  console.log(`\n→ ${path}`)
+for (const [path, role] of ROUTES) {
+  const url = `${BASE}${path}${path.includes('?') ? '&' : '?'}boneAuth=${role}`
+  console.log(`\n→ [${role}] ${path}`)
   const res = spawnSync('npx', ['boneyard-js', 'build', url], { stdio: 'inherit' })
   if (res.status === 0) ok++
   else fail++
