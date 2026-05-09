@@ -12,7 +12,7 @@ export const Route = createFileRoute('/_authed/admin')({
 function AdminLayout() {
   return (
     <div className="h-[calc(100vh-56px)]">
-      <ResizablePanelGroup orientation="horizontal">
+      <ResizablePanelGroup direction="horizontal">
         <ResizablePanel
           defaultSize={20}
           minSize={14}
