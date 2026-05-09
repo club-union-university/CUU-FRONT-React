@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { Skeleton } from 'boneyard-js/react'
 import { useState } from 'react'
 import {
   Badge,
@@ -67,17 +68,16 @@ function AdminClubsPage() {
         </p>
       </div>
 
-      {pending.isLoading ? (
-        <p className="text-sm text-muted-foreground">불러오는 중…</p>
-      ) : !pending.data?.length ? (
-        <Card>
-          <CardContent className="py-12 text-center text-sm text-muted-foreground">
-            대기 중인 신청이 없습니다.
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-4">
-          {pending.data.map((club) => (
+      <Skeleton name="admin-pending-clubs" loading={pending.isLoading}>
+        {!pending.data?.length ? (
+          <Card>
+            <CardContent className="py-12 text-center text-sm text-muted-foreground">
+              대기 중인 신청이 없습니다.
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-4">
+            {pending.data.map((club) => (
             <Card key={club.id}>
               <CardHeader>
                 <div className="flex items-center justify-between gap-3">
@@ -119,9 +119,10 @@ function AdminClubsPage() {
                 </div>
               </CardContent>
             </Card>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </Skeleton>
 
       <Dialog open={!!rejecting} onOpenChange={(open) => !open && setRejecting(null)}>
         <DialogContent>

@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { Skeleton } from 'boneyard-js/react'
 import { Building2, GraduationCap, Megaphone, Check, X } from 'lucide-react'
 import {
   Badge,
@@ -19,7 +20,7 @@ import {
 } from '@/features/event'
 import { useClub } from '@/features/club'
 import { useAuthStore } from '@/features/auth'
-import type { EventStatus, ParticipantStatus } from '@/shared/api/types'
+import type { Event, EventStatus, ParticipantStatus } from '@/shared/api/types'
 
 export const Route = createFileRoute('/_authed/events/$eventId/')({
   component: EventDetailPage,
@@ -38,13 +39,25 @@ function EventDetailPage() {
   const { eventId } = Route.useParams()
   const id = Number(eventId)
   const { data: event, isLoading } = useEvent(id)
-  const host = useClub(event?.hostClubId ?? 0)
-  const partner = useClub(event?.partnerClubId ?? 0)
-  const user = useAuthStore((s) => s.user)
 
-  if (isLoading || !event) {
-    return <p className="container py-10 text-sm text-muted-foreground">불러오는 중…</p>
-  }
+  return (
+    <Skeleton name="event-detail" loading={isLoading}>
+      {!event ? (
+        <main className="container py-10">
+          <p className="text-sm text-muted-foreground">행사를 찾을 수 없습니다.</p>
+        </main>
+      ) : (
+        <EventDetailContent event={event} eventId={eventId} />
+      )}
+    </Skeleton>
+  )
+}
+
+function EventDetailContent({ event, eventId }: { event: Event; eventId: string }) {
+  const id = Number(eventId)
+  const host = useClub(event.hostClubId ?? 0)
+  const partner = useClub(event.partnerClubId ?? 0)
+  const user = useAuthStore((s) => s.user)
 
   const isInter = event.type === 'INTER_CLUB'
   const isHostPresident =
@@ -57,9 +70,7 @@ function EventDetailPage() {
         <div>
           <div className="flex items-center gap-2">
             <Badge variant="secondary">{isInter ? '연합 행사' : '교내 행사'}</Badge>
-            {event.status && (
-              <Badge variant={statusVariant[event.status]}>{event.status}</Badge>
-            )}
+            {event.status && <Badge variant={statusVariant[event.status]}>{event.status}</Badge>}
             {event.category && <Badge variant="outline">{event.category}</Badge>}
           </div>
           <h1 className="mt-2 text-3xl font-bold tracking-tight">{event.title}</h1>
@@ -72,9 +83,7 @@ function EventDetailPage() {
               </Link>
             </Button>
           )}
-          {!isHostPresident && event.status === 'RECRUITING' && (
-            <ApplyButton eventId={id} />
-          )}
+          {!isHostPresident && event.status === 'RECRUITING' && <ApplyButton eventId={id} />}
         </div>
       </header>
 
@@ -211,55 +220,57 @@ function ParticipantsSection({ eventId }: { eventId: number }) {
         <CardDescription>호스트 회장만 볼 수 있습니다.</CardDescription>
       </CardHeader>
       <CardContent>
-        {isLoading ? (
-          <p className="text-sm text-muted-foreground">불러오는 중…</p>
-        ) : !participants?.length ? (
-          <p className="py-4 text-center text-sm text-muted-foreground">아직 신청자가 없습니다.</p>
-        ) : (
-          <ul className="divide-y">
-            {participants.map((p) => (
-              <li key={p.id} className="flex items-center justify-between gap-3 py-3">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-xs font-medium">
-                    {String(p.userId).slice(-2)}
+        <Skeleton name="participants-list" loading={isLoading}>
+          {!participants?.length ? (
+            <p className="py-4 text-center text-sm text-muted-foreground">
+              아직 신청자가 없습니다.
+            </p>
+          ) : (
+            <ul className="divide-y">
+              {participants.map((p) => (
+                <li key={p.id} className="flex items-center justify-between gap-3 py-3">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-xs font-medium">
+                      {String(p.userId).slice(-2)}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">사용자 #{p.userId}</p>
+                      <p className="text-xs text-muted-foreground">
+                        신청 {p.appliedAt?.slice(0, 10) ?? '-'}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium">사용자 #{p.userId}</p>
-                    <p className="text-xs text-muted-foreground">
-                      신청 {p.appliedAt?.slice(0, 10) ?? '-'}
-                    </p>
+                  <div className="flex items-center gap-2">
+                    {p.status && (
+                      <Badge variant={participantStatusLabel[p.status].variant}>
+                        {participantStatusLabel[p.status].label}
+                      </Badge>
+                    )}
+                    {p.status === 'PENDING' && (
+                      <>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleReject(p.id!)}
+                          disabled={reject.isPending}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => handleApprove(p.id!)}
+                          disabled={approve.isPending}
+                        >
+                          <Check className="h-4 w-4" />
+                        </Button>
+                      </>
+                    )}
                   </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  {p.status && (
-                    <Badge variant={participantStatusLabel[p.status].variant}>
-                      {participantStatusLabel[p.status].label}
-                    </Badge>
-                  )}
-                  {p.status === 'PENDING' && (
-                    <>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleReject(p.id!)}
-                        disabled={reject.isPending}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={() => handleApprove(p.id!)}
-                        disabled={approve.isPending}
-                      >
-                        <Check className="h-4 w-4" />
-                      </Button>
-                    </>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </Skeleton>
       </CardContent>
     </Card>
   )

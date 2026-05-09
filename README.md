@@ -100,6 +100,8 @@ pnpm build          # tsc 빌드 + vite 빌드
 pnpm preview        # 빌드 결과 미리보기
 pnpm typecheck      # tsc -b --noEmit
 pnpm openapi:gen    # crew-openapi.yaml → schema.gen.ts 재생성
+pnpm bones:gen      # 실제 DOM에서 skeleton bones 캡처 (dev 서버 필요)
+pnpm bones:watch    # HMR과 함께 bones 자동 재캡처
 ```
 
 ## OpenAPI 동기화
@@ -111,6 +113,28 @@ pnpm openapi:gen
 ```
 
 `schema.gen.ts`는 자동 생성이므로 직접 수정 금지. 필요하면 `src/shared/api/types.ts`에 alias만 추가/조정.
+
+## Skeleton 로딩 (Boneyard)
+
+로딩 자리는 `<Skeleton name="..." loading={isLoading}>...</Skeleton>` 으로 감싼다. 실제 렌더된 DOM을 캡처해 정확히 일치하는 회색 블록(bones)을 표시 — 텍스트 "불러오는 중…" 보다 시각적 안정감이 좋고 layout shift 없음.
+
+### 생성 방법
+
+1. dev 서버 실행: `pnpm dev`
+2. 다른 터미널에서: `pnpm bones:gen`
+   - 헤드리스 브라우저가 `?boneAuth=super_admin` 으로 자동 로그인 → 모든 라우트에서 `<Skeleton>` 발견 → 데이터 로드된 DOM의 위치/크기 캡처 → `src/bones/*.bones.json` 생성
+   - 함께 `src/bones/registry.ts` 도 자동 갱신
+3. `main.tsx` 에서 이미 `import './bones/registry'` 함 → bones 자동 로드
+
+### auto-auth 메커니즘
+
+- `_authed` 가드는 비로그인 시 `/login` 으로 리다이렉트하므로 캡처 불가
+- `main.tsx` 에서 `?boneAuth=role` URL 파라미터 감지 시 즉시 mock 인증 주입 (dev 모드 한정)
+- `super_admin` 으로 캡처하면 admin / president / member 화면 모두 통과
+
+### 빈 bones 상태
+
+CLI를 실행하기 전이거나 등록 안된 `name` 일 때 Skeleton은 자체 fallback (회색 블록) 표시. `src/bones/registry.ts` 는 빈 stub 으로 시작 (CLI가 덮어씀).
 
 ## 다음 작업 (P0 후보)
 

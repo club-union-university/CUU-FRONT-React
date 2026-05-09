@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { Skeleton } from 'boneyard-js/react'
 import { z } from 'zod'
 import { Plus } from 'lucide-react'
 import {
@@ -78,17 +79,16 @@ function EventsListPage() {
         </Select>
       </div>
 
-      {isLoading ? (
-        <p className="text-sm text-muted-foreground">불러오는 중…</p>
-      ) : !events?.length ? (
-        <Card>
-          <CardContent className="py-12 text-center text-sm text-muted-foreground">
-            아직 등록된 행사가 없습니다.
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2">
-          {events.map((ev) => (
+      <Skeleton name="events-list" loading={isLoading}>
+        {!events?.length ? (
+          <Card>
+            <CardContent className="py-12 text-center text-sm text-muted-foreground">
+              아직 등록된 행사가 없습니다.
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2">
+            {events.map((ev) => (
             <Link
               key={ev.id}
               to="/events/$eventId"
@@ -117,9 +117,10 @@ function EventsListPage() {
                 </CardContent>
               </Card>
             </Link>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </Skeleton>
     </main>
   )
 }

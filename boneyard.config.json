@@ -1,0 +1,10 @@
+{
+  "$schema": "https://boneyard.vercel.app/schema.json",
+  "out": "./src/bones",
+  "breakpoints": [375, 768, 1280],
+  "wait": 1500,
+  "animate": "shimmer",
+  "speed": "1.5s",
+  "transition": 200,
+  "stagger": 60
+}

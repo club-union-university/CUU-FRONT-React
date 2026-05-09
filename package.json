@@ -11,7 +11,9 @@
     "lint": "eslint .",
     "typecheck": "tsc -b --noEmit",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
-    "openapi:gen": "openapi-typescript ../../Downloads/crew-openapi.yaml -o src/shared/api/schema.gen.ts"
+    "openapi:gen": "openapi-typescript ../../Downloads/crew-openapi.yaml -o src/shared/api/schema.gen.ts",
+    "bones:gen": "boneyard-js build \"http://localhost:5173/?boneAuth=super_admin\"",
+    "bones:watch": "boneyard-js build \"http://localhost:5173/?boneAuth=super_admin\" --watch"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -25,6 +27,7 @@
     "@tanstack/react-query-devtools": "^5.62.0",
     "@tanstack/react-router": "^1.95.0",
     "axios": "^1.7.9",
+    "boneyard-js": "^1.8.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.469.0",

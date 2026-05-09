@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { Skeleton } from 'boneyard-js/react'
 import { z } from 'zod'
 import { Plus, KeyRound } from 'lucide-react'
 import { useState } from 'react'
@@ -113,17 +114,16 @@ function ClubsListPage() {
         </Select>
       </div>
 
-      {isLoading ? (
-        <p className="text-sm text-muted-foreground">불러오는 중…</p>
-      ) : !clubs?.length ? (
-        <Card>
-          <CardContent className="py-12 text-center text-sm text-muted-foreground">
-            아직 등록된 동아리가 없습니다.
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {clubs.map((club) => (
+      <Skeleton name="clubs-list" loading={isLoading}>
+        {!clubs?.length ? (
+          <Card>
+            <CardContent className="py-12 text-center text-sm text-muted-foreground">
+              아직 등록된 동아리가 없습니다.
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {clubs.map((club) => (
             <Link
               key={club.id}
               to="/clubs/$clubId"
@@ -152,8 +152,9 @@ function ClubsListPage() {
               </Card>
             </Link>
           ))}
-        </div>
-      )}
+          </div>
+        )}
+      </Skeleton>
     </main>
   )
 }

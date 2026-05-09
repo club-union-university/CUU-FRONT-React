@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { Skeleton } from 'boneyard-js/react'
 import { GraduationCap } from 'lucide-react'
 import {
   Badge,
@@ -26,17 +27,16 @@ function SchoolsListPage() {
         </p>
       </header>
 
-      {isLoading ? (
-        <p className="text-sm text-muted-foreground">불러오는 중…</p>
-      ) : !schools?.length ? (
-        <Card>
-          <CardContent className="py-12 text-center text-sm text-muted-foreground">
-            등록된 학교가 없습니다.
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {schools.map((s) => (
+      <Skeleton name="schools-list" loading={isLoading}>
+        {!schools?.length ? (
+          <Card>
+            <CardContent className="py-12 text-center text-sm text-muted-foreground">
+              등록된 학교가 없습니다.
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {schools.map((s) => (
             <Link
               key={s.id}
               to="/schools/$schoolId/board"
@@ -57,9 +57,10 @@ function SchoolsListPage() {
                 </CardContent>
               </Card>
             </Link>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </Skeleton>
     </main>
   )
 }
