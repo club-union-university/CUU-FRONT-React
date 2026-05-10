@@ -6,18 +6,18 @@ npm 패키지명: **`aingthon`**.
 
 ## 스택
 
-| 영역            | 선택                                              | 비고                                                       |
-| --------------- | ------------------------------------------------- | ---------------------------------------------------------- |
-| 빌드            | Vite 6                                            | SPA                                                        |
-| 언어            | TypeScript 5.7 + React 19                         | strict                                                     |
-| 라우팅          | TanStack Router (파일 기반 + 코드 스플릿)         | `src/app/routes/`, `routeTree.gen.ts` 자동 생성            |
-| 서버 상태       | TanStack Query v5                                 | 도메인별 `eventKeys` 등 query key factory                  |
-| 클라이언트 상태 | Zustand v5 + persist                              | `features/auth` 등                                         |
-| 폼              | react-hook-form + zod                             |                                                            |
+| 영역            | 선택                                                  | 비고                                                       |
+| --------------- | ----------------------------------------------------- | ---------------------------------------------------------- |
+| 빌드            | Vite 6                                                | SPA                                                        |
+| 언어            | TypeScript 5.7 + React 19                             | strict                                                     |
+| 라우팅          | TanStack Router (파일 기반 + 코드 스플릿)             | `src/app/routes/`, `routeTree.gen.ts` 자동 생성            |
+| 서버 상태       | TanStack Query v5                                     | 도메인별 `eventKeys` 등 query key factory                  |
+| 클라이언트 상태 | Zustand v5 + persist (`cuu.auth`)                     | `features/auth` · 로그아웃 시 스냅샷 삭제                  |
+| 폼              | react-hook-form + zod                                 |                                                            |
 | 스타일          | Tailwind CSS 3 + CSS 변수(`globals.css`) + shadcn식 | `tailwind.config.ts`에서 토큰 확장                         |
-| HTTP            | axios + `BaseApi`                                 | `src/shared/api/base.ts`                                   |
-| API 타입        | openapi-typescript                                | OpenAPI YAML → `src/shared/api/schema.gen.ts` (수동 수정 금지) |
-| 로컬 API 목업   | MSW v2                                            | `VITE_USE_MOCKS` 로 켜고 끔                               |
+| HTTP            | axios + `BaseApi`                                     | `src/shared/api/base.ts`                                   |
+| API 타입        | openapi-typescript                                    | OpenAPI YAML → `src/shared/api/schema.gen.ts` (수동 수정 금지) |
+| 로컬 API 목업   | MSW v2                                                | `VITE_USE_MOCKS` 로 켜고 끔 (채팅 핸들러 없음)              |
 
 ## 시작
 
@@ -35,24 +35,32 @@ pnpm dev
 
 `.env.example`을 복사해 사용합니다. 주요 항목:
 
-| 변수                     | 설명                                                                 |
-| ------------------------ | -------------------------------------------------------------------- |
-| `VITE_USE_MOCKS`         | `true`(기본): MSW로 `/api` 모킹. 실백엔드만 쓸 때 **`false`** 로 끔 |
-| `VITE_API_BASE_URL`      | axios baseURL. 보통 `/api`. 원격 백엔드면 절대 URL + `/api` 까지    |
-| `VITE_FIREBASE_*`        | Firebase Auth (미설정 시 mock 로그인 흐름)                           |
-| `VITE_ENABLE_ROLE_SWITCH`| 프로필에서 역할 전환(개발용). 운영에서는 끄는 것을 권장              |
+| 변수                       | 설명                                                                 |
+| -------------------------- | -------------------------------------------------------------------- |
+| `VITE_USE_MOCKS`           | `true`(기본): MSW로 `/api` 모킹. 실백엔드만 쓸 때 **`false`** 로 끔 |
+| `VITE_API_BASE_URL`        | axios baseURL. 보통 `/api`. 원격 백엔드면 절대 URL + `/api` 까지   |
+| `VITE_FIREBASE_*`          | Firebase Auth (미설정 시 mock 로그인 흐름)                         |
+| `VITE_ENABLE_ROLE_SWITCH`  | **`true`** 로 빌드하면 프로필에 역할 전환 UI 노출(운영은 신중히)    |
+
+`VITE_ENABLE_ROLE_SWITCH`는 Vite 빌드 타임에 박히므로, 배포 환경 변수 변경 후 **재빌드**가 필요합니다.
+
+## 인증·역할
+
+- **로그아웃**: Zustand `clear()` 후 **`localStorage`에서 `cuu.auth` 제거**. Firebase가 설정된 경우 **`signOut`** 도 호출해 Google 세션을 끕니다. HTTP **401** 시에도 동일하게 persisted 스냅샷을 지웁니다.
+- **기본 진입 경로**: 일반 사용자는 `/clubs`, **`SUPER_ADMIN`** 은 **`/admin/clubs`** (`defaultLoggedInPathForUser` · `paths.ts`).
+- **슈퍼관리자 라우팅**: `_authed` 아래에서는 **`/admin/*`, `/signup`, `/profile`** 만 허용하고, 랜딩 **`/`** 접근 시 관리자 홈으로 보냅니다. 헤더에는 **관리자** 링크만 노출됩니다.
 
 ## MSW (Mock Service Worker)
 
 - 엔트리: `src/main.tsx` — `VITE_USE_MOCKS !== 'false'` 이면 `src/mocks/browser.ts` 워커 기동.
-- 핸들러: `src/mocks/handlers/` — 행사 AI Step1/Step2, PATCH 후 `step1Data` 등 인메모리 DB와 맞춰 둠.
+- 핸들러: `src/mocks/handlers/` — 행사·동아리·게시글 등 (채팅 엔드포인트 목업은 제거됨).
 - 프로덕션(Vercel 등)에서 실 API를 쓰려면 **`VITE_USE_MOCKS=false`** 와 올바른 **`VITE_API_BASE_URL`** 을 설정합니다.
 
 ## 행사 AI 위저드 (요약)
 
 - 경로: 로그인 후 **`/events/:eventId/wizard`** (Step 1 기본 정보 → Step 2 게시판/장소 → Step 3 승인).
-- Step 1 `POST /events/:id/ai/step1` 성공 시 서버(또는 MSW)가 `step1Data`를 갱신합니다. 프론트는 **`useEventAiStep1` 성공 후 상세 쿼리 캐시를 병합·무효화**해 Step 2에서 `event.step1Data`를 쓸 수 있게 맞춰 두었습니다.
-- Step 2는 `step1Result`(서버 계약상 `event.step1Data`)와 학교·시설 페이로드를 `POST /events/:id/ai/step2`에 넘깁니다.
+- Step 1 성공 후 **`useEventAiStep1`** 가 상세 쿼리에 `step1Data`를 병합·무효화해 Step 2가 비지 않도록 함.
+- Step 2 **적용** 시 Spring 응답의 `recommendedPlaces` / 기존 `locationName` 등을 **`step2AiResultToUpdatePatch`** 로 묶어 **`PATCH /events/:id`** 에 반영.
 
 ## 디렉토리 (FSD-lite)
 
@@ -62,19 +70,22 @@ src/
     providers.tsx          QueryClient, Router, 기타 프로바이더
     routes/                TanStack Router 파일 기반 라우트
       __root.tsx
-      index.tsx             랜딩
+      index.tsx             랜딩 (슈퍼관리자는 리다이렉트)
       login.tsx, signup.tsx
       _authed/
-        route.tsx           인증 레이아웃·가드
+        route.tsx           인증 레이아웃·가드·헤더 네비
         clubs/, events/, schools/, profile, admin/ …
   shared/
     api/                    BaseApi, client, schema.gen.ts, types
     config/env.ts           import.meta.env 정규화
     ui/                     공통 UI 프리미티브
-  features/                 도메인별 api.ts · queries.ts · index.ts
+  features/                 도메인별 api.ts · queries.ts · index.ts (chat 미사용)
   mocks/                    MSW 브라우저·핸들러·시드 DB
   styles/globals.css        디자인 토큰(HSL CSS 변수)
   routeTree.gen.ts          라우트 플러그인 자동 생성 (직접 수정 지양)
+public/
+  favicon.svg               탭 아이콘 (CUU 마크)
+  brand/                    로고 SVG·GitHub 프로필용 PNG 등
 ```
 
 ### BaseApi 패턴
@@ -87,7 +98,18 @@ src/
 
 ## 디자인 토큰
 
-`src/styles/globals.css`의 `:root` / `.dark`에 **HSL CSS 변수**로 surface·brand·타이포를 정의하고, `tailwind.config.ts`의 `extend.colors`로 매핑합니다. 브랜드 프라이머리는 Indigo `#4F46E5` 계열입니다.
+`src/styles/globals.css`의 `:root` / `.dark`에 **HSL CSS 변수**로 surface·brand·타이포를 정의하고, `tailwind.config.ts`의 `extend.colors`로 매핑합니다. 브랜드 프라이머리는 Indigo **`#4F46E5`** 계열입니다.
+
+## 브랜딩·파비콘
+
+- **`public/favicon.svg`**: 탭 아이콘 (`index.html` 연결).
+- **`public/brand/`**: `cuu-logo-mark.svg`, GitHub 프로필용 **`cuu-github-profile.png`** (512×512), 투명 배경 **`cuu-mark-512-transparent.png`**, `cuu-apple-touch.png` 등.
+- SVG만 수정한 뒤 PNG를 다시 뽑을 때는 로컬에 **`rsvg-convert`** 가 있으면 예:
+
+```bash
+rsvg-convert -w 512 -h 512 public/brand/cuu-github-avatar.svg -o public/brand/cuu-github-profile.png
+rsvg-convert -w 180 -h 180 public/brand/cuu-github-avatar.svg -o public/brand/cuu-apple-touch.png
+```
 
 ## 스크립트
 
@@ -128,7 +150,8 @@ pnpm openapi:gen
 
 - 학교 인증·화이트리스트 가드 강화
 - Firebase Auth 운영 연동·mock 로그인 정리
-- 행사 게시판 실시간(STOMP/SSE 등) 다듬기
+- 행사 생성 시 주최 동아리 게시판 자동 글 등 백엔드와 맞춘 노출 파이프라인
+- 행사 게시판 실시간(STOMP/SSE 등)
 - E2E·스토리북(선택)
 
 ---
